@@ -101,9 +101,9 @@
 ./main_cpp.so: /home/vlad/Soft/root/builddir/include/TBranchCacheInfo.h
 ./main_cpp.so: /home/vlad/Soft/root/builddir/include/TBits.h
 ./main_cpp.so: /home/vlad/Soft/root/builddir/include/TVirtualTreePlayer.h
+./main_cpp.so: /home/vlad/Soft/root/builddir/include/TROOT.h
 ./main_cpp.so: /usr/local/include/red-daq/EvRec0.hh
 ./main_cpp.so: /usr/local/include/red-daq/EvHeader.hh
-./main_cpp.so: /home/vlad/Soft/root/builddir/include/TROOT.h
 ./main_cpp.so: /usr/local/include/red-daq/RDCluster.hh
 ./main_cpp.so: /usr/local/include/red-daq/RDCluster.hh
 ./main_cpp.so: /usr/local/include/red-daq/RDconfig.h
