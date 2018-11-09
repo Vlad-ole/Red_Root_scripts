@@ -1,0 +1,109 @@
+/home/vlad/Soft/Red_Soft/red-daq-light/src/Level1/run_393.root
+Warning in <TClass::Init>: no dictionary for class EvRaw0 is available
+Warning in <TClass::Init>: no dictionary for class EvHeader is available
+Warning in <TClass::Init>: no dictionary for class EvRec0 is available
+Warning in <TClass::Init>: no dictionary for class RunHeader is available
+Warning in <TClass::Init>: no dictionary for class RDCluster is available
+all is ok
+
+
+
+
+
+
+/home/vlad/Soft/Root_scripts/build-Script_1-Desktop_Qt_5_11_2_GCC_64bit-Release/Script_1: error while loading shared libraries: liblevelone.so.0: cannot open shared object file: No such file or directory
+Press <RETURN> to close this window...
+
+
+
+
+
+Warning in <TClassTable::Add>: class RDCluster already in TClassTable
+Warning in <TClassTable::Add>: class EvHeader already in TClassTable
+Warning in <TClassTable::Add>: class EvRec0 already in TClassTable
+Warning in <TClassTable::Add>: class EvRaw0 already in TClassTable
+Warning in <TClassTable::Add>: class RunHeader already in TClassTable
+Warning in <TClassTable::Add>: class EvHeader already in TClassTable
+Warning in <TClassTable::Add>: class EvRaw0 already in TClassTable
+Warning in <TClassTable::Add>: class RDCluster already in TClassTable
+Warning in <TClassTable::Add>: class RunHeader already in TClassTable
+Warning in <TClassTable::Add>: class EvRec0 already in TClassTable
+Error in <TCling::RegisterModule>: cannot find dictionary module Dict_rdict.pcm
+Error in <TCling::RegisterModule>: cannot find dictionary module Dict_rdict.pcm
+You are in program.
+Error in <TInterpreter::AutoParse>: Error parsing payload code for class EvRec0 with content:
+
+#line 1 "Dict dictionary payload"
+
+#ifndef G__VECTOR_HAS_CLASS_ITERATOR
+  #define G__VECTOR_HAS_CLASS_ITERATOR 1
+#endif
+
+#define _BACKWARD_BACKWARD_WARNING_H
+#include "EvRaw0.hh"
+#include "EvHeader.hh"
+#include "RDCluster.hh"
+#include "RunHeader.hh"
+#include "EvRec0.hh"
+
+#undef  _BACKWARD_BACKWARD_WARNING_H
+
+===========================================================================
+class EvRec0
+SIZE: 16 FILE: EvRec0.hh LINE: 32
+Base classes: --------------------------------------------------------
+0x0        public TObject
+List of member variables --------------------------------------------------
+List of member functions :---------------------------------------------------
+filename     line:size busy function type and name
+all is ok
+Press <RETURN> to close this window...
+
+
+
+
+
+
+Warning in <TClassTable::Add>: class RDCluster already in TClassTable
+Warning in <TClassTable::Add>: class EvHeader already in TClassTable
+Warning in <TClassTable::Add>: class EvRec0 already in TClassTable
+Warning in <TClassTable::Add>: class EvRaw0 already in TClassTable
+Warning in <TClassTable::Add>: class RunHeader already in TClassTable
+Warning in <TClassTable::Add>: class EvHeader already in TClassTable
+Warning in <TClassTable::Add>: class EvRaw0 already in TClassTable
+Warning in <TClassTable::Add>: class RDCluster already in TClassTable
+Warning in <TClassTable::Add>: class RunHeader already in TClassTable
+Warning in <TClassTable::Add>: class EvRec0 already in TClassTable
+You are in program.
+Error in <TInterpreter::AutoParse>: Error parsing payload code for class EvRec0 with content:
+
+#line 1 "Dict dictionary payload"
+
+#ifndef G__VECTOR_HAS_CLASS_ITERATOR
+  #define G__VECTOR_HAS_CLASS_ITERATOR 1
+#endif
+
+#define _BACKWARD_BACKWARD_WARNING_H
+#include "EvRaw0.hh"
+#include "EvHeader.hh"
+#include "RDCluster.hh"
+#include "RunHeader.hh"
+#include "EvRec0.hh"
+
+#undef  _BACKWARD_BACKWARD_WARNING_H
+
+===========================================================================
+class EvRec0
+SIZE: 16 FILE: EvRec0.hh LINE: 32
+Base classes: --------------------------------------------------------
+0x0        public TObject
+List of member variables --------------------------------------------------
+List of member functions :---------------------------------------------------
+filename     line:size busy function type and name
+all is ok
+Press <RETURN> to close this window...
+
+
+
+
+

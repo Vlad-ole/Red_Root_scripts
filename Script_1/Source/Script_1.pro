@@ -15,7 +15,9 @@ CONFIG -= app_bundle
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+    script.cpp \
+    Dict.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 
@@ -23,6 +25,7 @@ INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 #LIBS += -L/usr/local/lib -lmath
 #-lCore
 
+#root cern libs
 LIBS += -L/home/vlad/Soft/root/builddir/lib  \
 -lCore \
 -lASImageGui \
@@ -129,8 +132,26 @@ LIBS += -L/home/vlad/Soft/root/builddir/lib  \
 -lXMLIO \
 -lXMLParser
 
+#Red libs
+LIBS += -L/usr/local/lib  \
+-llevelone \
+-lmodules \
+-lpadmeroot
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+HEADERS += \
+    Linkdef.h
+
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
+
+#unix:!macx: LIBS += -L$$PWD/../../../../../../usr/local/lib/ -llevelone
+
+#INCLUDEPATH += $$PWD/../../../../../../usr/local/include
+#DEPENDPATH += $$PWD/../../../../../../usr/local/include
+#DEPENDS += "/home/peter/Workspace/build-Libtester-Desktop-Release/"
