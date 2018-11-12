@@ -18,6 +18,7 @@
 #include "TString.h"
 #include "TPaveStats.h"
 
+
 //Red
 #include "red-daq/EvRec0.hh"
 #include "red-daq/RDCluster.hh"
@@ -32,6 +33,7 @@ int main(/*int argc, char *argv[]*/)
 {
     //start code
     std::cout << "You are in program." << std::endl;
+
     //TApplication* app = new TApplication("App",0,0);
 
 
@@ -134,7 +136,6 @@ int main(/*int argc, char *argv[]*/)
     c1->Modified(); c1->Update();
     //gPad->Update();
     //h2->SetStats(1);
-
 
 
 
