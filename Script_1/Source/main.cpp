@@ -17,6 +17,7 @@
 #include "TROOT.h"
 #include "TString.h"
 #include "TPaveStats.h"
+#include "TBox.h"
 
 
 //Red
@@ -34,9 +35,6 @@ int main(/*int argc, char *argv[]*/)
     //start code
     std::cout << "You are in program." << std::endl;
 
-    //TApplication* app = new TApplication("App",0,0);
-
-
     //test code
     //    TH1F *hist = new TH1F("test hist", "title", 1000, 0, 10);
     //    hist->FillRandom("gaus", 5000);
@@ -45,11 +43,8 @@ int main(/*int argc, char *argv[]*/)
 
     //main code
     ostringstream path_root_file;
-    //string path_root_file = "/home/vlad/Soft/Red_Soft/red-daq-light/src/Level1/";
-    //string path_root_file = "/media/vlad/Data/DS-data/reco/rm3reco/lns/camp_V/v3/";
-    int run_number = 532;
+    int run_number = /*532*/ 534;
     path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/lns/camp_V/v3/" << "run_" << run_number << ".root";
-    //path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/lns/camp_V/v3_vlad/" << "run_" << 537 << ".root";
     TString filename = path_root_file.str().c_str();
 
     TFile *f = new TFile(filename, "read");
@@ -66,25 +61,6 @@ int main(/*int argc, char *argv[]*/)
     TTree *data = (TTree*)f->Get("reco");
     EvRec0* evReco = new EvRec0();
     data->SetBranchAddress("recoevent",&evReco);
-
-    //int ev = 2;
-//    data->GetEntry(ev);
-//    size_t nchannels = evReco->GetCharge().size();
-//    cout << "There are " << nchannels << " channnels" << endl;
-
-//    vector<RDCluster*> clusters = evReco->GetClusters();
-//    size_t nc = clusters.size();
-//    cout << "Found n. " << nc << " clusters" << endl;
-
-//    if(nc == 0)
-//    {
-
-//    }
-//    else if (nc == 1)
-//    {
-//        cout << "pos_x = " << clusters[0]->pos_x << "; pos_y = " << clusters[0]->pos_y << endl;
-//    }
-    //
 
     ostringstream h2_title;
     h2_title << "run_" << run_number  << ". Cuts: nc == 2 && nc_i == 1 && clusters.at(0)->rep == 1";
@@ -117,32 +93,60 @@ int main(/*int argc, char *argv[]*/)
 
     }
 
-    TCanvas *c1 = new TCanvas("c1","c1");
-    c1->SetCanvasSize(850, 850);
-    c1->SetWindowSize(900, 900);
 
+    //
+
+
+    TCanvas *c1 = new TCanvas("c1","c1");
+//    c1->SetCanvasSize(850, 850);
+//    c1->SetWindowSize(900, 900);
+    c1->Divide(2,1,0.01,0.01);
+
+
+    c1->cd(1);
     h2->Draw("colz");
     gPad->Update();
     TPaveStats *st = (TPaveStats*)h2->GetListOfFunctions()->FindObject("stats");
-    //cout << st->GetX1NDC() << "; " << st->GetY1NDC() << endl;
-
-
-//    st->SetX1NDC(0.12); st->SetX2NDC(0.31);
-//    st->SetY1NDC(0.77); st->SetY2NDC(0.89);
-
     st->SetX1NDC(0.12); st->SetX2NDC(0.35);
     st->SetY1NDC(0.72); st->SetY2NDC(0.89);
+    gPad->Modified(); gPad->Update();
 
-    c1->Modified(); c1->Update();
-    //gPad->Update();
-    //h2->SetStats(1);
+    c1->cd(2);
+    //TH2F *h2_copy = new TH2F(h2);
+    TH2F *h2_copy = (TH2F*)h2->Clone("");
+    h2_copy->Draw("colz");
+    h2_copy->SetStats(0); //delete statbox
+    double yw = 0.8;//cm
+    double xw = 1.2;//cm
+    for (int iy = 0; iy < 6; iy++)
+    {
+        double x_centr;
+        double y_centr;
+        for (int ix = 0; ix < 4; ix++)
+        {
+            x_centr = ((0.5 + ix)*5/4);
+            y_centr = ((0.5 + iy)*5/6);
+
+            TBox *box = new TBox(x_centr - xw/2, y_centr - yw/2, x_centr + xw/2, y_centr + yw/2);
+            box->SetFillStyle(0);
+            box->SetLineColor(2);
+            box->SetLineWidth(2);
+            box->Draw();
+        }
+    }
+    gPad->Modified(); gPad->Update();
+
+    //TBox *box = new TBox(x_centr - xw/2, y_centr - yw/2, x_centr + xw/2, y_centr + yw/2);
+//    box->SetFillStyle(0);
+//    box->SetLineColor(2);
+//    box->SetLineWidth(2);
+//    box ->Draw();
+    //c1->Modified(); c1->Update();
 
 
 
     //finalization code
     cout << "all is ok" << endl;
-    //app->Run();
-
 
     //Cleanup
     //delete app;
