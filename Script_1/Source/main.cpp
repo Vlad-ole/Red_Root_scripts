@@ -19,6 +19,9 @@
 #include "TPaveStats.h"
 #include "TBox.h"
 #include "TArrow.h"
+#include "TList.h"
+#include "TLatex.h"
+#include "TF1.h"
 
 
 //Red
@@ -28,9 +31,10 @@
 
 //useful directive
 #define COUT(x) cout << #x " = " << x << endl;
-bool total_cut = false;
-TString total_cut_srt;
-#define REMEMBER_CUT(x) total_cut_srt = #x; total_cut = x;
+//bool total_cut = false;
+//bool tmp_cut = false;
+//TString total_cut_srt_loop1;
+//#define REMEMBER_CUT(x) total_cut_srt_loop1 = #x; /* tmp_cut = x;*/
 
 //double h1_fill_value;
 //TString h1_title;
@@ -38,37 +42,156 @@ TString total_cut_srt;
 
 using namespace std;
 
+
+//some predefined vars
+//list of runs
+//int run_number = 532; //ph2    BEAM ON (E = 28 MeV, i = 12 nA)
+//int run_number = 534; //ph2     backgroud
+int run_number = 537; //ph2     Am241
+//int run_number = 540; //ph2     Cf252
+//int run_number = 542; //ph2     Am241
+//int run_number = 544; //ph2     Am241
+//int run_number = 554; //ph2     Am241 error
+
+
+double area_cut_x1 = 1.5;//cm
+double area_cut_x2 = 2.1;//cm
+double area_cut_x3 = 2.9;//cm
+double area_cut_x4 = 3.5;//cm
+double area_cut_y1 = area_cut_x1;
+double area_cut_y2 = area_cut_x2;
+double area_cut_y3 = area_cut_x3;
+double area_cut_y4 = area_cut_x4;
+
+
+class BoolCut
+{
+
+private:
+
+
+public:
+    //void set_values (int,int);
+    //int area() {return width*height;}
+
+    BoolCut (vector<RDCluster*> clusters, int nc_i);
+
+    size_t nc;
+
+    //cuts1
+    bool cls0_is_S1;
+    bool cls0_is_full;
+    bool S1_Am_peak_r537;
+    bool S1_Am_peak_r542;
+    bool S1_Am_peak_r544;
+    bool S1_Am_peak_r554;
+
+    //cuts2
+    bool cls0;//cluster 0
+    bool cls1;//cluster 1
+    bool is_S1;
+    bool is_S2;
+
+    bool cent_spot;
+    bool edges;
+    bool corners;
+
+    bool edge_left;
+    bool edge_right;
+    bool edge_bot;
+    bool edge_top;
+
+    bool corner_left_bot;
+    bool corner_right_bot;
+    bool corner_left_top;
+    bool corner_right_top;
+
+};
+
+BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
+{
+    size_t nc = clusters.size();
+
+    //cuts1
+    cls0_is_S1 = clusters.at(0)->f90 > 0.2;
+    cls0_is_full = clusters.at(0)->rep == 1;
+    S1_Am_peak_r537 = (clusters.at(0)->charge > 440) && (clusters.at(0)->charge < 630); // mean +- 1.5sigma using run 537
+    S1_Am_peak_r542 = (clusters.at(0)->charge > 419) && (clusters.at(0)->charge < 587); // mean +- 1.5sigma using run 542
+    S1_Am_peak_r544 = (clusters.at(0)->charge > 342) && (clusters.at(0)->charge < 482); // mean +- 1.5sigma using run 544
+    S1_Am_peak_r554 = (clusters.at(0)->charge > 252) && (clusters.at(0)->charge < 366); // mean +- 1.5sigma using run 554
+
+    //cuts2
+    cls0 = nc_i == 0;//cluster 0
+    cls1 = nc_i == 1;//cluster 1
+    is_S1 =  nc == 2 && cls0 && cls0_is_full && cls0_is_S1;
+    is_S2 =  nc == 2 && cls1 && cls0_is_full && cls0_is_S1;
+
+    cent_spot = (clusters.at(nc_i)->pos_x > area_cut_x2) && (clusters.at(nc_i)->pos_x < area_cut_x3) &&
+            (clusters.at(nc_i)->pos_y > area_cut_y2) && (clusters.at(nc_i)->pos_y < area_cut_y3);
+
+    //edges
+    edge_left = (clusters.at(nc_i)->pos_x > area_cut_x1) && (clusters.at(nc_i)->pos_x < area_cut_x2) &&
+            (clusters.at(nc_i)->pos_y > area_cut_y2) && (clusters.at(nc_i)->pos_y < area_cut_y3);
+
+    edge_right = (clusters.at(nc_i)->pos_x > area_cut_x3) && (clusters.at(nc_i)->pos_x < area_cut_x4) &&
+            (clusters.at(nc_i)->pos_y > area_cut_y2) && (clusters.at(nc_i)->pos_y < area_cut_y3);
+
+    edge_bot = (clusters.at(nc_i)->pos_x > area_cut_x2) && (clusters.at(nc_i)->pos_x < area_cut_x3) &&
+            (clusters.at(nc_i)->pos_y > area_cut_y1) && (clusters.at(nc_i)->pos_y < area_cut_y2);
+
+    edge_top = (clusters.at(nc_i)->pos_x > area_cut_x2) && (clusters.at(nc_i)->pos_x < area_cut_x3) &&
+            (clusters.at(nc_i)->pos_y > area_cut_y3) && (clusters.at(nc_i)->pos_y < area_cut_y4);
+
+    edges = edge_left || edge_right || edge_bot || edge_top;
+
+    //corners
+    corner_left_bot = (clusters.at(nc_i)->pos_x > area_cut_x1) && (clusters.at(nc_i)->pos_x < area_cut_x2) &&
+            (clusters.at(nc_i)->pos_y > area_cut_y1) && (clusters.at(nc_i)->pos_y < area_cut_y2);
+
+    corner_right_bot = (clusters.at(nc_i)->pos_x > area_cut_x3) && (clusters.at(nc_i)->pos_x < area_cut_x4) &&
+            (clusters.at(nc_i)->pos_y > area_cut_y1) && (clusters.at(nc_i)->pos_y < area_cut_y2);
+
+    corner_left_top = (clusters.at(nc_i)->pos_x > area_cut_x1) && (clusters.at(nc_i)->pos_x < area_cut_x2) &&
+            (clusters.at(nc_i)->pos_y > area_cut_y3) && (clusters.at(nc_i)->pos_y < area_cut_y4);
+
+    corner_right_top = (clusters.at(nc_i)->pos_x > area_cut_x3) && (clusters.at(nc_i)->pos_x < area_cut_x4) &&
+            (clusters.at(nc_i)->pos_y > area_cut_y3) && (clusters.at(nc_i)->pos_y < area_cut_y4);
+
+
+    corners = corner_left_bot || corner_right_bot || corner_left_top || corner_right_top;
+
+}
+
+
+// define a gauss function with 3 + 1 parameters
+Double_t gauss_3p_1p(Double_t *x,Double_t *par)
+{
+    Double_t arg = 0;
+    if (par[2]!=0)
+    {
+        arg = (x[0] - par[1])/par[2];
+    }
+//    if (par[1]!=0)
+//    {
+//        par[3] = par[2]/par[1];
+//    }
+
+    Double_t fitval = par[0]*TMath::Exp(-0.5*arg*arg);
+    return fitval;
+}
+
+
+
+
 int main(/*int argc, char *argv[]*/)
 {
     //start code
     std::cout << "You are in program." << std::endl;
 
-    //test code
-    //    TH1F *hist = new TH1F("test hist", "title", 1000, 0, 10);
-    //    hist->FillRandom("gaus", 5000);
-    //    hist->Draw("");
-
-
-    //some predefined vars
-    double area_cut_x1 = 1.5;//cm
-    double area_cut_x2 = 2.1;//cm
-    double area_cut_x3 = 2.9;//cm
-    double area_cut_x4 = 3.5;//cm
-    double area_cut_y1 = area_cut_x1;
-    double area_cut_y2 = area_cut_x2;
-    double area_cut_y3 = area_cut_x3;
-    double area_cut_y4 = area_cut_x4;
-
-
-
-    //list of runs
-    //int run_number = 532; //ph2    BEAM ON (E = 28 MeV, i = 12 nA)
-    //int run_number = 534; //ph2     backgroud
-    int run_number = 537; //ph2     Am241
-    //int run_number = 540; //ph2     Cf252
-    //int run_number = 542; //ph2     Am241
-    //int run_number = 544; //ph2     Am241
-    //int run_number = 554; //ph2     Am241 error
+    //
+    TF1 *func_gauss_3p_1p = new TF1("gauss_3p_1p",gauss_3p_1p,-1000,10000,3);
+    //func_gauss_3p_1p->SetParNames ("Constant","Mean","Sigma","Sigma/Mean");
+    func_gauss_3p_1p->SetParNames ("Constant","Mean","Sigma");
 
     //main code
     ostringstream path_root_file;
@@ -91,15 +214,20 @@ int main(/*int argc, char *argv[]*/)
     EvRec0* evReco = new EvRec0();
     data->SetBranchAddress("recoevent",&evReco);
 
-    TH2F *h2 = new TH2F("h2 name", "h2 title", 200, 0, 5, 200, 0, 5);//XY
-    TH1F *h1 = new TH1F("h1 S1", "h1 title", 400, -100, 2000);//Am S1 charge
-    //TH1F *h1 = new TH1F("h1 S2", "h1 title", 400, -100, 10000);//Am S2 charge
+    TH2F *h2 = new TH2F("h2 XY S2", "h2 title", 200, 0, 5, 200, 0, 5);//XY S2
+    TH2F *h2_S1 = new TH2F("h2 XY S1", "h2 title", 200, 0, 5, 200, 0, 5);//XY S1
+    TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, -100, 2000);//Am S1 charge
+    TH1F *h1_S2 = new TH1F("h1 S2", "h1 title", 400, -100, 10000);//Am S2 charge
     //TH1F *h1 = new TH1F("h1 S2/S1", "h1 title", 400, -1, 20);//Am S2_charge/S1_charge
     //TH1F *h1 = new TH1F("h1 S2", "h1 title", 400, -100, 8000);//Am S2 tot_charge_top or tot_charge_bottom
     //TH1F *h1 = new TH1F("h1 S2", "h1 title", 400, -100, 1000);//Am S1 tot_charge_top or tot_charge_bottom
     //TH1F *h1 = new TH1F("h1 f90", "h1 title", 400, -0.2, 1);//f90
     //TH1F *h1 = new TH1F("h1 x or y", "h1 title", 400, -1, 5);//x ix or iy
 
+    vector<bool> is_in_cut(data->GetEntries(), false);
+
+    //first event loop
+    TString total_cut_srt_loop1;
     for (int ev = 0; ev < data->GetEntries(); ev++)
     {
         data->GetEntry(ev);
@@ -111,76 +239,24 @@ int main(/*int argc, char *argv[]*/)
 
         if(nc)
         {
-            //cuts1
-            bool cls0_is_S1 = clusters.at(0)->f90 > 0.2;
-            bool cls0_is_full = clusters.at(0)->rep == 1;
-            bool S1_Am_peak = (clusters.at(0)->charge > 440) && (clusters.at(0)->charge < 630); // mean +- 1.5sigma using run 537
-            //bool S1_Am_peak = (clusters.at(0)->charge > 419) && (clusters.at(0)->charge < 587); // mean +- 1.5sigma using run 542
-            //bool S1_Am_peak = (clusters.at(0)->charge > 342) && (clusters.at(0)->charge < 482); // mean +- 1.5sigma using run 544
-            //bool S1_Am_peak = (clusters.at(0)->charge > 252) && (clusters.at(0)->charge < 366); // mean +- 1.5sigma using run 554
-
-
             for(int nc_i = 0; nc_i < nc; nc_i++)
             {
                 double radius = sqrt( pow(clusters.at(nc_i)->pos_x - 2.62, 2.0) + pow(clusters.at(nc_i)->pos_y - 2.54, 2.0) );
 
-
-                //cuts2
-                bool cls0 = nc_i == 0;//cluster 0
-                bool cls1 = nc_i == 1;//cluster 1
-                bool is_S1 =  nc == 2 && cls0 && cls0_is_full && cls0_is_S1;
-                bool is_S2 =  nc == 2 && cls1 && cls0_is_full && cls0_is_S1;
+                //total_cut = cuts(clusters, nc_i);
+                BoolCut C1(clusters, nc_i);
 
 
-
-                bool cent_spot = (clusters.at(nc_i)->pos_x > area_cut_x2) && (clusters.at(nc_i)->pos_x < area_cut_x3) &&
-                        (clusters.at(nc_i)->pos_y > area_cut_y2) && (clusters.at(nc_i)->pos_y < area_cut_y3);
-
-                //edges
-                bool edge_left = (clusters.at(nc_i)->pos_x > area_cut_x1) && (clusters.at(nc_i)->pos_x < area_cut_x2) &&
-                        (clusters.at(nc_i)->pos_y > area_cut_y2) && (clusters.at(nc_i)->pos_y < area_cut_y3);
-
-                bool edge_right = (clusters.at(nc_i)->pos_x > area_cut_x3) && (clusters.at(nc_i)->pos_x < area_cut_x4) &&
-                        (clusters.at(nc_i)->pos_y > area_cut_y2) && (clusters.at(nc_i)->pos_y < area_cut_y3);
-
-                bool edge_bot = (clusters.at(nc_i)->pos_x > area_cut_x2) && (clusters.at(nc_i)->pos_x < area_cut_x3) &&
-                        (clusters.at(nc_i)->pos_y > area_cut_y1) && (clusters.at(nc_i)->pos_y < area_cut_y2);
-
-                bool edge_top = (clusters.at(nc_i)->pos_x > area_cut_x2) && (clusters.at(nc_i)->pos_x < area_cut_x3) &&
-                        (clusters.at(nc_i)->pos_y > area_cut_y3) && (clusters.at(nc_i)->pos_y < area_cut_y4);
-
-                bool edges = edge_left || edge_right || edge_bot || edge_top;
-
-                //corners
-                bool corner_left_bot = (clusters.at(nc_i)->pos_x > area_cut_x1) && (clusters.at(nc_i)->pos_x < area_cut_x2) &&
-                        (clusters.at(nc_i)->pos_y > area_cut_y1) && (clusters.at(nc_i)->pos_y < area_cut_y2);
-
-                bool corner_right_bot = (clusters.at(nc_i)->pos_x > area_cut_x3) && (clusters.at(nc_i)->pos_x < area_cut_x4) &&
-                        (clusters.at(nc_i)->pos_y > area_cut_y1) && (clusters.at(nc_i)->pos_y < area_cut_y2);
-
-                bool corner_left_top = (clusters.at(nc_i)->pos_x > area_cut_x1) && (clusters.at(nc_i)->pos_x < area_cut_x2) &&
-                        (clusters.at(nc_i)->pos_y > area_cut_y3) && (clusters.at(nc_i)->pos_y < area_cut_y4);
-
-                bool corner_right_top = (clusters.at(nc_i)->pos_x > area_cut_x3) && (clusters.at(nc_i)->pos_x < area_cut_x4) &&
-                        (clusters.at(nc_i)->pos_y > area_cut_y3) && (clusters.at(nc_i)->pos_y < area_cut_y4);
-
-
-                bool corners = corner_left_bot || corner_right_bot || corner_left_top || corner_right_top;
-
-                //is_S2 && S1_Am_peak && edges
-                REMEMBER_CUT(is_S1 && radius < 0.5);
-
-                if (total_cut) //cuts
+                total_cut_srt_loop1 = "C1.is_S2 && C1.corners";
+                if (C1.is_S2 && C1.corners) //cuts
                 {
+                    is_in_cut[ev] = true;
                     //cout << "   pos_x = " << clusters[nc_i]->pos_x << "; pos_y = " << clusters[nc_i]->pos_y << endl;
                     h2->Fill(clusters.at(nc_i)->pos_x, clusters.at(nc_i)->pos_y);
-                    h1->Fill(clusters.at(nc_i)->charge);
+                    h1_S2->Fill(clusters.at(nc_i)->charge);
                 }
 
-//                int channumber = 0;
-//                if (RDconfig::GetInstance()->GetChannelType(channumber) == RDconfig::kSiPMTop)
-//                {
-//                }
+
             }// end nc_i loop
 
             //        REMEMBER_CUT(nc == 2 && cls0_is_full && cls0_is_S1 && S1_Am_peak);
@@ -190,37 +266,64 @@ int main(/*int argc, char *argv[]*/)
             //        }
 
 
-            //cout << endl;
         }
 
         if(ev%5000==0) cout << "Event " << ev << " processed" << endl;
     }
+
+
+    //second event loop
+    TString total_cut_srt_loop2;
+    for (int ev = 0; ev < data->GetEntries(); ev++)
+    {
+        data->GetEntry(ev);
+        vector<RDCluster*> clusters = evReco->GetClusters();
+        size_t nc = clusters.size();
+
+        if(is_in_cut[ev])
+        {
+            for(int nc_i = 0; nc_i < nc; nc_i++)
+            {
+
+                BoolCut C2(clusters, nc_i);
+                total_cut_srt_loop2 = "C2.is_S1";
+                if(C2.is_S1)
+                {
+                    h2_S1->Fill(clusters.at(nc_i)->pos_x, clusters.at(nc_i)->pos_y);
+                    h1_S1->Fill(clusters.at(nc_i)->charge);
+                }
+
+            }
+        }
+    }
+
 
     //Draw options
     bool is_draw_h1 = 0;
     bool is_draw_h2 = 1;
     bool is_draw_h2_var1 = 0;
     bool is_draw_h2_var2 = 0;
-    bool is_draw_h2_var3 = 1;
+    bool is_draw_h2_var3 = 0;
+    bool is_draw_var4 = 1;
 
     if(is_draw_h1)
     {
-        h1->SetTitle(total_cut_srt);
-        //h1->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
-        h1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
-        h1->Draw();
+//        h1->SetTitle(total_cut_srt);
+//        //h1->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
+//        h1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
+//        h1->Draw();
     }
 
     if(is_draw_h2)
     {
         TCanvas *c1 = new TCanvas("c1","c1");
-        //    c1->SetCanvasSize(850, 850);
-        //    c1->SetWindowSize(900, 900);
-        c1->Divide(2,1,0.01,0.01);
+            c1->SetCanvasSize(950, 950);
+            c1->SetWindowSize(980, 980);
+        c1->Divide(2,2,0.01,0.01);
 
 
         c1->cd(1);
-        h2->SetTitle(total_cut_srt);
+        h2->SetTitle(total_cut_srt_loop1);
         h2->GetXaxis()->SetTitle("x [cm]");
         h2->GetYaxis()->SetTitle("y [cm]");
         h2->GetXaxis()->SetRangeUser(1.5, 3.5);
@@ -319,12 +422,71 @@ int main(/*int argc, char *argv[]*/)
         else if (is_draw_h2_var3)
         {
             c1->cd(2);
-            h1->SetTitle(total_cut_srt);
+            h1_S1->SetTitle(total_cut_srt_loop2);
             //h1->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
-            h1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
-            h1->Draw();
+            h1_S1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
+            h1_S1->Draw();
         }
+        else if (is_draw_var4)
+        {
+            c1->cd(2);
+            h2_S1->SetTitle(total_cut_srt_loop2);
+            h2_S1->GetXaxis()->SetTitle("x [cm]");
+            h2_S1->GetYaxis()->SetTitle("y [cm]");
+            h2_S1->GetXaxis()->SetRangeUser(1.5, 3.5);
+            h2_S1->GetYaxis()->SetRangeUser(1.5, 3.5);
+            h2_S1->Draw("colz");
+            //h2->SetStats(0); //delete statbox
+            gPad->Update();
+            TPaveStats *st2  = (TPaveStats*)h2_S1->GetListOfFunctions()->FindObject("stats");
+            st2->SetX1NDC(0.12); st2->SetX2NDC(0.35);
+            st2->SetY1NDC(0.72); st2->SetY2NDC(0.89);
+            gPad->Modified(); gPad->Update();
 
+
+            c1->cd(3);
+            gStyle->SetOptFit(1);
+            //gStyle->SetOptFit(0111);
+            h1_S2->SetTitle(total_cut_srt_loop1);
+
+
+            //h1->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
+            h1_S2->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
+            h1_S2->Draw();
+            gPad->Update();
+            TPaveStats *st3  = (TPaveStats*)h1_S2->GetListOfFunctions()->FindObject("stats");
+
+            //func_gauss_3p_1p->SetParameters(500,h1_S2->GetMean(),h1_S2->GetRMS(),0.2);
+            //h1_S2->Fit("gauss_3p_1p","R","",900, 1500);
+//            st3->SetName("mystats");
+//            TF1 *myfunc= h1_S2->GetFunction("gaus");
+
+//            TList *list = st3->GetListOfLines();
+//            //TLatex *myt = new TLatex(0, 0, "Test = 10");
+//            TLatex *myt = new TLatex(0, 0, TString::Format("Ratio = %g", myfunc->GetParameter("Sigma") / myfunc->GetParameter("Mean")));
+//            myt ->SetTextFont(42);
+//            myt ->SetTextSize(0.04);
+//            myt ->SetTextColor(kRed);
+//            list->Add(myt);
+            //h1_S2->SetStats(0);
+
+
+            st3->SetX1NDC(0.60); st3->SetX2NDC(0.98);
+            st3->SetY1NDC(0.50); st3->SetY2NDC(0.89);
+            gPad->Modified(); gPad->Update();
+
+            c1->cd(4);
+            //gStyle->SetOptFit(1011);
+            h1_S1->SetTitle(total_cut_srt_loop2);
+            //h1->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
+            h1_S1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
+            h1_S1->Draw();
+            gPad->Update();
+            TPaveStats *st4  = (TPaveStats*)h1_S1->GetListOfFunctions()->FindObject("stats");
+            st4->SetX1NDC(0.60); st4->SetX2NDC(0.98);
+            st4->SetY1NDC(0.50); st4->SetY2NDC(0.89);
+            gPad->Modified(); gPad->Update();
+        }
 
         gPad->Modified(); gPad->Update();
     }
