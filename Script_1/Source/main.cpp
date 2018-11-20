@@ -47,16 +47,16 @@ using namespace std;
 //list of runs
 //int run_number = 532; //ph2    BEAM ON (E = 28 MeV, i = 12 nA)
 //int run_number = 534; //ph2     backgroud
-int run_number = 537; //ph2     Am241
+//int run_number = 537; //ph2     Am241
 //int run_number = 540; //ph2     Cf252
 //int run_number = 542; //ph2     Am241
-//int run_number = 544; //ph2     Am241
+int run_number = 544; //ph2     Am241
 //int run_number = 554; //ph2     Am241 error
 
-
+//var1: 1.5 2.1 2.9 3.5
 double area_cut_x1 = 1.5;//cm
-double area_cut_x2 = 2.1;//cm
-double area_cut_x3 = 2.9;//cm
+double area_cut_x2 = 2.3;//cm
+double area_cut_x3 = 2.7;//cm
 double area_cut_x4 = 3.5;//cm
 double area_cut_y1 = area_cut_x1;
 double area_cut_y2 = area_cut_x2;
@@ -85,6 +85,7 @@ public:
     bool S1_Am_peak_r542;
     bool S1_Am_peak_r544;
     bool S1_Am_peak_r554;
+    bool is_S1_S2;
 
     //cuts2
     bool cls0;//cluster 0
@@ -110,7 +111,7 @@ public:
 
 BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
 {
-    size_t nc = clusters.size();
+    nc = clusters.size();
 
     //cuts1
     cls0_is_S1 = clusters.at(0)->f90 > 0.2;
@@ -119,6 +120,7 @@ BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
     S1_Am_peak_r542 = (clusters.at(0)->charge > 419) && (clusters.at(0)->charge < 587); // mean +- 1.5sigma using run 542
     S1_Am_peak_r544 = (clusters.at(0)->charge > 342) && (clusters.at(0)->charge < 482); // mean +- 1.5sigma using run 544
     S1_Am_peak_r554 = (clusters.at(0)->charge > 252) && (clusters.at(0)->charge < 366); // mean +- 1.5sigma using run 554
+    is_S1_S2 = nc == 2 && cls0_is_full && cls0_is_S1;
 
     //cuts2
     cls0 = nc_i == 0;//cluster 0
@@ -156,6 +158,9 @@ BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
 
     corner_right_top = (clusters.at(nc_i)->pos_x > area_cut_x3) && (clusters.at(nc_i)->pos_x < area_cut_x4) &&
             (clusters.at(nc_i)->pos_y > area_cut_y3) && (clusters.at(nc_i)->pos_y < area_cut_y4);
+
+
+
 
 
     corners = corner_left_bot || corner_right_bot || corner_left_top || corner_right_top;
@@ -214,20 +219,25 @@ int main(/*int argc, char *argv[]*/)
     EvRec0* evReco = new EvRec0();
     data->SetBranchAddress("recoevent",&evReco);
 
+    TH1F *h1;
     TH2F *h2 = new TH2F("h2 XY S2", "h2 title", 200, 0, 5, 200, 0, 5);//XY S2
     TH2F *h2_S1 = new TH2F("h2 XY S1", "h2 title", 200, 0, 5, 200, 0, 5);//XY S1
     TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, -100, 2000);//Am S1 charge
     TH1F *h1_S2 = new TH1F("h1 S2", "h1 title", 400, -100, 10000);//Am S2 charge
-    //TH1F *h1 = new TH1F("h1 S2/S1", "h1 title", 400, -1, 20);//Am S2_charge/S1_charge
+    TH1F *h1_S2_S1_ratio = new TH1F("h1 S2/S1", "h1 title", 300, -1, 30);//Am S2_charge/S1_charge
     //TH1F *h1 = new TH1F("h1 S2", "h1 title", 400, -100, 8000);//Am S2 tot_charge_top or tot_charge_bottom
     //TH1F *h1 = new TH1F("h1 S2", "h1 title", 400, -100, 1000);//Am S1 tot_charge_top or tot_charge_bottom
     //TH1F *h1 = new TH1F("h1 f90", "h1 title", 400, -0.2, 1);//f90
     //TH1F *h1 = new TH1F("h1 x or y", "h1 title", 400, -1, 5);//x ix or iy
+    TH1F *h1_Tdrift = new TH1F("h1 Tdrift", "h1 title", 400, -1, 150);//
+    h1 = h1_Tdrift;
 
     vector<bool> is_in_cut(data->GetEntries(), false);
 
     //first event loop
+    TString total_cut_srt_loop1_0;
     TString total_cut_srt_loop1;
+    TString total_cut_srt_loop2;
     for (int ev = 0; ev < data->GetEntries(); ev++)
     {
         data->GetEntry(ev);
@@ -239,6 +249,18 @@ int main(/*int argc, char *argv[]*/)
 
         if(nc)
         {
+
+//            BoolCut C0(clusters, 0);
+//            total_cut_srt_loop1_0 = "C0.nc == 2 && C0.cls0_is_full && C0.cls0_is_S1";
+//            if(C0.nc == 2 && C0.cls0_is_full && C0.cls0_is_S1)
+//            {
+//                double Tdrift = (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000;
+//                //
+
+//                h1_Tdrift->Fill(Tdrift);
+//            }
+
+
             for(int nc_i = 0; nc_i < nc; nc_i++)
             {
                 double radius = sqrt( pow(clusters.at(nc_i)->pos_x - 2.62, 2.0) + pow(clusters.at(nc_i)->pos_y - 2.54, 2.0) );
@@ -247,8 +269,8 @@ int main(/*int argc, char *argv[]*/)
                 BoolCut C1(clusters, nc_i);
 
 
-                total_cut_srt_loop1 = "C1.is_S2 && C1.corners";
-                if (C1.is_S2 && C1.corners) //cuts
+                total_cut_srt_loop1 = "C1.is_S2 && C1.corner_left_bot";
+                if ( C1.is_S2 && C1.corner_left_bot ) //cuts
                 {
                     is_in_cut[ev] = true;
                     //cout << "   pos_x = " << clusters[nc_i]->pos_x << "; pos_y = " << clusters[nc_i]->pos_y << endl;
@@ -259,21 +281,14 @@ int main(/*int argc, char *argv[]*/)
 
             }// end nc_i loop
 
-            //        REMEMBER_CUT(nc == 2 && cls0_is_full && cls0_is_S1 && S1_Am_peak);
-            //        if (total_cut) //cuts
-            //        {
-            //            h1->Fill(clusters.at(1)->charge / clusters.at(0)->charge);
-            //        }
 
-
-        }
+        }// end if(nc)
 
         if(ev%5000==0) cout << "Event " << ev << " processed" << endl;
     }
 
 
-    //second event loop
-    TString total_cut_srt_loop2;
+    //second event loop    
     for (int ev = 0; ev < data->GetEntries(); ev++)
     {
         data->GetEntry(ev);
@@ -291,9 +306,12 @@ int main(/*int argc, char *argv[]*/)
                 {
                     h2_S1->Fill(clusters.at(nc_i)->pos_x, clusters.at(nc_i)->pos_y);
                     h1_S1->Fill(clusters.at(nc_i)->charge);
-                }
+                }                
 
             }
+
+            h1_S2_S1_ratio->Fill(clusters.at(1)->charge / clusters.at(0)->charge);
+
         }
     }
 
@@ -304,23 +322,25 @@ int main(/*int argc, char *argv[]*/)
     bool is_draw_h2_var1 = 0;
     bool is_draw_h2_var2 = 0;
     bool is_draw_h2_var3 = 0;
-    bool is_draw_var4 = 1;
+    bool is_draw_var4 = 4;
 
     if(is_draw_h1)
     {
-//        h1->SetTitle(total_cut_srt);
-//        //h1->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
-//        h1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
-//        h1->Draw();
+        h1->SetTitle(total_cut_srt_loop2);
+        //h1->SetTitle(total_cut_srt_loop1_0);
+        //h1->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
+        //h1->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
+        h1->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
+        h1->Draw();
     }
 
     if(is_draw_h2)
     {
         TCanvas *c1 = new TCanvas("c1","c1");
-            c1->SetCanvasSize(950, 950);
-            c1->SetWindowSize(980, 980);
+        c1->SetCanvasSize(950, 950);
+        c1->SetWindowSize(980, 980);
         c1->Divide(2,2,0.01,0.01);
-
+        //c1->Divide(2,1,0.01,0.01);
 
         c1->cd(1);
         h2->SetTitle(total_cut_srt_loop1);
@@ -422,27 +442,41 @@ int main(/*int argc, char *argv[]*/)
         else if (is_draw_h2_var3)
         {
             c1->cd(2);
-            h1_S1->SetTitle(total_cut_srt_loop2);
+            h1_Tdrift->SetTitle(total_cut_srt_loop1_0);
             //h1->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
-            h1_S1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
-            h1_S1->Draw();
+            //h1_S2->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
+            h1_Tdrift->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
+            h1_Tdrift->Draw();
         }
         else if (is_draw_var4)
         {
-            c1->cd(2);
-            h2_S1->SetTitle(total_cut_srt_loop2);
-            h2_S1->GetXaxis()->SetTitle("x [cm]");
-            h2_S1->GetYaxis()->SetTitle("y [cm]");
-            h2_S1->GetXaxis()->SetRangeUser(1.5, 3.5);
-            h2_S1->GetYaxis()->SetRangeUser(1.5, 3.5);
-            h2_S1->Draw("colz");
-            //h2->SetStats(0); //delete statbox
-            gPad->Update();
-            TPaveStats *st2  = (TPaveStats*)h2_S1->GetListOfFunctions()->FindObject("stats");
-            st2->SetX1NDC(0.12); st2->SetX2NDC(0.35);
-            st2->SetY1NDC(0.72); st2->SetY2NDC(0.89);
-            gPad->Modified(); gPad->Update();
 
+
+                    //            c1->cd(2);
+                    //            h2_S1->SetTitle(total_cut_srt_loop1);
+                    //            h2_S1->GetXaxis()->SetTitle("x [cm]");
+                    //            h2_S1->GetYaxis()->SetTitle("y [cm]");
+                    //            h2_S1->GetXaxis()->SetRangeUser(1.5, 3.5);
+                    //            h2_S1->GetYaxis()->SetRangeUser(1.5, 3.5);
+                    //            h2_S1->Draw("colz");
+                    //            //h2->SetStats(0); //delete statbox
+                    //            gPad->Update();
+                    //            TPaveStats *st2  = (TPaveStats*)h2_S1->GetListOfFunctions()->FindObject("stats");
+                    //            st2->SetX1NDC(0.12); st2->SetX2NDC(0.35);
+                    //            st2->SetY1NDC(0.72); st2->SetY2NDC(0.89);
+                    //            gPad->Modified(); gPad->Update();
+
+
+            c1->cd(2);
+            gStyle->SetOptFit(1);
+            h1_S2_S1_ratio->SetTitle(total_cut_srt_loop2);
+            h1_S2_S1_ratio->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
+            h1_S2_S1_ratio->Draw();
+            gPad->Update();
+            TPaveStats *st5  = (TPaveStats*)h1_S2_S1_ratio->GetListOfFunctions()->FindObject("stats");
+            st5->SetX1NDC(0.60); st5->SetX2NDC(0.98);
+            st5->SetY1NDC(0.50); st5->SetY2NDC(0.89);
+            gPad->Modified(); gPad->Update();
 
             c1->cd(3);
             gStyle->SetOptFit(1);
