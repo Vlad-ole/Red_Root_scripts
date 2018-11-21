@@ -22,6 +22,7 @@
 #include "TList.h"
 #include "TLatex.h"
 #include "TF1.h"
+#include "TLegend.h"
 
 
 //Red
@@ -45,12 +46,22 @@ using namespace std;
 
 //some predefined vars
 //list of runs
+
+//ph1
+int run_number = 399; //ph1     Am241
+//int run_number = 418; //ph1     Am241
+//int run_number = 511; //ph1     Am241
+
+
+//ph2
+//int run_number = 448; //ph2     Am241 error
 //int run_number = 532; //ph2    BEAM ON (E = 28 MeV, i = 12 nA)
 //int run_number = 534; //ph2     backgroud
 //int run_number = 537; //ph2     Am241
 //int run_number = 540; //ph2     Cf252
 //int run_number = 542; //ph2     Am241
-int run_number = 544; //ph2     Am241
+//int run_number = 544; //ph2     Am241
+//int run_number = 550; //ph2     Am241
 //int run_number = 554; //ph2     Am241 error
 
 //var1: 1.5 2.1 2.9 3.5
@@ -86,6 +97,7 @@ public:
     bool S1_Am_peak_r544;
     bool S1_Am_peak_r554;
     bool is_S1_S2;
+    bool is_S1_only;
 
     //cuts2
     bool cls0;//cluster 0
@@ -121,6 +133,7 @@ BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
     S1_Am_peak_r544 = (clusters.at(0)->charge > 342) && (clusters.at(0)->charge < 482); // mean +- 1.5sigma using run 544
     S1_Am_peak_r554 = (clusters.at(0)->charge > 252) && (clusters.at(0)->charge < 366); // mean +- 1.5sigma using run 554
     is_S1_S2 = nc == 2 && cls0_is_full && cls0_is_S1;
+    is_S1_only = nc == 1 && cls0_is_full && cls0_is_S1;
 
     //cuts2
     cls0 = nc_i == 0;//cluster 0
@@ -232,6 +245,30 @@ int main(/*int argc, char *argv[]*/)
     TH1F *h1_Tdrift = new TH1F("h1 Tdrift", "h1 title", 400, -1, 150);//
     h1 = h1_Tdrift;
 
+    int n_bins_h1_S1_bottom = 200;
+    TH1F *h1_S1_bottom_chF2 = new TH1F("h1_S1_bottom_chF2", "h1 title", n_bins_h1_S1_bottom, -30, 200);//Am S1 charge_bottom
+    TH1F *h1_S1_bottom_chF3 = new TH1F("h1_S1_bottom_chF3", "h1 title", n_bins_h1_S1_bottom, -30, 200);//Am S1 charge_bottom
+    TH1F *h1_S1_bottom_chF4 = new TH1F("h1_S1_bottom_chF4", "h1 title", n_bins_h1_S1_bottom, -30, 200);//Am S1 charge_bottom
+    TH1F *h1_S1_bottom_chF5 = new TH1F("h1_S1_bottom_chF5", "h1 title", n_bins_h1_S1_bottom, -30, 200);//Am S1 charge_bottom
+
+    int n_bins_h1_S1_top = 200;
+    double xmin_h1_S1_top = -30;
+    double xmax_h1_S1_top = 200;
+    TH1F *h1_S1_top_A1_A2_B1_B2_C1_C2 = new TH1F("h1_S1_top_A1_A2_B1_B2_C1_C2", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, xmax_h1_S1_top);//Am S1 charge_top
+    TH1F *h1_S1_top_C5_D1_D5_E2_E3_E4 = new TH1F("h1_S1_top_C5_D1_D5_E2_E3_E4", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, xmax_h1_S1_top);//Am S1 charge_top
+    TH1F *h1_S1_top_A3_A4_A5_B4_B3_B5 = new TH1F("h1_S1_top_A3_A4_A5_B4_B3_B5", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, xmax_h1_S1_top);//Am S1 charge_top
+    TH1F *h1_S1_top_C4_C3_D4_D3_D2_E5 = new TH1F("h1_S1_top_C4_C3_D4_D3_D2_E5", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, xmax_h1_S1_top);//Am S1 charge_top
+
+
+//    vector<TH1F *> h1_S1_top_vec;
+//    for(int ih1 = 0; ih1 < 24; ih1++)
+//    {
+//        ostringstream h1_S1_bottom_name;
+//        h1_S1_bottom_name << "h1_S1_bottom_ch" << ih1;
+//        h1_S1_top_vec.push_back(new TH1F("h1_S1_bottom_chF5", "h1 title", 200, -30, 200);
+//    }
+
+
     vector<bool> is_in_cut(data->GetEntries(), false);
 
     //first event loop
@@ -269,13 +306,40 @@ int main(/*int argc, char *argv[]*/)
                 BoolCut C1(clusters, nc_i);
 
 
-                total_cut_srt_loop1 = "C1.is_S2 && C1.corner_left_bot";
-                if ( C1.is_S2 && C1.corner_left_bot ) //cuts
+                total_cut_srt_loop1 = "C1.is_S1_only";
+                if ( C1.is_S1_only ) //cuts
                 {
                     is_in_cut[ev] = true;
                     //cout << "   pos_x = " << clusters[nc_i]->pos_x << "; pos_y = " << clusters[nc_i]->pos_y << endl;
                     h2->Fill(clusters.at(nc_i)->pos_x, clusters.at(nc_i)->pos_y);
                     h1_S2->Fill(clusters.at(nc_i)->charge);
+
+                    h1_S1_bottom_chF2->Fill(clusters.at(nc_i)->charge_bottom[0]);
+                    h1_S1_bottom_chF3->Fill(clusters.at(nc_i)->charge_bottom[1]);
+                    h1_S1_bottom_chF4->Fill(clusters.at(nc_i)->charge_bottom[2]);
+                    h1_S1_bottom_chF5->Fill(clusters.at(nc_i)->charge_bottom[3]);
+
+                    h1_S1_top_A1_A2_B1_B2_C1_C2->Fill(
+                                clusters.at(nc_i)->charge_top[0] + clusters.at(nc_i)->charge_top[1] +
+                            0 + clusters.at(nc_i)->charge_top[6] +
+                            clusters.at(nc_i)->charge_top[10] + clusters.at(nc_i)->charge_top[11]);
+
+                    h1_S1_top_A3_A4_A5_B4_B3_B5->Fill(
+                                clusters.at(nc_i)->charge_top[2] + clusters.at(nc_i)->charge_top[3] +
+                            clusters.at(nc_i)->charge_top[4] + clusters.at(nc_i)->charge_top[8] +
+                            clusters.at(nc_i)->charge_top[7] + clusters.at(nc_i)->charge_top[9]);
+
+                    h1_S1_top_C5_D1_D5_E2_E3_E4->Fill(
+                                clusters.at(nc_i)->charge_top[2+12] + clusters.at(nc_i)->charge_top[3+12] +
+                            clusters.at(nc_i)->charge_top[7+12] + clusters.at(nc_i)->charge_top[8+12] +
+                            clusters.at(nc_i)->charge_top[9+12] + clusters.at(nc_i)->charge_top[10+12]);
+
+                    h1_S1_top_C4_C3_D4_D3_D2_E5->Fill(
+                                clusters.at(nc_i)->charge_top[1+12] + clusters.at(nc_i)->charge_top[0+12] +
+                            clusters.at(nc_i)->charge_top[6+12] + clusters.at(nc_i)->charge_top[5+12] +
+                            clusters.at(nc_i)->charge_top[4+12] + clusters.at(nc_i)->charge_top[11+12]);
+
+
                 }
 
 
@@ -310,7 +374,8 @@ int main(/*int argc, char *argv[]*/)
 
             }
 
-            h1_S2_S1_ratio->Fill(clusters.at(1)->charge / clusters.at(0)->charge);
+            if(nc > 1)
+                h1_S2_S1_ratio->Fill(clusters.at(1)->charge / clusters.at(0)->charge);
 
         }
     }
@@ -318,11 +383,13 @@ int main(/*int argc, char *argv[]*/)
 
     //Draw options
     bool is_draw_h1 = 0;
-    bool is_draw_h2 = 1;
+    bool is_draw_h1_hist_overlap_var1 = 0;
+    bool is_draw_h1_hist_overlap_var2 = 1;
+    bool is_draw_h2 = 0;
     bool is_draw_h2_var1 = 0;
     bool is_draw_h2_var2 = 0;
     bool is_draw_h2_var3 = 0;
-    bool is_draw_var4 = 4;
+    bool is_draw_var4 = 0;
 
     if(is_draw_h1)
     {
@@ -332,6 +399,131 @@ int main(/*int argc, char *argv[]*/)
         //h1->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
         h1->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
         h1->Draw();
+    }
+
+    if(is_draw_h1_hist_overlap_var1)
+    {
+
+        TCanvas *c1 = new TCanvas("c1","c1");
+        gStyle->SetOptStat(0);
+
+        h1_S1_bottom_chF2->SetTitle(total_cut_srt_loop1);
+        h1_S1_bottom_chF2->GetXaxis()->SetTitle("clusters.at(nc_i)->charge_bottom[x] [PE]");
+
+        h1_S1_bottom_chF2->SetLineWidth(2);
+        h1_S1_bottom_chF2->SetLineColor(kBlue);
+
+        h1_S1_bottom_chF3->SetLineWidth(2);
+        h1_S1_bottom_chF3->SetLineColor(kRed);
+
+        h1_S1_bottom_chF4->SetLineWidth(2);
+        h1_S1_bottom_chF4->SetLineColor(kGreen);
+
+        h1_S1_bottom_chF5->SetLineWidth(2);
+        h1_S1_bottom_chF5->SetLineColor(kMagenta);
+
+        h1_S1_bottom_chF2->Draw();
+        h1_S1_bottom_chF3->Draw("same");
+        h1_S1_bottom_chF4->Draw("same");
+        h1_S1_bottom_chF5->Draw("same");
+
+        h1_S1_bottom_chF2->GetYaxis()->SetRangeUser(0., 1600.);
+
+        auto legend = new TLegend(0.7,0.6,0.9,0.9);
+        //legend->SetHeader("The Legend Title","C"); // option "C" allows to center the header
+        legend->AddEntry(h1_S1_bottom_chF2,"F2 charge_bottom[0]","l");
+        legend->AddEntry(h1_S1_bottom_chF3,"F3 charge_bottom[1]","l");
+        legend->AddEntry(h1_S1_bottom_chF4,"F4 charge_bottom[2]","l");
+        legend->AddEntry(h1_S1_bottom_chF5,"F5 charge_bottom[3]","l");
+        legend->Draw();
+    }
+
+    if(is_draw_h1_hist_overlap_var2)
+    {
+
+        TCanvas *c1 = new TCanvas("c1","c1");
+        c1->Divide(2,1,0.01,0.01);
+        gStyle->SetOptStat(0);
+
+        c1->cd(1);
+
+        h1_S1_bottom_chF2->SetTitle(total_cut_srt_loop1);
+        h1_S1_bottom_chF2->GetXaxis()->SetTitle("clusters.at(nc_i)->charge_bottom[x] [PE]");
+
+        h1_S1_bottom_chF2->SetLineWidth(2);
+        h1_S1_bottom_chF2->SetLineColor(kBlue);
+
+        h1_S1_bottom_chF3->SetLineWidth(2);
+        h1_S1_bottom_chF3->SetLineColor(kRed);
+
+        h1_S1_bottom_chF5->SetLineWidth(2);
+        h1_S1_bottom_chF5->SetLineColor(kGreen);
+
+        h1_S1_bottom_chF4->SetLineWidth(2);
+        h1_S1_bottom_chF4->SetLineColor(kMagenta);
+
+
+
+        h1_S1_bottom_chF2->Draw();
+        h1_S1_bottom_chF3->Draw("same");
+        h1_S1_bottom_chF5->Draw("same");
+        h1_S1_bottom_chF4->Draw("same");
+
+
+        vector<double> max_values_h1;
+        max_values_h1.push_back(h1_S1_bottom_chF2->GetMaximum());
+        max_values_h1.push_back(h1_S1_bottom_chF3->GetMaximum());
+        max_values_h1.push_back(h1_S1_bottom_chF4->GetMaximum());
+        max_values_h1.push_back(h1_S1_bottom_chF5->GetMaximum());
+        h1_S1_bottom_chF2->GetYaxis()->SetRangeUser(0., *max_element(max_values_h1.begin(), max_values_h1.end()) * 1.8);
+
+        auto legend = new TLegend(0.35,0.6,0.9,0.9);
+        legend->SetTextSize(0.03);
+        //legend->SetHeader("The Legend Title","C"); // option "C" allows to center the header
+        legend->AddEntry(h1_S1_bottom_chF2,"F2 charge_bottom[0] (Left-Top)","l");
+        legend->AddEntry(h1_S1_bottom_chF3,"F3 charge_bottom[1] (Right-Top)","l");
+        legend->AddEntry(h1_S1_bottom_chF5,"F5 charge_bottom[3] (Left-Bot)","l");
+        legend->AddEntry(h1_S1_bottom_chF4,"F4 charge_bottom[2] (Right-Bot)","l");
+        legend->Draw();
+
+
+        c1->cd(2);
+
+        h1_S1_top_C5_D1_D5_E2_E3_E4->SetTitle(total_cut_srt_loop1);
+        h1_S1_top_C5_D1_D5_E2_E3_E4->GetXaxis()->SetTitle("Summ of 6 ch: clusters.at(nc_i)->charge_top[x] [PE]");
+
+        h1_S1_top_C5_D1_D5_E2_E3_E4->SetLineWidth(2);
+        h1_S1_top_C5_D1_D5_E2_E3_E4->SetLineColor(kBlue);
+
+        h1_S1_top_C4_C3_D4_D3_D2_E5->SetLineWidth(2);
+        h1_S1_top_C4_C3_D4_D3_D2_E5->SetLineColor(kRed);
+
+        h1_S1_top_A1_A2_B1_B2_C1_C2->SetLineWidth(2);
+        h1_S1_top_A1_A2_B1_B2_C1_C2->SetLineColor(kGreen);
+
+        h1_S1_top_A3_A4_A5_B4_B3_B5->SetLineWidth(2);
+        h1_S1_top_A3_A4_A5_B4_B3_B5->SetLineColor(kMagenta);
+
+        h1_S1_top_C5_D1_D5_E2_E3_E4->Draw();
+        h1_S1_top_C4_C3_D4_D3_D2_E5->Draw("same");
+        h1_S1_top_A1_A2_B1_B2_C1_C2->Draw("same");
+        h1_S1_top_A3_A4_A5_B4_B3_B5->Draw("same");
+
+        vector<double> max_values_h1_2;
+        max_values_h1_2.push_back(h1_S1_top_C5_D1_D5_E2_E3_E4->GetMaximum());
+        max_values_h1_2.push_back(h1_S1_top_C4_C3_D4_D3_D2_E5->GetMaximum());
+        max_values_h1_2.push_back(h1_S1_top_A1_A2_B1_B2_C1_C2->GetMaximum());
+        max_values_h1_2.push_back(h1_S1_top_A3_A4_A5_B4_B3_B5->GetMaximum());
+        h1_S1_top_C5_D1_D5_E2_E3_E4->GetYaxis()->SetRangeUser(0., *max_element(max_values_h1_2.begin(), max_values_h1_2.end()) * 1.8 );
+
+        auto legend_cd2 = new TLegend(0.35,0.6,0.9,0.9);
+        legend_cd2->SetTextSize(0.03);
+        //legend->SetHeader("The Legend Title","C"); // option "C" allows to center the header
+        legend_cd2->AddEntry(h1_S1_top_C5_D1_D5_E2_E3_E4,"C5_D1_D5_E2_E3_E4 (Left-Top)","l");
+        legend_cd2->AddEntry(h1_S1_top_C4_C3_D4_D3_D2_E5,"C4_C3_D4_D3_D2_E5 (Right-Top)","l");
+        legend_cd2->AddEntry(h1_S1_top_A1_A2_B1_B2_C1_C2,"A1_A2_B1_B2_C1_C2 (Left-Bot), B1=0","l");
+        legend_cd2->AddEntry(h1_S1_top_A3_A4_A5_B4_B3_B5,"A3_A4_A5_B4_B3_B5 (Right-Bot)","l");
+        legend_cd2->Draw();
     }
 
     if(is_draw_h2)
