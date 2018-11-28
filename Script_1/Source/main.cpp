@@ -58,10 +58,10 @@ using namespace std;
 //int run_number = 448; //ph2     Am241 error
 //int run_number = 532; //ph2    BEAM ON (E = 28 MeV, i = 12 nA)
 //int run_number = 534; //ph2     backgroud
-int run_number = 537; //ph2     Am241
+//int run_number = 537; //ph2     Am241
 //int run_number = 540; //ph2     Cf252
 //int run_number = 542; //ph2     Am241
-//int run_number = 544; //ph2     Am241
+int run_number = 544; //ph2     Am241
 //int run_number = 550; //ph2     Am241
 //int run_number = 554; //ph2     Am241 error
 
@@ -106,10 +106,13 @@ public:
     bool cls1;//cluster 1
     bool is_S1;
     bool is_S2;
+    bool is_S2_v2;
+
 
     bool cent_spot;
     bool edges;
     bool corners;
+    bool region_of_S2_uniformity;
 
     bool edge_left;
     bool edge_right;
@@ -142,6 +145,10 @@ BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
     cls1 = nc_i == 1;//cluster 1
     is_S1 =  nc == 2 && cls0 && cls0_is_full && cls0_is_S1;
     is_S2 =  nc == 2 && cls1 && cls0_is_full && cls0_is_S1;
+
+    is_S2_v2 = false;
+    if(nc == 2)
+        is_S2_v2 = is_S2 && clusters.at(1)->f90 < 0.2;
 
     cent_spot = (clusters.at(nc_i)->pos_x > area_cut_x2) && (clusters.at(nc_i)->pos_x < area_cut_x3) &&
             (clusters.at(nc_i)->pos_y > area_cut_y2) && (clusters.at(nc_i)->pos_y < area_cut_y3);
@@ -179,6 +186,15 @@ BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
 
 
     corners = corner_left_bot || corner_right_bot || corner_left_top || corner_right_top;
+
+    if(nc == 2)
+    {
+        region_of_S2_uniformity = (clusters.at(1)->pos_x > 2.2) && (clusters.at(1)->pos_x < 2.8) &&
+                (clusters.at(1)->pos_y > 2) && (clusters.at(1)->pos_y < 3);
+    }
+    else
+       region_of_S2_uniformity = false;
+
 
 }
 
@@ -235,7 +251,7 @@ int main(/*int argc, char *argv[]*/)
     data->SetBranchAddress("recoevent",&evReco);
 
 
-    double range_scale = 1;
+    double range_scale = 1.2;
     TH1F *h1;
     TH2F *h2 = new TH2F("h2 XY S2", "h2 title", 200, 0, 5, 200, 0, 5);//XY S2
     TH2F *h2_S1 = new TH2F("h2 XY S1", "h2 title", 200, 0, 5, 200, 0, 5);//XY S1
@@ -298,16 +314,17 @@ int main(/*int argc, char *argv[]*/)
         {
 
             BoolCut C0(clusters, 0);
-            total_cut_srt_loop1_0 = "C0.is_S1_S2";
+            total_cut_srt_loop1_0 = "C0.nc == 2";
             double Tdrift = -1;
 
 
             if(C0.nc == 2)
             {
-                Tdrift = (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000;
-                //
-
-                //h1_Tdrift->Fill(Tdrift);
+                //if(clusters.at(1)->f90 < 0.2)
+                {
+                    Tdrift = (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000;
+                    //h1_Tdrift->Fill(Tdrift);
+                }
             }
 
 
@@ -321,8 +338,10 @@ int main(/*int argc, char *argv[]*/)
                 //&& Tdrift > 50 && Tdrift < 62
                 //total_cut_srt_loop1 = "C1.nc == 20";
                 //C1.nc == 2 && C1.cls1 && C1.cls0_is_full && C1.cls0_is_S1
-                //&& clusters.at(nc_i)->tot_charge_top > 8000 && clusters.at(nc_i)->tot_charge_top < 14000
-                REMEMBER_CUT_LOOP1(C1.is_S2 && clusters.at(nc_i)->tot_charge_top > 1600 && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 700);
+                //&& C1.is_S2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 350 && clusters.at(0)->charge < 510
+                //&& Tdrift > 30 && Tdrift < 45
+                //C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 540
+                REMEMBER_CUT_LOOP1(C1.is_S2_v2 && clusters.at(nc_i)->tot_charge_top > 1573 && clusters.at(nc_i)->tot_charge_top < 2457);
 
                 if ( cut_loop1_bool ) //cuts
                 {
@@ -425,12 +444,12 @@ int main(/*int argc, char *argv[]*/)
 
     if(is_draw_h1)
     {
-        h1 = h1_f90;
-        h1->SetTitle(cut_loop1_srt);
-        //h1->SetTitle(total_cut_srt_loop1_0);
+        h1 = h1_Tdrift;
+        //h1->SetTitle(cut_loop1_srt);
+        h1->SetTitle(total_cut_srt_loop1_0);
         //h1->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
-        //h1->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
-        h1->GetXaxis()->SetTitle("clusters.at(nc_i)->f90");
+        h1->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
+        //h1->GetXaxis()->SetTitle("clusters.at(nc_i)->f90");
         h1->Draw();
     }
 
@@ -787,7 +806,7 @@ int main(/*int argc, char *argv[]*/)
             c1->cd(3);
             gStyle->SetOptFit(1);
             //gStyle->SetOptStat(11);
-            h1_Tdrift->SetTitle(total_cut_srt_loop1_0);
+            h1_Tdrift->SetTitle(total_cut_srt_loop1);
             h1_Tdrift->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
             h1_Tdrift->Draw();
             gPad->Update();
