@@ -4,6 +4,7 @@
 //C++
 #include <iostream>
 #include <sstream>      // std::ostringstream
+#include <fstream>
 
 //root cern
 #include "TApplication.h"
@@ -58,10 +59,10 @@ using namespace std;
 //int run_number = 448; //ph2     Am241 error
 //int run_number = 532; //ph2    BEAM ON (E = 28 MeV, i = 12 nA)
 //int run_number = 534; //ph2     backgroud
-//int run_number = 537; //ph2     Am241
+int run_number = 537; //ph2     Am241
 //int run_number = 540; //ph2     Cf252
 //int run_number = 542; //ph2     Am241
-int run_number = 544; //ph2     Am241
+//int run_number = 544; //ph2     Am241
 //int run_number = 550; //ph2     Am241
 //int run_number = 554; //ph2     Am241 error
 
@@ -100,6 +101,7 @@ public:
     bool S1_Am_peak_r554;
     bool is_S1_S2;
     bool is_S1_only;
+    bool is_good_r537_v1;
 
     //cuts2
     bool cls0;//cluster 0
@@ -139,6 +141,7 @@ BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
     S1_Am_peak_r554 = (clusters.at(0)->charge > 252) && (clusters.at(0)->charge < 366); // mean +- 1.5sigma using run 554
     is_S1_S2 = nc == 2 && cls0_is_full && cls0_is_S1;
     is_S1_only = nc == 1 && cls0_is_full && cls0_is_S1;
+
 
     //cuts2
     cls0 = nc_i == 0;//cluster 0
@@ -195,6 +198,9 @@ BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
     else
        region_of_S2_uniformity = false;
 
+
+    //complex cuts;
+    is_good_r537_v1 = is_S1_S2 && region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 700;
 
 }
 
@@ -286,13 +292,13 @@ int main(/*int argc, char *argv[]*/)
     TH1F *h1_S1_top_C4_C3_D4_D3_D2_E5 = new TH1F("h1_S1_top_C4_C3_D4_D3_D2_E5", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, xmax_h1_S1_top);//Am S1 charge_top
 
 
-//    vector<TH1F *> h1_S1_top_vec;
-//    for(int ih1 = 0; ih1 < 24; ih1++)
-//    {
-//        ostringstream h1_S1_bottom_name;
-//        h1_S1_bottom_name << "h1_S1_bottom_ch" << ih1;
-//        h1_S1_top_vec.push_back(new TH1F("h1_S1_bottom_chF5", "h1 title", 200, -30, 200);
-//    }
+    vector<TH1F *> h1_S1_top_vec;
+    for(int ih1 = 0; ih1 < 23; ih1++)
+    {
+        ostringstream h1_S1_top_name;
+        h1_S1_top_name << "h1_S1_top_ch" << ih1;
+        h1_S1_top_vec.push_back( new TH1F(h1_S1_top_name.str().c_str(), h1_S1_top_name.str().c_str(), 120, -10, 50) );
+    }
 
 
     vector<bool> is_in_cut(data->GetEntries(), false);
@@ -341,14 +347,13 @@ int main(/*int argc, char *argv[]*/)
                 //&& C1.is_S2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 350 && clusters.at(0)->charge < 510
                 //&& Tdrift > 30 && Tdrift < 45
                 //C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 540
-                REMEMBER_CUT_LOOP1(C1.is_S2_v2 && clusters.at(nc_i)->tot_charge_top > 1573 && clusters.at(nc_i)->tot_charge_top < 2457);
+                REMEMBER_CUT_LOOP1(C1.is_good_r537_v1 && C1.is_S2_v2);
 
                 if ( cut_loop1_bool ) //cuts
                 {
                     is_in_cut[ev] = true;
 
                     S2_v.push_back(clusters.at(nc_i)->charge);
-
 
                     h1_Tdrift->Fill(Tdrift);
                     //cout << "   pos_x = " << clusters[nc_i]->pos_x << "; pos_y = " << clusters[nc_i]->pos_y << endl;
@@ -358,32 +363,7 @@ int main(/*int argc, char *argv[]*/)
                     h1_S2_bot->Fill(clusters.at(nc_i)->tot_charge_bottom);
                     h1_f90->Fill(clusters.at(nc_i)->f90) ;
 
-                    {
-                        h1_S1_bottom_chF2->Fill(clusters.at(nc_i)->charge_bottom[0]);
-                        h1_S1_bottom_chF3->Fill(clusters.at(nc_i)->charge_bottom[1]);
-                        h1_S1_bottom_chF4->Fill(clusters.at(nc_i)->charge_bottom[2]);
-                        h1_S1_bottom_chF5->Fill(clusters.at(nc_i)->charge_bottom[3]);
 
-                        h1_S1_top_A1_A2_B1_B2_C1_C2->Fill(
-                                    clusters.at(nc_i)->charge_top[0] + clusters.at(nc_i)->charge_top[1] +
-                                0 + clusters.at(nc_i)->charge_top[6] +
-                                clusters.at(nc_i)->charge_top[10] + clusters.at(nc_i)->charge_top[11]);
-
-                        h1_S1_top_A3_A4_A5_B4_B3_B5->Fill(
-                                    clusters.at(nc_i)->charge_top[2] + clusters.at(nc_i)->charge_top[3] +
-                                clusters.at(nc_i)->charge_top[4] + clusters.at(nc_i)->charge_top[8] +
-                                clusters.at(nc_i)->charge_top[7] + clusters.at(nc_i)->charge_top[9]);
-
-                        h1_S1_top_C5_D1_D5_E2_E3_E4->Fill(
-                                    clusters.at(nc_i)->charge_top[2+12] + clusters.at(nc_i)->charge_top[3+12] +
-                                clusters.at(nc_i)->charge_top[7+12] + clusters.at(nc_i)->charge_top[8+12] +
-                                clusters.at(nc_i)->charge_top[9+12] + clusters.at(nc_i)->charge_top[10+12]);
-
-                        h1_S1_top_C4_C3_D4_D3_D2_E5->Fill(
-                                    clusters.at(nc_i)->charge_top[1+12] + clusters.at(nc_i)->charge_top[0+12] +
-                                clusters.at(nc_i)->charge_top[6+12] + clusters.at(nc_i)->charge_top[5+12] +
-                                clusters.at(nc_i)->charge_top[4+12] + clusters.at(nc_i)->charge_top[11+12]);
-                    }
 
                 }
 
@@ -418,14 +398,52 @@ int main(/*int argc, char *argv[]*/)
                 {
                     h2_S1->Fill(clusters.at(nc_i)->pos_x, clusters.at(nc_i)->pos_y);
                     h1_S1->Fill(clusters.at(nc_i)->charge);
-                }                
 
-            }
+                    {
+                        h1_S1_bottom_chF2->Fill(clusters.at(nc_i)->charge_bottom[0]);
+                        h1_S1_bottom_chF3->Fill(clusters.at(nc_i)->charge_bottom[1]);
+                        h1_S1_bottom_chF4->Fill(clusters.at(nc_i)->charge_bottom[2]);
+                        h1_S1_bottom_chF5->Fill(clusters.at(nc_i)->charge_bottom[3]);
+
+
+
+                        h1_S1_top_A1_A2_B1_B2_C1_C2->Fill(
+                                    clusters.at(nc_i)->charge_top[0] + clusters.at(nc_i)->charge_top[1] +
+                                0 + clusters.at(nc_i)->charge_top[5] +
+                                clusters.at(nc_i)->charge_top[9] + clusters.at(nc_i)->charge_top[10]);
+
+                        h1_S1_top_A3_A4_A5_B4_B3_B5->Fill(
+                                    clusters.at(nc_i)->charge_top[2] + clusters.at(nc_i)->charge_top[3] +
+                                clusters.at(nc_i)->charge_top[4] + clusters.at(nc_i)->charge_top[7] +
+                                clusters.at(nc_i)->charge_top[6] + clusters.at(nc_i)->charge_top[8]);
+
+                        h1_S1_top_C5_D1_D5_E2_E3_E4->Fill(
+                                    clusters.at(nc_i)->charge_top[13] + clusters.at(nc_i)->charge_top[14] +
+                                clusters.at(nc_i)->charge_top[18] + clusters.at(nc_i)->charge_top[19] +
+                                clusters.at(nc_i)->charge_top[20] + clusters.at(nc_i)->charge_top[21]);
+
+                        h1_S1_top_C4_C3_D4_D3_D2_E5->Fill(
+                                    clusters.at(nc_i)->charge_top[12] + clusters.at(nc_i)->charge_top[11] +
+                                clusters.at(nc_i)->charge_top[17] + clusters.at(nc_i)->charge_top[16] +
+                                clusters.at(nc_i)->charge_top[15] + clusters.at(nc_i)->charge_top[22]);
+
+
+                        for(int ih1 = 0; ih1 < 23; ih1++)
+                        {
+                            h1_S1_top_vec[ih1]->Fill(clusters.at(nc_i)->charge_top[ih1]);
+                            h1_S1_top_vec[ih1]->SetTitle(total_cut_srt_loop2);
+                        }
+
+                    }
+
+                }//if(C2.is_S1)
+
+            }//for nc_i
 
             if(nc > 1)
                 h1_S2_S1_ratio->Fill(clusters.at(1)->charge / clusters.at(0)->charge);
 
-        }
+        }//if(is_in_cut[ev])
     }
 
 
@@ -434,13 +452,14 @@ int main(/*int argc, char *argv[]*/)
 
     bool is_draw_h1_hist_overlap_var1 = 0;
     bool is_draw_h1_hist_overlap_var2 = 0;
+    bool is_draw_h1_hist_overlap_var3 = 1;
 
-    bool is_draw_h2 = 1;
+    bool is_draw_h2 = 0;
     bool is_draw_h2_var1 = 0;
     bool is_draw_h2_var2 = 0;
     bool is_draw_h2_var3 = 0;
     bool is_draw_var4 = 0;
-    bool is_draw_var5_tdrift = 1;
+    bool is_draw_var5_tdrift = 0;
 
     if(is_draw_h1)
     {
@@ -576,6 +595,149 @@ int main(/*int argc, char *argv[]*/)
         legend_cd2->AddEntry(h1_S1_top_A1_A2_B1_B2_C1_C2,"A1_A2_B1_B2_C1_C2 (Left-Bot), B1=0","l");
         legend_cd2->AddEntry(h1_S1_top_A3_A4_A5_B4_B3_B5,"A3_A4_A5_B4_B3_B5 (Right-Bot)","l");
         legend_cd2->Draw();
+    }
+
+    if(is_draw_h1_hist_overlap_var3)
+    {
+        vector<TCanvas *> cv;
+        cv.push_back(new TCanvas("c1","c1"));
+        cv.push_back(new TCanvas("c2","c2"));
+        cv.push_back(new TCanvas("c3","c3"));
+        cv.push_back(new TCanvas("c4","c4"));
+        cv.push_back(new TCanvas("c5","c5"));
+        cv.push_back(new TCanvas("c6","c6"));
+
+        cv[0]->Divide(3,2,0.01,0.01);
+        cv[1]->Divide(3,2,0.01,0.01);
+        cv[2]->Divide(3,2,0.01,0.01);
+        cv[3]->Divide(3,2,0.01,0.01);
+        cv[4]->Divide(2,2,0.01,0.01);
+        cv[5]->Divide(2,2,0.01,0.01);
+
+        vector<double> ch_num_v;
+        vector<double> mean_v;
+        vector<double> std_dev_v;
+        vector<double> fano_v;
+
+        //top
+        for(int ih1 = 0; ih1 < 23; ih1++)
+        {
+            h1_S1_top_vec[ih1]->SetLineWidth(2);
+            h1_S1_top_vec[ih1]->GetXaxis()->SetTitle("clusters.at(nc_i)->charge_top[x] [PE]");
+
+            cv[ih1/6]->cd( (ih1%6) + 1);
+            gStyle->SetOptFit(1);
+
+            h1_S1_top_vec[ih1]->Draw();
+
+            double x_center = h1_S1_top_vec[ih1]->GetBinCenter( h1_S1_top_vec[ih1]->GetMaximumBin() );
+            h1_S1_top_vec[ih1]->Fit("gaus", "", "");
+
+            ch_num_v.push_back(ih1);
+            mean_v.push_back(h1_S1_top_vec[ih1]->GetMean());
+            std_dev_v.push_back(h1_S1_top_vec[ih1]->GetStdDev());
+
+            fano_v.push_back( pow(h1_S1_top_vec[ih1]->GetStdDev(), 2.0) / h1_S1_top_vec[ih1]->GetMean() );
+
+        }
+
+        //bot
+        cv[4]->cd(1);
+        h1_S1_bottom_chF2->Draw();
+        ch_num_v.push_back(1 + 22);
+        mean_v.push_back(h1_S1_bottom_chF2->GetMean());
+        std_dev_v.push_back(h1_S1_bottom_chF2->GetStdDev());
+        fano_v.push_back( pow(h1_S1_bottom_chF2->GetStdDev(), 2.0) / h1_S1_bottom_chF2->GetMean() );
+
+        cv[4]->cd(2);
+        h1_S1_bottom_chF3->Draw();
+        ch_num_v.push_back(2 + 22);
+        mean_v.push_back(h1_S1_bottom_chF3->GetMean());
+        std_dev_v.push_back(h1_S1_bottom_chF3->GetStdDev());
+        fano_v.push_back( pow(h1_S1_bottom_chF3->GetStdDev(), 2.0) / h1_S1_bottom_chF3->GetMean() );
+
+        cv[4]->cd(3);
+        h1_S1_bottom_chF5->Draw();
+        ch_num_v.push_back(4 + 22);
+        mean_v.push_back(h1_S1_bottom_chF5->GetMean());
+        std_dev_v.push_back(h1_S1_bottom_chF5->GetStdDev());
+        fano_v.push_back( pow(h1_S1_bottom_chF5->GetStdDev(), 2.0) / h1_S1_bottom_chF5->GetMean() );
+
+        cv[4]->cd(4);
+        h1_S1_bottom_chF4->Draw();
+        ch_num_v.push_back(3 + 22);
+        mean_v.push_back(h1_S1_bottom_chF4->GetMean());
+        std_dev_v.push_back(h1_S1_bottom_chF4->GetStdDev());
+        fano_v.push_back( pow(h1_S1_bottom_chF4->GetStdDev(), 2.0) / h1_S1_bottom_chF4->GetMean() );
+
+
+        //save mean and sigma in file
+        ofstream f_output("/home/vlad/Soft/Red_Root_scripts/Script_1/Source/mean_sigma.txt");
+        for(int k = 0; k < mean_v.size(); k++)
+        {
+            f_output << mean_v[k] << "\t" << std_dev_v[k] << endl;
+        }
+
+
+        //graphs
+        cv[5]->cd(1);
+        gPad->SetGrid();
+        TGraph *gr1 = new TGraph(ch_num_v.size(), &ch_num_v[0],  &mean_v[0]);
+        gr1->Draw("AP");
+        gr1->SetMarkerStyle(20);
+        gr1->SetMarkerSize(1);
+        gr1->SetTitle("Mean from hist [PE]");
+        gr1->GetXaxis()->SetTitle("ch number");
+
+        cv[5]->cd(2);
+        gPad->SetGrid();
+        TGraph *gr2 = new TGraph(ch_num_v.size(), &ch_num_v[0],  &std_dev_v[0]);
+        gr2->Draw("AP");
+        gr2->SetMarkerStyle(20);
+        gr2->SetMarkerSize(1);
+        gr2->SetTitle("StdDev from hist [PE]");
+        gr2->GetXaxis()->SetTitle("ch number");
+
+        cv[5]->cd(3);
+        gPad->SetGrid();
+        TGraph *gr3 = new TGraph(ch_num_v.size(), &ch_num_v[0],  &fano_v[0]);
+        gr3->Draw("AP");
+        gr3->SetMarkerStyle(20);
+        gr3->SetMarkerSize(1);
+        gr3->SetTitle("Fano (Mean and StdDev from hist) [PE]");
+        gr3->GetXaxis()->SetTitle("ch number");
+
+
+
+        for(int ih1 = 0; ih1 < 23; ih1++)
+        {
+            //            h1_S1_top_vec[ih1]->SetLineWidth(2);
+
+            //            if(ih1 % 4 == 0)
+            //            {
+            //                c1->cd(ih1/4 + 1);
+            //                gStyle->SetOptFit(1);
+            //                h1_S1_top_vec[ih1]->GetXaxis()->SetTitle("clusters.at(nc_i)->charge_top[x] [PE]");
+            //                h1_S1_top_vec[ih1]->Draw();
+            //            }
+            //            else
+            //            {
+            //                h1_S1_top_vec[ih1]->Draw("same");
+            //            }
+
+
+            //            if( (ih1 % 4) == 0 )
+            //                h1_S1_top_vec[ih1]->SetLineColor(kBlue);
+            //            else if((ih1 % 4) == 1)
+            //                h1_S1_top_vec[ih1]->SetLineColor(kRed);
+            //            else if((ih1 % 4) == 2)
+            //                h1_S1_top_vec[ih1]->SetLineColor(kGreen);
+            //            else if((ih1 % 4) == 3)
+            //                h1_S1_top_vec[ih1]->SetLineColor(kMagenta);
+
+        }
+
+
     }
 
     if(is_draw_h2)

@@ -17,7 +17,9 @@ CONFIG -= app_bundle
 SOURCES += \
         main.cpp \
     script.cpp \
-    Dict.cpp
+    Dict.cpp \
+    sumsignals.cpp \
+    toymc.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 
