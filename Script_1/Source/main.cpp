@@ -205,6 +205,31 @@ BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
 }
 
 
+
+vector<double> Get_Cov_r(vector<double> xv, vector<double> yv)
+{
+    vector<double> result;
+
+    double mean_x = TMath::Mean(xv.begin(), xv.end());
+    double mean_y = TMath::Mean(yv.begin(), yv.end());
+    double rms_x = TMath::RMS(xv.begin(), xv.end());
+    double rms_y = TMath::RMS(yv.begin(), yv.end());
+
+    vector<double> tmp;
+    for(int i = 0; i < xv.size(); i++)
+    {
+        tmp.push_back( (xv[i] - mean_x) * (yv[i] - mean_y) );
+    }
+
+    double cov = TMath::Mean(tmp.begin(), tmp.end());
+    double r = cov / (rms_x * rms_y);
+
+    result.push_back( cov );
+    result.push_back( r );
+
+    return result;
+}
+
 // define a gauss function with 3 + 1 parameters
 Double_t gauss_3p_1p(Double_t *x,Double_t *par)
 {
@@ -258,10 +283,20 @@ int main(/*int argc, char *argv[]*/)
 
 
     double range_scale = 1.2;
-    TH1F *h1;
+
+    TH2F *h2_S1_ij = new TH2F("h2 S1_i vs S1_j", "h2 S1_i vs S1_j", 50, 0, 500, 50, 0, 500);//S1_i vs S1_j
     TH2F *h2 = new TH2F("h2 XY S2", "h2 title", 200, 0, 5, 200, 0, 5);//XY S2
     TH2F *h2_S1 = new TH2F("h2 XY S1", "h2 title", 200, 0, 5, 200, 0, 5);//XY S1
-    TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, -100, 2000*range_scale);//Am S1 charge
+    vector<double> S1_i_v;
+    vector<double> S1_j_v;
+
+    TH1F *h1;
+
+    TH1F *h1_S1_top = new TH1F("h1_S1_top", "h1_S1_top", 200, 0, 500);//Am S1 h1_S1_top
+    TH1F *h1_S1_bot = new TH1F("h1_S1_bot", "h1_S1_bot", 200, 0, 500);//Am S1 h1_S1_bot
+    TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, 0, 1000);//Am S1 charge
+    //TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, -100, 2000*range_scale);//Am S1 charge
+
     TH1F *h1_S2 = new TH1F("h1 S2", "h1 title", 400, -100, 10000*range_scale);//Am S2 charge
     TH1F *h1_S2_top = new TH1F("h1 S2 top", "h1 title", 200, -100, (5000 - 50)*range_scale );
     TH1F *h1_S2_bot = new TH1F("h1 S2 bot", "h1 title", 200, -100, (5000 - 50)*range_scale );
@@ -434,6 +469,14 @@ int main(/*int argc, char *argv[]*/)
                             h1_S1_top_vec[ih1]->SetTitle(total_cut_srt_loop2);
                         }
 
+                        h2_S1_ij->Fill(clusters.at(nc_i)->tot_charge_top, clusters.at(nc_i)->tot_charge_bottom);
+
+                        h1_S1_top->Fill(clusters.at(nc_i)->tot_charge_top);
+                        h1_S1_bot->Fill(clusters.at(nc_i)->tot_charge_bottom);
+                        S1_i_v.push_back(clusters.at(nc_i)->tot_charge_top);
+                        S1_j_v.push_back(clusters.at(nc_i)->tot_charge_bottom);
+
+
                     }
 
                 }//if(C2.is_S1)
@@ -452,7 +495,8 @@ int main(/*int argc, char *argv[]*/)
 
     bool is_draw_h1_hist_overlap_var1 = 0;
     bool is_draw_h1_hist_overlap_var2 = 0;
-    bool is_draw_h1_hist_overlap_var3 = 1;
+    bool is_draw_h1_hist_overlap_var3 = 0;
+    bool is_draw_h1_SiPM_coorelations_v1 = 1;
 
     bool is_draw_h2 = 0;
     bool is_draw_h2_var1 = 0;
@@ -739,6 +783,100 @@ int main(/*int argc, char *argv[]*/)
 
 
     }
+
+    if(is_draw_h1_SiPM_coorelations_v1)
+    {
+        TCanvas *c1 = new TCanvas("c1","c1");
+        c1->Divide(2,2,0.01,0.01);
+        //gStyle->SetOptStat(0);
+        gStyle->SetOptFit(1);
+
+        double fano_fit = 0;
+        double fano_hist = 0;
+        double fano_expec = 0;
+
+        //S1_i_v = top
+        //S1_j_v = bot
+        TH1F *h1_S1_i = h1_S1_bot;
+        TH1F *h1_S1_j = h1_S1_top;
+
+
+
+        c1->cd(1);
+        h2_S1_ij->SetTitle(total_cut_srt_loop2);
+        h2_S1_ij->GetXaxis()->SetTitle("clusters.at(nc_i)->tot_charge_top [PE]");
+        h2_S1_ij->GetYaxis()->SetTitle("clusters.at(nc_i)->tot_charge_bottom [PE]");
+        h2_S1_ij->GetXaxis()->SetRangeUser(100, 400);
+        h2_S1_ij->GetYaxis()->SetRangeUser(100, 400);
+        h2_S1_ij->Draw("colz");
+        //h2->SetStats(0); //delete statbox
+        gPad->Update();
+        TPaveStats *st_h2_S1_ij = (TPaveStats*)h2_S1_ij->GetListOfFunctions()->FindObject("stats");
+        st_h2_S1_ij->SetX1NDC(0.12); st_h2_S1_ij->SetX2NDC(0.35);
+        st_h2_S1_ij->SetY1NDC(0.72); st_h2_S1_ij->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+        double mean_i = TMath::Mean(S1_i_v.begin(), S1_i_v.end());
+        double mean_j = TMath::Mean(S1_j_v.begin(), S1_j_v.end());
+        double rms_i = TMath::RMS(S1_i_v.begin(), S1_i_v.end());
+        double rms_j = TMath::RMS(S1_j_v.begin(), S1_j_v.end());
+        //cout << ;
+        vector<double> cov_r = Get_Cov_r(S1_i_v, S1_j_v);
+        TPaveText *t_h2_S1_ij = new TPaveText(0.7,0.13,0.9,0.43,"brNDC");
+        t_h2_S1_ij->AddText(Form("cov = %g", cov_r[0] ));
+        t_h2_S1_ij->AddText(Form("r = %g", cov_r[1] ));
+        t_h2_S1_ij->Draw();
+
+
+
+        c1->cd(2);
+        h1_S1_i->SetLineWidth(2);
+        h1_S1_i->GetXaxis()->SetTitle("clusters.at(nc_i)->tot_charge_bottom [PE]");
+        //h1_S1_i->SetStats(0);
+        h1_S1_i->Draw();
+        h1_S1_i->Fit("gaus");
+        TF1 *fit_h1_S1_i = h1_S1_i->GetFunction("gaus");
+        TPaveText *t_h1_S1_i = new TPaveText(0.1,0.7,0.4,1,"brNDC");
+        fano_fit = pow(fit_h1_S1_i->GetParameter(2), 2.0) / fit_h1_S1_i->GetParameter(1);
+        fano_hist = pow(h1_S1_i->GetStdDev(), 2.0) / h1_S1_i->GetMean();
+        t_h1_S1_i->AddText(Form("Fano(fit) = %g", fano_fit));
+        t_h1_S1_i->AddText(Form("Fano(hist) = %g", fano_hist));
+        t_h1_S1_i->Draw();
+
+
+        c1->cd(3);
+        h1_S1_j->SetLineWidth(2);
+        h1_S1_j->GetXaxis()->SetTitle("clusters.at(nc_i)->tot_charge_top [PE]");
+        h1_S1_j->Draw();
+        h1_S1_j->Fit("gaus");
+        TF1 *fit_h1_S1_j = h1_S1_j->GetFunction("gaus");
+        TPaveText *t_h1_S1_j =new TPaveText(0.1,0.7,0.4,1,"brNDC");
+        fano_fit = pow(fit_h1_S1_j->GetParameter(2), 2.0) / fit_h1_S1_j->GetParameter(1);
+        fano_hist = pow(h1_S1_j->GetStdDev(), 2.0) / h1_S1_j->GetMean();
+        t_h1_S1_j->AddText(Form("Fano(fit) = %g", fano_fit));
+        t_h1_S1_j->AddText(Form("Fano(hist) = %g", fano_hist));
+        t_h1_S1_j->Draw();
+
+        c1->cd(4);
+        h1_S1->SetTitle(total_cut_srt_loop2);
+        h1_S1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
+        h1_S1->Draw();
+        h1_S1->Fit("gaus");
+        TF1 *fit_h1_S1 = h1_S1->GetFunction("gaus");
+        TPaveText *t_h1_S1 =new TPaveText(0.1,0.7,0.4,1,"brNDC");
+        fano_fit = pow(fit_h1_S1->GetParameter(2), 2.0) / fit_h1_S1->GetParameter(1);
+        fano_hist = pow(h1_S1->GetStdDev(), 2.0) / h1_S1->GetMean();
+        fano_expec = (pow(rms_i, 2.0) + pow(rms_j, 2.0) + 2*cov_r[0])/(mean_i + mean_j);
+        t_h1_S1->AddText(Form("Fano(fit) = %g", fano_fit));
+        t_h1_S1->AddText(Form("Fano(hist) = %g", fano_hist));
+        t_h1_S1->AddText(Form("Fano(expec) = %g", fano_expec));
+        t_h1_S1->Draw();
+
+
+
+    }
+
+
 
     if(is_draw_h2)
     {
