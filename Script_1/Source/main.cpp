@@ -284,7 +284,7 @@ int main(/*int argc, char *argv[]*/)
 
     double range_scale = 1.2;
 
-    TH2F *h2_S1_ij = new TH2F("h2 S1_i vs S1_j", "h2 S1_i vs S1_j", 50, 0, 500, 50, 0, 500);//S1_i vs S1_j
+    TH2F *h2_S1_ij = new TH2F("h2 S1_i vs S1_j", "h2 S1_i vs S1_j", 50, 0, 100, 50, 0, 100);//S1_i vs S1_j
     TH2F *h2 = new TH2F("h2 XY S2", "h2 title", 200, 0, 5, 200, 0, 5);//XY S2
     TH2F *h2_S1 = new TH2F("h2 XY S1", "h2 title", 200, 0, 5, 200, 0, 5);//XY S1
     vector<double> S1_i_v;
@@ -326,13 +326,21 @@ int main(/*int argc, char *argv[]*/)
     TH1F *h1_S1_top_A3_A4_A5_B4_B3_B5 = new TH1F("h1_S1_top_A3_A4_A5_B4_B3_B5", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, xmax_h1_S1_top);//Am S1 charge_top
     TH1F *h1_S1_top_C4_C3_D4_D3_D2_E5 = new TH1F("h1_S1_top_C4_C3_D4_D3_D2_E5", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, xmax_h1_S1_top);//Am S1 charge_top
 
+    TH1F *h1_S1_top_half_A1_C5 =new TH1F("h1_S1_top_half_A1_C5", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, 300);
+    TH1F *h1_S1_top_half_A3_C4 =new TH1F("h1_S1_top_half_A3_C4", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, 300);
+
+    TH1F *h1_S1_top_C5_D5_E3 = new TH1F("h1_S1_top_C5_D5_E3", "h1 title", 100, xmin_h1_S1_top, 80);
+    TH1F *h1_S1_top_D1_E2_E4 = new TH1F("h1_S1_top_D1_E2_E4", "h1 title", 100, xmin_h1_S1_top, 80);
+
+    TH1F *h1_S1_top_C5_D5 = new TH1F("h1_S1_top_C5_D5", "h1 title", 100, -20, 80);
+
 
     vector<TH1F *> h1_S1_top_vec;
     for(int ih1 = 0; ih1 < 23; ih1++)
     {
         ostringstream h1_S1_top_name;
         h1_S1_top_name << "h1_S1_top_ch" << ih1;
-        h1_S1_top_vec.push_back( new TH1F(h1_S1_top_name.str().c_str(), h1_S1_top_name.str().c_str(), 120, -10, 50) );
+        h1_S1_top_vec.push_back( new TH1F(h1_S1_top_name.str().c_str(), h1_S1_top_name.str().c_str(), 120, -10, 40) );
     }
 
 
@@ -441,40 +449,68 @@ int main(/*int argc, char *argv[]*/)
                         h1_S1_bottom_chF5->Fill(clusters.at(nc_i)->charge_bottom[3]);
 
 
-
-                        h1_S1_top_A1_A2_B1_B2_C1_C2->Fill(
-                                    clusters.at(nc_i)->charge_top[0] + clusters.at(nc_i)->charge_top[1] +
+                        double S1_top_A1_A2_B1_B2_C1_C2 = clusters.at(nc_i)->charge_top[0] + clusters.at(nc_i)->charge_top[1] +
                                 0 + clusters.at(nc_i)->charge_top[5] +
-                                clusters.at(nc_i)->charge_top[9] + clusters.at(nc_i)->charge_top[10]);
+                                clusters.at(nc_i)->charge_top[9] + clusters.at(nc_i)->charge_top[10];
 
-                        h1_S1_top_A3_A4_A5_B4_B3_B5->Fill(
-                                    clusters.at(nc_i)->charge_top[2] + clusters.at(nc_i)->charge_top[3] +
+                        double S1_top_A3_A4_A5_B4_B3_B5 = clusters.at(nc_i)->charge_top[2] + clusters.at(nc_i)->charge_top[3] +
                                 clusters.at(nc_i)->charge_top[4] + clusters.at(nc_i)->charge_top[7] +
-                                clusters.at(nc_i)->charge_top[6] + clusters.at(nc_i)->charge_top[8]);
+                                clusters.at(nc_i)->charge_top[6] + clusters.at(nc_i)->charge_top[8];
 
-                        h1_S1_top_C5_D1_D5_E2_E3_E4->Fill(
-                                    clusters.at(nc_i)->charge_top[13] + clusters.at(nc_i)->charge_top[14] +
+                        double S1_top_C5_D1_D5_E2_E3_E4 = clusters.at(nc_i)->charge_top[13] + clusters.at(nc_i)->charge_top[14] +
                                 clusters.at(nc_i)->charge_top[18] + clusters.at(nc_i)->charge_top[19] +
-                                clusters.at(nc_i)->charge_top[20] + clusters.at(nc_i)->charge_top[21]);
+                                clusters.at(nc_i)->charge_top[20] + clusters.at(nc_i)->charge_top[21];
 
-                        h1_S1_top_C4_C3_D4_D3_D2_E5->Fill(
-                                    clusters.at(nc_i)->charge_top[12] + clusters.at(nc_i)->charge_top[11] +
+
+                        double S1_top_C4_C3_D4_D3_D2_E5 = clusters.at(nc_i)->charge_top[12] + clusters.at(nc_i)->charge_top[11] +
                                 clusters.at(nc_i)->charge_top[17] + clusters.at(nc_i)->charge_top[16] +
-                                clusters.at(nc_i)->charge_top[15] + clusters.at(nc_i)->charge_top[22]);
+                                clusters.at(nc_i)->charge_top[15] + clusters.at(nc_i)->charge_top[22];
 
 
+                        double S1_top_D1_E2_E4 = clusters.at(nc_i)->charge_top[14] + clusters.at(nc_i)->charge_top[19] +
+                                clusters.at(nc_i)->charge_top[21];
+
+                        double S1_top_C5_D5_E3 = clusters.at(nc_i)->charge_top[13] + clusters.at(nc_i)->charge_top[18] +
+                                clusters.at(nc_i)->charge_top[20];
+
+
+                        h1_S1_top_D1_E2_E4->Fill(S1_top_D1_E2_E4);
+                        h1_S1_top_C5_D5_E3->Fill(S1_top_C5_D5_E3);
+
+                        h1_S1_top_C5_D5->Fill(clusters.at(nc_i)->charge_top[13] + clusters.at(nc_i)->charge_top[18]);
+
+
+                        h1_S1_top_A1_A2_B1_B2_C1_C2->Fill(S1_top_A1_A2_B1_B2_C1_C2);
+
+                        h1_S1_top_A3_A4_A5_B4_B3_B5->Fill(S1_top_A3_A4_A5_B4_B3_B5);
+
+                        h1_S1_top_C5_D1_D5_E2_E3_E4->Fill(S1_top_C5_D1_D5_E2_E3_E4);
+
+                        h1_S1_top_C4_C3_D4_D3_D2_E5->Fill(S1_top_C4_C3_D4_D3_D2_E5);
+
+                        h1_S1_top_half_A1_C5->Fill(S1_top_A1_A2_B1_B2_C1_C2 + S1_top_C5_D1_D5_E2_E3_E4);
+                        h1_S1_top_half_A3_C4->Fill(S1_top_A3_A4_A5_B4_B3_B5 + S1_top_C4_C3_D4_D3_D2_E5);
+
+                        //choose i and j channels
+                        double S1_i = clusters.at(nc_i)->charge_top[13];
+                        double S1_j = clusters.at(nc_i)->charge_top[18];
+                        S1_i_v.push_back(S1_i);
+                        S1_j_v.push_back(S1_j);
+                        h2_S1_ij->Fill(S1_i, S1_j);
+
+                        //
                         for(int ih1 = 0; ih1 < 23; ih1++)
                         {
                             h1_S1_top_vec[ih1]->Fill(clusters.at(nc_i)->charge_top[ih1]);
                             h1_S1_top_vec[ih1]->SetTitle(total_cut_srt_loop2);
                         }
 
-                        h2_S1_ij->Fill(clusters.at(nc_i)->tot_charge_top, clusters.at(nc_i)->tot_charge_bottom);
+
 
                         h1_S1_top->Fill(clusters.at(nc_i)->tot_charge_top);
                         h1_S1_bot->Fill(clusters.at(nc_i)->tot_charge_bottom);
-                        S1_i_v.push_back(clusters.at(nc_i)->tot_charge_top);
-                        S1_j_v.push_back(clusters.at(nc_i)->tot_charge_bottom);
+
+
 
 
                     }
@@ -797,17 +833,21 @@ int main(/*int argc, char *argv[]*/)
 
         //S1_i_v = top
         //S1_j_v = bot
-        TH1F *h1_S1_i = h1_S1_bot;
-        TH1F *h1_S1_j = h1_S1_top;
+        TH1F *h1_S1_i = h1_S1_top_vec[13];
+        TH1F *h1_S1_j = h1_S1_top_vec[18];
+        TH1F *h1_S1_ij = h1_S1_top_C5_D5;
+        TString str_S1_i = "h1_S1_top_vec[13] C5 [PE]";
+        TString str_S1_j = "h1_S1_top_vec[18] D5 [PE]";
+        TString str_S1_ij = "h1_S1_top_C5_D5 [PE]";
 
 
 
         c1->cd(1);
         h2_S1_ij->SetTitle(total_cut_srt_loop2);
-        h2_S1_ij->GetXaxis()->SetTitle("clusters.at(nc_i)->tot_charge_top [PE]");
-        h2_S1_ij->GetYaxis()->SetTitle("clusters.at(nc_i)->tot_charge_bottom [PE]");
-        h2_S1_ij->GetXaxis()->SetRangeUser(100, 400);
-        h2_S1_ij->GetYaxis()->SetRangeUser(100, 400);
+        h2_S1_ij->GetXaxis()->SetTitle(str_S1_i);
+        h2_S1_ij->GetYaxis()->SetTitle(str_S1_j);
+        h2_S1_ij->GetXaxis()->SetRangeUser(0, 40);
+        h2_S1_ij->GetYaxis()->SetRangeUser(0, 40);
         h2_S1_ij->Draw("colz");
         //h2->SetStats(0); //delete statbox
         gPad->Update();
@@ -831,7 +871,7 @@ int main(/*int argc, char *argv[]*/)
 
         c1->cd(2);
         h1_S1_i->SetLineWidth(2);
-        h1_S1_i->GetXaxis()->SetTitle("clusters.at(nc_i)->tot_charge_bottom [PE]");
+        h1_S1_i->GetXaxis()->SetTitle(str_S1_i);
         //h1_S1_i->SetStats(0);
         h1_S1_i->Draw();
         h1_S1_i->Fit("gaus");
@@ -846,7 +886,7 @@ int main(/*int argc, char *argv[]*/)
 
         c1->cd(3);
         h1_S1_j->SetLineWidth(2);
-        h1_S1_j->GetXaxis()->SetTitle("clusters.at(nc_i)->tot_charge_top [PE]");
+        h1_S1_j->GetXaxis()->SetTitle(str_S1_j);
         h1_S1_j->Draw();
         h1_S1_j->Fit("gaus");
         TF1 *fit_h1_S1_j = h1_S1_j->GetFunction("gaus");
@@ -858,20 +898,19 @@ int main(/*int argc, char *argv[]*/)
         t_h1_S1_j->Draw();
 
         c1->cd(4);
-        h1_S1->SetTitle(total_cut_srt_loop2);
-        h1_S1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
-        h1_S1->Draw();
-        h1_S1->Fit("gaus");
-        TF1 *fit_h1_S1 = h1_S1->GetFunction("gaus");
-        TPaveText *t_h1_S1 =new TPaveText(0.1,0.7,0.4,1,"brNDC");
-        fano_fit = pow(fit_h1_S1->GetParameter(2), 2.0) / fit_h1_S1->GetParameter(1);
-        fano_hist = pow(h1_S1->GetStdDev(), 2.0) / h1_S1->GetMean();
+        h1_S1_ij->SetTitle(total_cut_srt_loop2);
+        h1_S1_ij->GetXaxis()->SetTitle(str_S1_ij);
+        h1_S1_ij->Draw();
+        h1_S1_ij->Fit("gaus");
+        TF1 *fit_h1_S1_ij = h1_S1_ij->GetFunction("gaus");
+        TPaveText *t_h1_S1_ij =new TPaveText(0.1,0.7,0.4,1,"brNDC");
+        fano_fit = pow(fit_h1_S1_ij->GetParameter(2), 2.0) / fit_h1_S1_ij->GetParameter(1);
+        fano_hist = pow(h1_S1_ij->GetStdDev(), 2.0) / h1_S1_ij->GetMean();
         fano_expec = (pow(rms_i, 2.0) + pow(rms_j, 2.0) + 2*cov_r[0])/(mean_i + mean_j);
-        t_h1_S1->AddText(Form("Fano(fit) = %g", fano_fit));
-        t_h1_S1->AddText(Form("Fano(hist) = %g", fano_hist));
-        t_h1_S1->AddText(Form("Fano(expec) = %g", fano_expec));
-        t_h1_S1->Draw();
-
+        t_h1_S1_ij->AddText(Form("Fano(fit) = %g", fano_fit));
+        t_h1_S1_ij->AddText(Form("Fano(hist) = %g", fano_hist));
+        t_h1_S1_ij->AddText(Form("Fano(expec) = %g", fano_expec));
+        t_h1_S1_ij->Draw();
 
 
     }
