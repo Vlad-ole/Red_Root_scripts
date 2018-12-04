@@ -19,7 +19,9 @@ SOURCES += \
     script.cpp \
     Dict.cpp \
     sumsignals.cpp \
-    toymc.cpp
+    toymc.cpp \
+    correlation_mc.cpp \
+    chancorr.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 
