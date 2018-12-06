@@ -21,7 +21,8 @@ SOURCES += \
     sumsignals.cpp \
     toymc.cpp \
     correlation_mc.cpp \
-    chancorr.cpp
+    chancorr.cpp \
+    very_simple_mc.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 

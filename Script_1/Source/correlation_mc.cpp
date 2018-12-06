@@ -71,20 +71,26 @@ void correlation_mc()
         double solid_angle_part2 = 0.5;
         double PDE1 = 0.5;
         double PDE2 = 0.5;
+        double Na = 0;
+        double p_ref = 0;//probabitily of reflection, i.e. change direction from left to right detector
 
         //int Ns = 60;//sourse intensity and distribution
         int Ns = rndm3.Binomial(100, 0.5);//sourse intensity and distribution
         //int Ns = rndm3.Poisson(50);//sourse intensity and distribution
 
+        //without reflection
         double Ni0 = rndm3.Binomial(Ns, solid_angle_part1);//num of photons emitted in the left part
         double Nj0 = Ns - Ni0;//num of photons emitted in the right part
         //double Nj0 = rndm3.Binomial(Ns - Ni0, solid_angle_part2);//num of photons emitted in the right part. It's case when detectors does not cover 4pi
 
+
+
+        //detecting
         double Ni = rndm3.Binomial(Ni0, PDE1);//num of photons detected by the left part
         double Nj = rndm3.Binomial(Nj0, PDE2);//num of photons detected by the right part
 
         //add x-talk
-        double p_x_talk = 0.7;
+        double p_x_talk = 0.0;
         double q = 1 - p_x_talk;
         double Ni_xtalk = 0;
         double Nj_xtalk = 0;
