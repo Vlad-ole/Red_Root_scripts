@@ -56,6 +56,7 @@ using namespace std;
 //int run_number = 399; //ph1     Am241
 //int run_number = 418; //ph1     Am241
 //int run_number = 511; //ph1     Am241
+int run_number = 744; //ph1     Am241
 
 
 //ph2
@@ -66,7 +67,7 @@ using namespace std;
 //int run_number = 540; //ph2     Cf252
 //int run_number = 542; //ph2     Am241
 //int run_number = 544; //ph2     Am241
-int run_number = 550; //ph2     Am241
+//int run_number = 550; //ph2     Am241
 //int run_number = 554; //ph2     Am241 error
 
 //var1: 1.5 2.1 2.9 3.5
@@ -276,7 +277,8 @@ int main(/*int argc, char *argv[]*/)
     //main code
     ostringstream path_root_file;
     //path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/lns/camp_V/v3/" << "run_" << run_number << ".root";
-    path_root_file << "/home/vlad/Soft/Red_Soft/red-daq-light/src/Level1/" << "run_" << run_number << ".root";
+    //path_root_file << "/home/vlad/Soft/Red_Soft/red-daq-light/src/Level1/" << "run_" << run_number << ".root";
+    path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/naples/" << "run_" << run_number << ".root";
     TString filename = path_root_file.str().c_str();
 
     TFile *f = new TFile(filename, "read");
@@ -297,7 +299,7 @@ int main(/*int argc, char *argv[]*/)
 
     double range_scale = 0.5;
 
-    TH2F *h2_S1_ij = new TH2F("h2 S1_i vs S1_j", "h2 S1_i vs S1_j", 100, 0, 300, 100, 0, 300);//S1_i vs S1_j
+    TH2F *h2_S1_ij = new TH2F("h2 S1_i vs S1_j", "h2 S1_i vs S1_j", 150, 0, 400, 150, 0, 400);//S1_i vs S1_j
     TH2F *h2 = new TH2F("h2 XY S2", "h2 title", 200, 0, 5, 200, 0, 5);//XY S2
     TH2F *h2_S1 = new TH2F("h2 XY S1", "h2 title", 200, 0, 5, 200, 0, 5);//XY S1
     vector<double> S1_i_v;
@@ -305,9 +307,9 @@ int main(/*int argc, char *argv[]*/)
 
     TH1F *h1;
 
-    TH1F *h1_S1_top = new TH1F("h1_S1_top", "h1_S1_top", 100, 0, 300);//Am S1 h1_S1_top
-    TH1F *h1_S1_bot = new TH1F("h1_S1_bot", "h1_S1_bot", 100, 0, 300);//Am S1 h1_S1_bot
-    TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 200, 0, 600);//Am S1 charge
+    TH1F *h1_S1_top = new TH1F("h1_S1_top", "h1_S1_top", 200, 0, 600);//Am S1 h1_S1_top
+    TH1F *h1_S1_bot = new TH1F("h1_S1_bot", "h1_S1_bot", 200, 0, 600);//Am S1 h1_S1_bot
+    TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, 0, 1000);//Am S1 charge
     //TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, -100, 2000*range_scale);//Am S1 charge
 
     TH1F *h1_S2 = new TH1F("h1 S2", "h1 title", 400, -100, 10000*range_scale);//Am S2 charge
@@ -339,8 +341,8 @@ int main(/*int argc, char *argv[]*/)
     TH1F *h1_S1_top_A3_A4_A5_B4_B3_B5 = new TH1F("h1_S1_top_A3_A4_A5_B4_B3_B5", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, xmax_h1_S1_top);//Am S1 charge_top
     TH1F *h1_S1_top_C4_C3_D4_D3_D2_E5 = new TH1F("h1_S1_top_C4_C3_D4_D3_D2_E5", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, xmax_h1_S1_top);//Am S1 charge_top
 
-    TH1F *h1_S1_top_half_A1_C5 =new TH1F("h1_S1_top_half_A1_C5", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, 160);
-    TH1F *h1_S1_top_half_A3_C4 =new TH1F("h1_S1_top_half_A3_C4", "h1 title", n_bins_h1_S1_top, xmin_h1_S1_top, 160);
+    TH1F *h1_S1_top_half_A1_C5 =new TH1F("h1_S1_top_half_A1_C5", "h1 title", 200, xmin_h1_S1_top, 300);
+    TH1F *h1_S1_top_half_A3_C4 =new TH1F("h1_S1_top_half_A3_C4", "h1 title", 200, xmin_h1_S1_top, 300);
 
     TH1F *h1_S1_top_C5_D5_E3 = new TH1F("h1_S1_top_C5_D5_E3", "h1 title", 100, xmin_h1_S1_top, 80);
     TH1F *h1_S1_top_D1_E2_E4 = new TH1F("h1_S1_top_D1_E2_E4", "h1 title", 100, xmin_h1_S1_top, 80);
@@ -403,7 +405,8 @@ int main(/*int argc, char *argv[]*/)
                 //&& C1.is_S2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 350 && clusters.at(0)->charge < 510
                 //&& Tdrift > 30 && Tdrift < 45
                 //C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 540
-                REMEMBER_CUT_LOOP1(C1.is_S2_v2 && C1.is_good_r550_v1);
+                //C1.is_S2_v2 && C1.is_good_r550_v1
+                REMEMBER_CUT_LOOP1(C1.nc == 1);
 
                 if ( cut_loop1_bool ) //cuts
                 {
@@ -449,7 +452,7 @@ int main(/*int argc, char *argv[]*/)
                 BoolCut C2(clusters, nc_i);
                 //total_cut_srt_loop2 = "C2.cls0";
                 //C2.is_S1
-                REMEMBER_CUT_LOOP2(C2.cls0);
+                REMEMBER_CUT_LOOP2(C2.nc == 1 && C2.cls0 && C2.cls0_is_S1 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800);
                 if(cut_loop2_bool)
                 {
                     h2_S1->Fill(clusters.at(nc_i)->pos_x, clusters.at(nc_i)->pos_y);
@@ -466,7 +469,7 @@ int main(/*int argc, char *argv[]*/)
                                 0 + clusters.at(nc_i)->charge_top[5] +
                                 clusters.at(nc_i)->charge_top[9] + clusters.at(nc_i)->charge_top[10];
 
-                        double S1_top_A3_A4_A5_B4_B3_B5 = /*clusters.at(nc_i)->charge_top[2] +*/ clusters.at(nc_i)->charge_top[3] +
+                        double S1_top_A3_A4_A5_B4_B3_B5 = /*clusters.at(nc_i)->charge_top[2]*/ + clusters.at(nc_i)->charge_top[3] +
                                 clusters.at(nc_i)->charge_top[4] + clusters.at(nc_i)->charge_top[7] +
                                 clusters.at(nc_i)->charge_top[6] + clusters.at(nc_i)->charge_top[8];
 
@@ -475,7 +478,7 @@ int main(/*int argc, char *argv[]*/)
                                 clusters.at(nc_i)->charge_top[20] + clusters.at(nc_i)->charge_top[21];
 
 
-                        double S1_top_C4_C3_D4_D3_D2_E5 = clusters.at(nc_i)->charge_top[12] + clusters.at(nc_i)->charge_top[11] +
+                        double S1_top_C4_C3_D4_D3_D2_E5 = /*clusters.at(nc_i)->charge_top[12]*/ + clusters.at(nc_i)->charge_top[11] +
                                 clusters.at(nc_i)->charge_top[17] + clusters.at(nc_i)->charge_top[16] +
                                 clusters.at(nc_i)->charge_top[15] + clusters.at(nc_i)->charge_top[22];
 
@@ -501,6 +504,8 @@ int main(/*int argc, char *argv[]*/)
 
                         h1_S1_top_C4_C3_D4_D3_D2_E5->Fill(S1_top_C4_C3_D4_D3_D2_E5);
 
+                        //h1_S1_top_half_A1_C5->Fill();
+
                         h1_S1_top_half_A1_C5->Fill(S1_top_A1_A2_B1_B2_C1_C2 + S1_top_C5_D1_D5_E2_E3_E4);
                         h1_S1_top_half_A3_C4->Fill(S1_top_A3_A4_A5_B4_B3_B5 + S1_top_C4_C3_D4_D3_D2_E5);
 
@@ -523,7 +528,6 @@ int main(/*int argc, char *argv[]*/)
 
                         h1_S1_top->Fill(clusters.at(nc_i)->tot_charge_top);
                         h1_S1_bot->Fill(clusters.at(nc_i)->tot_charge_bottom);
-
 
 
 
@@ -557,12 +561,13 @@ int main(/*int argc, char *argv[]*/)
 
     if(is_draw_h1)
     {
-        h1 = h1_Tdrift;
+        h1 = h1_S1;
         //h1->SetTitle(cut_loop1_srt);
-        h1->SetTitle(total_cut_srt_loop1_0);
+        h1->SetTitle(cut_loop2_srt);
         //h1->GetXaxis()->SetTitle("clusters.at(1)->charge / clusters.at(0)->charge");
-        h1->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
+        //h1->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
         //h1->GetXaxis()->SetTitle("clusters.at(nc_i)->f90");
+        h1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge");
         h1->Draw();
     }
 
@@ -851,9 +856,9 @@ int main(/*int argc, char *argv[]*/)
         TH1F *h1_S1_i = h1_S1_top_half_A1_C5;
         TH1F *h1_S1_j = h1_S1_top_half_A3_C4;
         TH1F *h1_S1_ij = h1_S1_top;
-        TString str_S1_i = "h1_S1_top_half_A1_C5 [PE]";
-        TString str_S1_j = "h1_S1_top_half_A3_C4 [PE]";
-        TString str_S1_ij = "h1_S1_top [PE]";
+        TString str_S1_i = "h1_S1_top [PE]";
+        TString str_S1_j = "h1_S1_bot [PE]";
+        TString str_S1_ij = "h1_S1 [PE]";
 
 
 
@@ -861,8 +866,8 @@ int main(/*int argc, char *argv[]*/)
         h2_S1_ij->SetTitle(cut_loop2_srt);
         h2_S1_ij->GetXaxis()->SetTitle(str_S1_i);
         h2_S1_ij->GetYaxis()->SetTitle(str_S1_j);
-        h2_S1_ij->GetXaxis()->SetRangeUser(0, 160);
-        h2_S1_ij->GetYaxis()->SetRangeUser(0, 160);
+        h2_S1_ij->GetXaxis()->SetRangeUser(0, 1000);
+        h2_S1_ij->GetYaxis()->SetRangeUser(0, 1000);
         h2_S1_ij->Draw("colz");
         //h2->SetStats(0); //delete statbox
         gPad->Update();
@@ -913,7 +918,8 @@ int main(/*int argc, char *argv[]*/)
         t_h1_S1_j->Draw();
 
         c1->cd(4);
-        h1_S1_ij->SetTitle(cut_loop2_srt);
+        //h1_S1_ij->SetTitle(cut_loop2_srt);
+        h1_S1_ij->SetTitle("h1_S1_ij");
         h1_S1_ij->GetXaxis()->SetTitle(str_S1_ij);
         h1_S1_ij->Draw();
         h1_S1_ij->Fit("gaus");
