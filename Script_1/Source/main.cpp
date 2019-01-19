@@ -1,4 +1,4 @@
-//Qt
+﻿//Qt
 //#include <QCoreApplication>
 
 //C++
@@ -24,6 +24,7 @@
 #include "TLatex.h"
 #include "TF1.h"
 #include "TLegend.h"
+#include "TProfile.h"
 
 
 //Red
@@ -56,8 +57,8 @@ using namespace std;
 //int run_number = 399; //ph1     Am241
 //int run_number = 418; //ph1     Am241
 //int run_number = 511; //ph1     Am241
-int run_number = 744; //ph1     Am241
-
+//int run_number = 744; //ph1     Am241
+//int run_number = 779; //ph1     Am241
 
 //ph2
 //int run_number = 448; //ph2     Am241 error
@@ -69,6 +70,7 @@ int run_number = 744; //ph1     Am241
 //int run_number = 544; //ph2     Am241
 //int run_number = 550; //ph2     Am241
 //int run_number = 554; //ph2     Am241 error
+int run_number = 847; //ph1     Am241
 
 //var1: 1.5 2.1 2.9 3.5
 //var2:1.5 2.3 2.7 3.5
@@ -278,7 +280,8 @@ int main(/*int argc, char *argv[]*/)
     ostringstream path_root_file;
     //path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/lns/camp_V/v3/" << "run_" << run_number << ".root";
     //path_root_file << "/home/vlad/Soft/Red_Soft/red-daq-light/src/Level1/" << "run_" << run_number << ".root";
-    path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/naples/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/naples/" << "run_" << run_number << ".root";
+    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/" << "run_" << run_number << ".root";
     TString filename = path_root_file.str().c_str();
 
     TFile *f = new TFile(filename, "read");
@@ -299,16 +302,30 @@ int main(/*int argc, char *argv[]*/)
 
     double range_scale = 0.5;
 
-    TH2F *h2_S1_ij = new TH2F("h2 S1_i vs S1_j", "h2 S1_i vs S1_j", 150, 0, 400, 150, 0, 400);//S1_i vs S1_j
+    //S1_ij
+    TH2F *h2_S1_ij = new TH2F("h2 S1_i vs S1_j", "h2 S1_i vs S1_j", 150, 0, 900, 150, 0, 900);//S1_i vs S1_j
     TH2F *h2 = new TH2F("h2 XY S2", "h2 title", 200, 0, 5, 200, 0, 5);//XY S2
     TH2F *h2_S1 = new TH2F("h2 XY S1", "h2 title", 200, 0, 5, 200, 0, 5);//XY S1
     vector<double> S1_i_v;
     vector<double> S1_j_v;
 
+    //S2_ij
+    TH2F *h2_S2_ij = new TH2F("h2_S2_ij", "h2_S2_ij", 150, 0, 900, 150, 0, 900);
+    vector<double> S2_i_v;
+    vector<double> S2_j_v;
+
+    TH2F *h2_S1_S2 = new TH2F("h2_S1_S2", "h2_S1_S2", 150, 0, 1200, 150, 0, 1500);
+
     TH1F *h1;
 
-    TH1F *h1_S1_top = new TH1F("h1_S1_top", "h1_S1_top", 200, 0, 600);//Am S1 h1_S1_top
-    TH1F *h1_S1_bot = new TH1F("h1_S1_bot", "h1_S1_bot", 200, 0, 600);//Am S1 h1_S1_bot
+    //TBA
+    TH2F *h2_S1_TBA = new TH2F("h2_S1_TBA", "h2_S1_TBA", 200, -0.5, 0.5, 200, 0, 1500);//Am S1
+    vector<double> v_S1;
+    vector<double> v_TBA;
+
+
+    TH1F *h1_S1_top = new TH1F("h1_S1_top", "h1_S1_top", 200, 0, 600);//Am S1
+    TH1F *h1_S1_bot = new TH1F("h1_S1_bot", "h1_S1_bot", 200, 0, 600);//Am S1
     TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, 0, 1000);//Am S1 charge
     //TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, -100, 2000*range_scale);//Am S1 charge
 
@@ -318,10 +335,14 @@ int main(/*int argc, char *argv[]*/)
     TH1F *h1_S2_S1_ratio = new TH1F("h1 S2/S1", "h1 title", 300, -1, 30);//Am S2_charge/S1_charge
     //TH1F *h1 = new TH1F("h1 S2", "h1 title", 400, -100, 8000);//Am S2 tot_charge_top or tot_charge_bottom
     //TH1F *h1 = new TH1F("h1 S2", "h1 title", 400, -100, 1000);//Am S1 tot_charge_top or tot_charge_bottom
-    TH1F *h1_f90 = new TH1F("h1 f90", "h1 title", 400, -0.2, 1);//f90
+    TH1F *h1_S1_f90 = new TH1F("h1_S1_f90", "h1_S1_f90", 400, -0.2, 1);//f90
+    TH1F *h1_S2_f90 = new TH1F("h1_S2_f90", "h1_S2_f90", 400, -0.2, 1);//f90
     //TH1F *h1 = new TH1F("h1 x or y", "h1 title", 400, -1, 5);//x ix or iy
     TH1F *h1_Tdrift = new TH1F("h1 Tdrift", "h1 Tdrift", 71, -1, 70);//
     //h1 = h1_Tdrift;
+
+    TH2F *h2_S2_tdrift = new TH2F("h2_S2_tdrift", "h2_S2_tdrift", 150, 0, 100, 200, 0, 1500);
+    TH2F *h2_S2_S1_tdrift = new TH2F("h2_S2_S1_tdrift", "h2_S2_S1_tdrift", 150, 0, 100, 200, 0, 3);
 
 
     vector<double> S2_v;
@@ -406,7 +427,7 @@ int main(/*int argc, char *argv[]*/)
                 //&& Tdrift > 30 && Tdrift < 45
                 //C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 540
                 //C1.is_S2_v2 && C1.is_good_r550_v1
-                REMEMBER_CUT_LOOP1(C1.nc == 1);
+                REMEMBER_CUT_LOOP1(C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 200  );
 
                 if ( cut_loop1_bool ) //cuts
                 {
@@ -420,8 +441,13 @@ int main(/*int argc, char *argv[]*/)
                     h1_S2->Fill(clusters.at(nc_i)->charge);
                     h1_S2_top->Fill(clusters.at(nc_i)->tot_charge_top);
                     h1_S2_bot->Fill(clusters.at(nc_i)->tot_charge_bottom);
-                    h1_f90->Fill(clusters.at(nc_i)->f90) ;
-
+                    h1_S2_f90->Fill(clusters.at(nc_i)->f90);
+                    h2_S2_ij->Fill(clusters.at(nc_i)->tot_charge_top, clusters.at(nc_i)->tot_charge_bottom);
+                    S2_i_v.push_back(clusters.at(nc_i)->tot_charge_top);
+                    S2_j_v.push_back(clusters.at(nc_i)->tot_charge_bottom);
+                    h2_S1_S2->Fill(clusters.at(0)->charge, clusters.at(1)->charge);
+                    h2_S2_tdrift->Fill(Tdrift, clusters.at(1)->charge);
+                    h2_S2_S1_tdrift->Fill(Tdrift, clusters.at(1)->charge/clusters.at(0)->charge);
                 }
 
 
@@ -452,9 +478,14 @@ int main(/*int argc, char *argv[]*/)
                 BoolCut C2(clusters, nc_i);
                 //total_cut_srt_loop2 = "C2.cls0";
                 //C2.is_S1
-                REMEMBER_CUT_LOOP2(C2.nc == 1 && C2.cls0 && C2.cls0_is_S1 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800);
+                //C2.nc == 1 && C2.cls0 && C2.cls0_is_S1 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800
+                //clusters.at(0)->tot_charge_top > 150 && clusters.at(0)->tot_charge_top < 350
+                //C2.nc == 1 && C2.cls0 && C2.cls0_is_S1 && clusters.at(0)->tot_charge_top > 130 && clusters.at(0)->tot_charge_top < 350 && clusters.at(0)->tot_charge_bottom > 100 && clusters.at(0)->tot_charge_bottom < 400
+                REMEMBER_CUT_LOOP2(C2.cls0);
                 if(cut_loop2_bool)
                 {
+                    h1_S1_f90->Fill(clusters.at(nc_i)->f90);
+
                     h2_S1->Fill(clusters.at(nc_i)->pos_x, clusters.at(nc_i)->pos_y);
                     h1_S1->Fill(clusters.at(nc_i)->charge);
 
@@ -509,13 +540,18 @@ int main(/*int argc, char *argv[]*/)
                         h1_S1_top_half_A1_C5->Fill(S1_top_A1_A2_B1_B2_C1_C2 + S1_top_C5_D1_D5_E2_E3_E4);
                         h1_S1_top_half_A3_C4->Fill(S1_top_A3_A4_A5_B4_B3_B5 + S1_top_C4_C3_D4_D3_D2_E5);
 
+                        //TBA
+                        double TBA = (clusters.at(nc_i)->tot_charge_top - clusters.at(nc_i)->tot_charge_bottom) / (clusters.at(nc_i)->tot_charge_top + clusters.at(nc_i)->tot_charge_bottom);
+                        h2_S1_TBA->Fill(TBA, clusters.at(0)->charge);
+                        v_S1.push_back(clusters.at(0)->charge);
+                        v_TBA.push_back(TBA);
 
                         //choose i and j channels
-                        double S1_i = S1_top_A1_A2_B1_B2_C1_C2 + S1_top_C5_D1_D5_E2_E3_E4;
-                        double S1_j = S1_top_A3_A4_A5_B4_B3_B5 + S1_top_C4_C3_D4_D3_D2_E5;
+                        double S1_i = clusters.at(nc_i)->tot_charge_top;
+                        double S1_j = clusters.at(nc_i)->tot_charge_bottom;
                         S1_i_v.push_back(S1_i);
                         S1_j_v.push_back(S1_j);
-                        h2_S1_ij->Fill(S1_i, S1_j);
+                        h2_S1_ij->Fill(S1_i, S1_j);                        
 
                         //
                         for(int ih1 = 0; ih1 < 23; ih1++)
@@ -550,7 +586,8 @@ int main(/*int argc, char *argv[]*/)
     bool is_draw_h1_hist_overlap_var1 = 0;
     bool is_draw_h1_hist_overlap_var2 = 0;
     bool is_draw_h1_hist_overlap_var3 = 0;
-    bool is_draw_h1_SiPM_coorelations_v1 = 1;
+    bool is_draw_h1_SiPM_coorelations_v1 = 0;
+    bool is_draw_h1_SiPM_coorelations_v2 = 0;
 
     bool is_draw_h2 = 0;
     bool is_draw_h2_var1 = 0;
@@ -558,6 +595,8 @@ int main(/*int argc, char *argv[]*/)
     bool is_draw_h2_var3 = 0;
     bool is_draw_var4 = 0;
     bool is_draw_var5_tdrift = 0;
+
+    bool is_draw_var6 = 1;
 
     if(is_draw_h1)
     {
@@ -856,9 +895,9 @@ int main(/*int argc, char *argv[]*/)
         TH1F *h1_S1_i = h1_S1_top_half_A1_C5;
         TH1F *h1_S1_j = h1_S1_top_half_A3_C4;
         TH1F *h1_S1_ij = h1_S1_top;
-        TString str_S1_i = "h1_S1_top [PE]";
-        TString str_S1_j = "h1_S1_bot [PE]";
-        TString str_S1_ij = "h1_S1 [PE]";
+        TString str_S1_i = "h1_S1_top_half_A1_C5 [PE]";
+        TString str_S1_j = "h1_S1_top_half_A3_C4 [PE]";
+        TString str_S1_ij = "h1_S1_top [PE]";
 
 
 
@@ -936,6 +975,164 @@ int main(/*int argc, char *argv[]*/)
 
     }
 
+    if(is_draw_h1_SiPM_coorelations_v2)
+    {
+        TCanvas *c1 = new TCanvas("c1","c1");
+        c1->Divide(3,2,0.01,0.01);
+        //gStyle->SetOptStat(0);
+        gStyle->SetOptFit(1);
+
+        double fano_fit = 0;
+        double fano_hist = 0;
+        double fano_expec = 0;
+
+        //S1_i_v = top
+        //S1_j_v = bot
+        //CHANGE VALUES HERE <-----------------------
+        TH1F *h1_S1_i = h1_S1_top;
+        TH1F *h1_S1_j = h1_S1_bot;
+        TH1F *h1_S1_ij = h1_S1;
+        TString str_S1_i = "h1_S1_top [PE]";
+        TString str_S1_j = "h1_S1_bot [PE]";
+        TString str_S1_ij = "h1_S1 [PE]";
+        TString str_S1_TBA_x = "TBA";
+        TString str_S1_TBA_y = "S1 [PE]";
+
+
+        c1->cd(1);
+        h2_S1_ij->SetTitle(cut_loop2_srt);
+        h2_S1_ij->GetXaxis()->SetTitle(str_S1_i);
+        h2_S1_ij->GetYaxis()->SetTitle(str_S1_j);
+        h2_S1_ij->GetXaxis()->SetRangeUser(0, 1000);
+        h2_S1_ij->GetYaxis()->SetRangeUser(0, 1000);
+        h2_S1_ij->Draw("colz");
+        //h2->SetStats(0); //delete statbox
+        gPad->Update();
+        TPaveStats *st_h2_S1_ij = (TPaveStats*)h2_S1_ij->GetListOfFunctions()->FindObject("stats");
+        st_h2_S1_ij->SetX1NDC(0.12); st_h2_S1_ij->SetX2NDC(0.35);
+        st_h2_S1_ij->SetY1NDC(0.72); st_h2_S1_ij->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+        double mean_i = TMath::Mean(S1_i_v.begin(), S1_i_v.end());
+        double mean_j = TMath::Mean(S1_j_v.begin(), S1_j_v.end());
+        double rms_i = TMath::RMS(S1_i_v.begin(), S1_i_v.end());
+        double rms_j = TMath::RMS(S1_j_v.begin(), S1_j_v.end());
+        //cout << ;
+        vector<double> cov_r = Get_Cov_r(S1_i_v, S1_j_v);
+        TPaveText *t_h2_S1_ij = new TPaveText(0.7,0.13,0.9,0.43,"brNDC");
+        t_h2_S1_ij->AddText(Form("cov = %g", cov_r[0] ));
+        t_h2_S1_ij->AddText(Form("r = %g", cov_r[1] ));
+        t_h2_S1_ij->Draw();
+
+
+
+        c1->cd(2);
+        h1_S1_i->SetLineWidth(2);
+        h1_S1_i->GetXaxis()->SetTitle(str_S1_i);
+        //h1_S1_i->SetStats(0);
+        h1_S1_i->Draw();
+        h1_S1_i->Fit("gaus");
+        TF1 *fit_h1_S1_i = h1_S1_i->GetFunction("gaus");
+        TPaveText *t_h1_S1_i = new TPaveText(0.1,0.7,0.4,1,"brNDC");
+        fano_fit = pow(fit_h1_S1_i->GetParameter(2), 2.0) / fit_h1_S1_i->GetParameter(1);
+        fano_hist = pow(h1_S1_i->GetStdDev(), 2.0) / h1_S1_i->GetMean();
+        t_h1_S1_i->AddText(Form("Fano(fit) = %g", fano_fit));
+        t_h1_S1_i->AddText(Form("Fano(hist) = %g", fano_hist));
+        t_h1_S1_i->Draw();
+
+
+        c1->cd(4);
+        h1_S1_j->SetLineWidth(2);
+        h1_S1_j->GetXaxis()->SetTitle(str_S1_j);
+        h1_S1_j->Draw();
+        h1_S1_j->Fit("gaus");
+        TF1 *fit_h1_S1_j = h1_S1_j->GetFunction("gaus");
+        TPaveText *t_h1_S1_j =new TPaveText(0.1,0.7,0.4,1,"brNDC");
+        fano_fit = pow(fit_h1_S1_j->GetParameter(2), 2.0) / fit_h1_S1_j->GetParameter(1);
+        fano_hist = pow(h1_S1_j->GetStdDev(), 2.0) / h1_S1_j->GetMean();
+        t_h1_S1_j->AddText(Form("Fano(fit) = %g", fano_fit));
+        t_h1_S1_j->AddText(Form("Fano(hist) = %g", fano_hist));
+        t_h1_S1_j->Draw();
+
+        c1->cd(5);
+        //h1_S1_ij->SetTitle(cut_loop2_srt);
+        h1_S1_ij->SetTitle("h1_S1_ij");
+        h1_S1_ij->GetXaxis()->SetTitle(str_S1_ij);
+        h1_S1_ij->Draw();
+        h1_S1_ij->Fit("gaus");
+        TF1 *fit_h1_S1_ij = h1_S1_ij->GetFunction("gaus");
+        TPaveText *t_h1_S1_ij =new TPaveText(0.1,0.7,0.4,1,"brNDC");
+        fano_fit = pow(fit_h1_S1_ij->GetParameter(2), 2.0) / fit_h1_S1_ij->GetParameter(1);
+        fano_hist = pow(h1_S1_ij->GetStdDev(), 2.0) / h1_S1_ij->GetMean();
+        fano_expec = (pow(rms_i, 2.0) + pow(rms_j, 2.0) + 2*cov_r[0])/(mean_i + mean_j);
+        t_h1_S1_ij->AddText(Form("Fano(fit) = %g", fano_fit));
+        t_h1_S1_ij->AddText(Form("Fano(hist) = %g", fano_hist));
+        t_h1_S1_ij->AddText(Form("Fano(expec) = %g", fano_expec));
+        t_h1_S1_ij->Draw();
+
+
+        c1->cd(3);
+        h2_S1_TBA->SetTitle(cut_loop2_srt);
+        h2_S1_TBA->GetXaxis()->SetTitle(str_S1_TBA_x);
+        h2_S1_TBA->GetYaxis()->SetTitle(str_S1_TBA_y);
+        //h2_S1_TBA->GetXaxis()->SetRangeUser(-10, 10);
+        //h2_S1_TBA->GetYaxis()->SetRangeUser(0, 1000);
+        h2_S1_TBA->Draw("colz");
+
+
+
+        TCanvas *c2 = new TCanvas("c2","c2");
+        c2->Divide(3,3,0.01,0.01);
+        int N_TBA_slices = 9;
+        double TBA_from = -0.35;
+        double TBA_to = 0.35;
+        double TBA_step = (TBA_to - TBA_from)/N_TBA_slices;
+        vector<TH1F *> h1_S1_TBA_slices;
+        vector<double> TBA_avr;
+        vector<double> v_Fano_fit;
+        //vector<TPaveText*> t_h1_S1_TBA_slices;
+
+
+        //TH1F *h1_S1_TBA_slices = new TH1F("h1_S1_TBA_slices","h1_S1_TBA_slices",200, 0, 1000);
+        for(int TBA_i = 0; TBA_i < N_TBA_slices; TBA_i++)
+        {
+            double TBA_tmp_from = TBA_from + TBA_i*TBA_step;
+            double TBA_tmp_to = TBA_from + (TBA_i+1)*TBA_step;
+            TBA_avr.push_back( (TBA_tmp_to + TBA_tmp_from)/2 );
+            h1_S1_TBA_slices.push_back(new TH1F("h1_S1_TBA_slices","h1_S1_TBA_slices",200, 0, 1000));
+            for(int i = 0; i < v_S1.size(); i++)
+            {
+                if( (v_TBA[i] > TBA_tmp_from) && (v_TBA[i] < TBA_tmp_to) )
+                    h1_S1_TBA_slices[TBA_i]->Fill(v_S1[i]);
+            }
+
+            c2->cd(TBA_i+1);
+            h1_S1_TBA_slices[TBA_i]->Draw();
+            h1_S1_TBA_slices[TBA_i]->Fit("gaus");
+            TF1 *fit_h1_S1_TBA_slices = h1_S1_TBA_slices[TBA_i]->GetFunction("gaus");
+            TPaveText *t_h2_S1_ij = new TPaveText(0.7,0.13,0.9,0.43,"brNDC");
+            fano_fit = pow(fit_h1_S1_TBA_slices->GetParameter(2), 2.0) / fit_h1_S1_TBA_slices->GetParameter(1);
+            fano_hist = pow(h1_S1_TBA_slices[TBA_i]->GetStdDev(), 2.0) / h1_S1_TBA_slices[TBA_i]->GetMean();
+            v_Fano_fit.push_back(fano_fit);
+            t_h2_S1_ij->AddText(Form("TBA_from = %g", TBA_tmp_from ));
+            t_h2_S1_ij->AddText(Form("TBA_to = %g", TBA_tmp_to ));
+            t_h2_S1_ij->AddText(Form("Fano_fit = %g", fano_fit ));
+            t_h2_S1_ij->AddText(Form("Fano_hist = %g", fano_hist ));
+            t_h2_S1_ij->Draw();
+
+
+        }
+
+
+        c1->cd(6);
+        TGraph *gr_Fano_TBA = new TGraph(N_TBA_slices, &TBA_avr[0], &v_Fano_fit[0]);
+        gr_Fano_TBA->Draw("AP");
+        gr_Fano_TBA->GetYaxis()->SetRangeUser(0, 5);
+        gr_Fano_TBA->SetMarkerStyle(20);
+        gr_Fano_TBA->SetMarkerSize(1);
+
+
+    }
 
 
     if(is_draw_h2)
@@ -1217,6 +1414,198 @@ int main(/*int argc, char *argv[]*/)
         gPad->Modified(); gPad->Update();
     }
 
+
+    if(is_draw_var6)
+    {
+        TCanvas *c1 = new TCanvas("c1","c1");
+
+        //v4
+        c1->Divide(4,4,0.01,0.01);
+
+
+        c1->cd(1);
+        h2->SetTitle(cut_loop1_srt);
+        h2->GetXaxis()->SetTitle("x [cm]");
+        h2->GetYaxis()->SetTitle("y [cm]");
+        h2->GetXaxis()->SetRangeUser(1.5, 3.5);
+        h2->GetYaxis()->SetRangeUser(1.5, 3.5);
+        h2->Draw("colz");
+        //h2->SetStats(0); //delete statbox
+        gPad->Update();
+        TPaveStats *st = (TPaveStats*)h2->GetListOfFunctions()->FindObject("stats");
+        st->SetX1NDC(0.12); st->SetX2NDC(0.35);
+        st->SetY1NDC(0.72); st->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+
+        c1->cd(2);
+        TGraph *gr_S2_event = new TGraph(event_v.size(), &event_v[0], &S2_v[0]);
+        gr_S2_event->Draw("AP");
+        gPad->SetLogy();
+        gr_S2_event->SetMarkerStyle(20);
+        gr_S2_event->SetMarkerSize(0.5);
+        gr_S2_event->GetXaxis()->SetTitle("event number");
+        gr_S2_event->GetYaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
+        gr_S2_event->SetTitle(cut_loop1_srt);
+        gr_S2_event->GetYaxis()->SetRangeUser(10, 2E5);
+
+        c1->cd(5);
+        gStyle->SetOptFit(1);
+        //gStyle->SetOptStat(11);
+        h1_Tdrift->SetTitle(cut_loop1_srt);
+        h1_Tdrift->GetXaxis()->SetTitle("(clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 [us]");
+        h1_Tdrift->Draw();
+        gPad->Update();
+        h1_Tdrift->GetYaxis()->SetRangeUser(0., h1_Tdrift->GetMaximum() * 1.5 );
+        TPaveStats *st6  = (TPaveStats*)h1_Tdrift->GetListOfFunctions()->FindObject("stats");
+        st6->SetX1NDC(0.40); st6->SetX2NDC(0.98);
+        st6->SetY1NDC(0.65); st6->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+
+        c1->cd(3);
+        gStyle->SetOptFit(1);
+        h1_S2_bot->SetTitle(cut_loop1_srt);
+        h1_S2_bot->GetXaxis()->SetTitle("clusters.at(nc_i)->tot_charge_bottom [PE]");
+        h1_S2_bot->Draw();
+        gPad->Update();
+        TPaveStats *st3  = (TPaveStats*)h1_S2_bot->GetListOfFunctions()->FindObject("stats");
+        st3->SetX1NDC(0.60); st3->SetX2NDC(0.98);
+        st3->SetY1NDC(0.50); st3->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+
+        c1->cd(4);
+        gStyle->SetOptFit(1);
+        h1_S2_top->SetTitle(cut_loop1_srt);
+        h1_S2_top->GetXaxis()->SetTitle("clusters.at(nc_i)->tot_charge_top [PE]");
+        h1_S2_top->Draw();
+        gPad->Update();
+        TPaveStats *st7  = (TPaveStats*)h1_S2_top->GetListOfFunctions()->FindObject("stats");
+        st7->SetX1NDC(0.60); st7->SetX2NDC(0.98);
+        st7->SetY1NDC(0.50); st7->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+        c1->cd(7);
+        h1_S1->SetTitle(cut_loop2_srt);
+        h1_S1->GetXaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
+        h1_S1->Draw();
+        gPad->Update();
+        TPaveStats *st4  = (TPaveStats*)h1_S1->GetListOfFunctions()->FindObject("stats");
+        st4->SetX1NDC(0.60); st4->SetX2NDC(0.98);
+        st4->SetY1NDC(0.50); st4->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+        c1->cd(9);
+        //TH1F *h1_S1_ij = h1_S1;
+        TString str_S1_i = "h1_S1_top [PE]";
+        TString str_S1_j = "h1_S1_bot [PE]";
+        TString str_S1_ij = "h1_S1 [PE]";
+        h2_S1_ij->SetTitle(cut_loop2_srt);
+        h2_S1_ij->GetXaxis()->SetTitle(str_S1_i);
+        h2_S1_ij->GetYaxis()->SetTitle(str_S1_j);
+        h2_S1_ij->GetXaxis()->SetRangeUser(0, 1000);
+        h2_S1_ij->GetYaxis()->SetRangeUser(0, 1000);
+        h2_S1_ij->Draw("colz");
+        //h2->SetStats(0); //delete statbox
+        gPad->Update();
+        TPaveStats *st_h2_S1_ij = (TPaveStats*)h2_S1_ij->GetListOfFunctions()->FindObject("stats");
+        st_h2_S1_ij->SetX1NDC(0.12); st_h2_S1_ij->SetX2NDC(0.35);
+        st_h2_S1_ij->SetY1NDC(0.72); st_h2_S1_ij->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+        double mean_i = TMath::Mean(S1_i_v.begin(), S1_i_v.end());
+        double mean_j = TMath::Mean(S1_j_v.begin(), S1_j_v.end());
+        double rms_i = TMath::RMS(S1_i_v.begin(), S1_i_v.end());
+        double rms_j = TMath::RMS(S1_j_v.begin(), S1_j_v.end());
+        //cout << ;
+        vector<double> cov_r = Get_Cov_r(S1_i_v, S1_j_v);
+        TPaveText *t_h2_S1_ij = new TPaveText(0.7,0.13,0.9,0.43,"brNDC");
+        t_h2_S1_ij->AddText(Form("cov = %g", cov_r[0] ));
+        t_h2_S1_ij->AddText(Form("r = %g", cov_r[1] ));
+        t_h2_S1_ij->Draw();
+
+
+        c1->cd(10);
+        h2_S2_ij->SetTitle(cut_loop1_srt);
+        h2_S2_ij->GetXaxis()->SetTitle("S2_top [PE]");
+        h2_S2_ij->GetYaxis()->SetTitle("S2_bot [PE]");
+        //h2_S2_ij->GetXaxis()->SetRangeUser(1.5, 3.5);
+        //h2_S2_ij->GetYaxis()->SetRangeUser(1.5, 3.5);
+        h2_S2_ij->Draw("colz");
+        //h2->SetStats(0); //delete statbox
+        gPad->Update();
+        TPaveStats *st_h2_S2_ij = (TPaveStats*)h2_S2_ij->GetListOfFunctions()->FindObject("stats");
+        st_h2_S2_ij->SetX1NDC(0.12); st_h2_S2_ij->SetX2NDC(0.35);
+        st_h2_S2_ij->SetY1NDC(0.72); st_h2_S2_ij->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+        c1->cd(11);
+        h2_S1_S2->SetTitle(cut_loop1_srt);
+        h2_S1_S2->GetXaxis()->SetTitle("S1 [PE]");
+        h2_S1_S2->GetYaxis()->SetTitle("S2 [PE]");
+        //h2_S2_ij->GetXaxis()->SetRangeUser(1.5, 3.5);
+        //h2_S2_ij->GetYaxis()->SetRangeUser(1.5, 3.5);
+        h2_S1_S2->Draw("colz");
+        //h2->SetStats(0); //delete statbox
+        gPad->Update();
+        TPaveStats *st_h2_S1_S2 = (TPaveStats*)h2_S1_S2->GetListOfFunctions()->FindObject("stats");
+        st_h2_S1_S2->SetX1NDC(0.12); st_h2_S1_S2->SetX2NDC(0.35);
+        st_h2_S1_S2->SetY1NDC(0.72); st_h2_S1_S2->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+        c1->cd(6);
+        h1_S1_f90->SetTitle(cut_loop1_srt);
+        h1_S1_f90->GetXaxis()->SetTitle("S1_f90");
+        h1_S1_f90->Draw();
+        gPad->Update();
+        TPaveStats *st_h1_S1_f90  = (TPaveStats*)h1_S1_f90->GetListOfFunctions()->FindObject("stats");
+        st_h1_S1_f90->SetX1NDC(0.60); st_h1_S1_f90->SetX2NDC(0.98);
+        st_h1_S1_f90->SetY1NDC(0.50); st_h1_S1_f90->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+        c1->cd(12);
+        h2_S2_tdrift->SetTitle(cut_loop1_srt);
+        h2_S2_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+        h2_S2_tdrift->GetYaxis()->SetTitle("S2 [PE]");
+        h2_S2_tdrift->Draw("colz");
+        c1->cd(13);
+        TProfile *prof = h2_S2_tdrift->ProfileX();
+        TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
+        prof->Fit("f1_exp_purity","R","",12,60);
+        cout << "e- lifetime (S1 vs T_drift) [us] = " << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << endl;
+        cout <<  << endl;
+        gPad->Modified(); gPad->Update();
+
+        c1->cd(14);
+        h2_S2_S1_tdrift->SetTitle(cut_loop1_srt);
+        h2_S2_S1_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+        h2_S2_S1_tdrift->GetYaxis()->SetTitle("S2/S1");
+        h2_S2_S1_tdrift->Draw("colz");
+        c1->cd(15);
+        TProfile *prof_S2_S1_TDrift = h2_S2_S1_tdrift->ProfileX();
+        TF1 *f1_exp_purity_S2_S1 = new TF1("f1_exp_purity_S2_S1","exp([0] + x*[1])",0,150);
+        prof_S2_S1_TDrift->Fit("f1_exp_purity_S2_S1","R","",12,60);
+        cout << "e- lifetime (S2/S1 vs T_drift) [us] = " << -1/f1_exp_purity_S2_S1->GetParameter(1) << " +- " << f1_exp_purity_S2_S1->GetParError(1)/pow(f1_exp_purity_S2_S1->GetParameter(1), 2.0) << endl;
+        gPad->Modified(); gPad->Update();
+
+        c1->cd(8);
+        h1_S2->SetTitle(cut_loop1_srt);
+        h1_S2->GetXaxis()->SetTitle("S2 [PE]");
+        h1_S2->Draw();
+        gPad->Update();
+        TPaveStats *st_h1_S2  = (TPaveStats*)h1_S2->GetListOfFunctions()->FindObject("stats");
+        st_h1_S2->SetX1NDC(0.60); st_h1_S2->SetX2NDC(0.98);
+        st_h1_S2->SetY1NDC(0.50); st_h1_S2->SetY2NDC(0.89);
+        gPad->Modified(); gPad->Update();
+
+
+
+
+
+
+
+    }
 
     //finalization code
     cout << "all is ok" << endl;
