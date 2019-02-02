@@ -36,10 +36,13 @@
 #define COUT(x) cout << #x " = " << x << endl;
 //bool total_cut = false;
 //bool tmp_cut = false;
+TString cut_loop0_srt;
 TString cut_loop1_srt;
 TString cut_loop2_srt;
+bool cut_loop0_bool = false;
 bool cut_loop1_bool = false;
 bool cut_loop2_bool = false;
+#define REMEMBER_CUT_LOOP0(x) cut_loop0_srt = #x;  cut_loop0_bool = x;
 #define REMEMBER_CUT_LOOP1(x) cut_loop1_srt = #x;  cut_loop1_bool = x;
 #define REMEMBER_CUT_LOOP2(x) cut_loop2_srt = #x;  cut_loop2_bool = x;
 
@@ -61,6 +64,7 @@ using namespace std;
 //int run_number = 779; //ph1     Am241
 
 //ph2
+//int run_number = 426; //ph2     Am241 error
 //int run_number = 448; //ph2     Am241 error
 //int run_number = 532; //ph2    BEAM ON (E = 28 MeV, i = 12 nA)
 //int run_number = 534; //ph2     backgroud
@@ -70,7 +74,23 @@ using namespace std;
 //int run_number = 544; //ph2     Am241
 //int run_number = 550; //ph2     Am241
 //int run_number = 554; //ph2     Am241 error
-int run_number = 847; //ph1     Am241
+int run_number = 744; //ph2     Am241
+//int run_number = 847; //ph2     Am241
+//int run_number = 854; //ph2     Am241
+//int run_number = 857; //ph2     Am241
+//int run_number = 860; //ph2     Am241
+//int run_number = 865; //ph2     Am241
+//int run_number = 872; //ph2     Am241
+//int run_number = 874; //ph2     Am241
+//int run_number = 878; //ph2     Am241
+//int run_number = 880; //ph2     Am241
+//int run_number = 882; //ph2     Am241
+//int run_number = 884; //ph2     Am241
+//int run_number = 887; //ph2     Am241
+//int run_number = 888; //ph2     Am241
+//int run_number = 892; //ph2     Am241
+//int run_number = 921; //ph2     Am241
+//int run_number = 924; //ph2     Am241
 
 //var1: 1.5 2.1 2.9 3.5
 //var2:1.5 2.3 2.7 3.5
@@ -161,36 +181,36 @@ BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
     if(nc == 2)
         is_S2_v2 = is_S2 && clusters.at(1)->f90 < 0.2;
 
-    cent_spot = (clusters.at(nc_i)->pos_x > area_cut_x2) && (clusters.at(nc_i)->pos_x < area_cut_x3) &&
-            (clusters.at(nc_i)->pos_y > area_cut_y2) && (clusters.at(nc_i)->pos_y < area_cut_y3);
+    cent_spot = (clusters.at(nc_i)->bar_x > area_cut_x2) && (clusters.at(nc_i)->bar_x < area_cut_x3) &&
+            (clusters.at(nc_i)->bar_y > area_cut_y2) && (clusters.at(nc_i)->bar_y < area_cut_y3);
 
     //edges
-    edge_left = (clusters.at(nc_i)->pos_x > area_cut_x1) && (clusters.at(nc_i)->pos_x < area_cut_x2) &&
-            (clusters.at(nc_i)->pos_y > area_cut_y2) && (clusters.at(nc_i)->pos_y < area_cut_y3);
+    edge_left = (clusters.at(nc_i)->bar_x > area_cut_x1) && (clusters.at(nc_i)->bar_x < area_cut_x2) &&
+            (clusters.at(nc_i)->bar_y > area_cut_y2) && (clusters.at(nc_i)->bar_y < area_cut_y3);
 
-    edge_right = (clusters.at(nc_i)->pos_x > area_cut_x3) && (clusters.at(nc_i)->pos_x < area_cut_x4) &&
-            (clusters.at(nc_i)->pos_y > area_cut_y2) && (clusters.at(nc_i)->pos_y < area_cut_y3);
+    edge_right = (clusters.at(nc_i)->bar_x > area_cut_x3) && (clusters.at(nc_i)->bar_x < area_cut_x4) &&
+            (clusters.at(nc_i)->bar_y > area_cut_y2) && (clusters.at(nc_i)->bar_y < area_cut_y3);
 
-    edge_bot = (clusters.at(nc_i)->pos_x > area_cut_x2) && (clusters.at(nc_i)->pos_x < area_cut_x3) &&
-            (clusters.at(nc_i)->pos_y > area_cut_y1) && (clusters.at(nc_i)->pos_y < area_cut_y2);
+    edge_bot = (clusters.at(nc_i)->bar_x > area_cut_x2) && (clusters.at(nc_i)->bar_x < area_cut_x3) &&
+            (clusters.at(nc_i)->bar_y > area_cut_y1) && (clusters.at(nc_i)->bar_y < area_cut_y2);
 
-    edge_top = (clusters.at(nc_i)->pos_x > area_cut_x2) && (clusters.at(nc_i)->pos_x < area_cut_x3) &&
-            (clusters.at(nc_i)->pos_y > area_cut_y3) && (clusters.at(nc_i)->pos_y < area_cut_y4);
+    edge_top = (clusters.at(nc_i)->bar_x > area_cut_x2) && (clusters.at(nc_i)->bar_x < area_cut_x3) &&
+            (clusters.at(nc_i)->bar_y > area_cut_y3) && (clusters.at(nc_i)->bar_y < area_cut_y4);
 
     edges = edge_left || edge_right || edge_bot || edge_top;
 
     //corners
-    corner_left_bot = (clusters.at(nc_i)->pos_x > area_cut_x1) && (clusters.at(nc_i)->pos_x < area_cut_x2) &&
-            (clusters.at(nc_i)->pos_y > area_cut_y1) && (clusters.at(nc_i)->pos_y < area_cut_y2);
+    corner_left_bot = (clusters.at(nc_i)->bar_x > area_cut_x1) && (clusters.at(nc_i)->bar_x < area_cut_x2) &&
+            (clusters.at(nc_i)->bar_y > area_cut_y1) && (clusters.at(nc_i)->bar_y < area_cut_y2);
 
-    corner_right_bot = (clusters.at(nc_i)->pos_x > area_cut_x3) && (clusters.at(nc_i)->pos_x < area_cut_x4) &&
-            (clusters.at(nc_i)->pos_y > area_cut_y1) && (clusters.at(nc_i)->pos_y < area_cut_y2);
+    corner_right_bot = (clusters.at(nc_i)->bar_x > area_cut_x3) && (clusters.at(nc_i)->bar_x < area_cut_x4) &&
+            (clusters.at(nc_i)->bar_y > area_cut_y1) && (clusters.at(nc_i)->bar_y < area_cut_y2);
 
-    corner_left_top = (clusters.at(nc_i)->pos_x > area_cut_x1) && (clusters.at(nc_i)->pos_x < area_cut_x2) &&
-            (clusters.at(nc_i)->pos_y > area_cut_y3) && (clusters.at(nc_i)->pos_y < area_cut_y4);
+    corner_left_top = (clusters.at(nc_i)->bar_x > area_cut_x1) && (clusters.at(nc_i)->bar_x < area_cut_x2) &&
+            (clusters.at(nc_i)->bar_y > area_cut_y3) && (clusters.at(nc_i)->bar_y < area_cut_y4);
 
-    corner_right_top = (clusters.at(nc_i)->pos_x > area_cut_x3) && (clusters.at(nc_i)->pos_x < area_cut_x4) &&
-            (clusters.at(nc_i)->pos_y > area_cut_y3) && (clusters.at(nc_i)->pos_y < area_cut_y4);
+    corner_right_top = (clusters.at(nc_i)->bar_x > area_cut_x3) && (clusters.at(nc_i)->bar_x < area_cut_x4) &&
+            (clusters.at(nc_i)->bar_y > area_cut_y3) && (clusters.at(nc_i)->bar_y < area_cut_y4);
 
 
 
@@ -200,11 +220,11 @@ BoolCut::BoolCut (vector<RDCluster*> clusters, int nc_i)
 
     if(nc == 2)
     {
-        region_of_S2_uniformity = (clusters.at(1)->pos_x > 2.2) && (clusters.at(1)->pos_x < 2.8) &&
-                (clusters.at(1)->pos_y > 2) && (clusters.at(1)->pos_y < 3);
+        region_of_S2_uniformity = (clusters.at(1)->bar_x > 2.2) && (clusters.at(1)->bar_x < 2.8) &&
+                (clusters.at(1)->bar_y > 2) && (clusters.at(1)->bar_y < 3);
 
-        region_of_S2_uniformity_run550 = (clusters.at(1)->pos_x > 2.1) && (clusters.at(1)->pos_x < 2.9) &&
-                (clusters.at(1)->pos_y > 2.3) && (clusters.at(1)->pos_y < 3);
+        region_of_S2_uniformity_run550 = (clusters.at(1)->bar_x > 2.1) && (clusters.at(1)->bar_x < 2.9) &&
+                (clusters.at(1)->bar_y > 2.3) && (clusters.at(1)->bar_y < 3);
     }
     else
     {
@@ -279,9 +299,12 @@ int main(/*int argc, char *argv[]*/)
     //main code
     ostringstream path_root_file;
     //path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/lns/camp_V/v3/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/lns/camp_V/v4/" << "run_" << run_number << ".root";
     //path_root_file << "/home/vlad/Soft/Red_Soft/red-daq-light/src/Level1/" << "run_" << run_number << ".root";
     //path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/naples/" << "run_" << run_number << ".root";
-    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/" << "run_" << run_number << ".root";
+    path_root_file << "/media/vlad/Data/DS-data/reco/v1/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v1/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/" << "run_" << run_number << ".root";
     TString filename = path_root_file.str().c_str();
 
     TFile *f = new TFile(filename, "read");
@@ -299,39 +322,44 @@ int main(/*int argc, char *argv[]*/)
     EvRec0* evReco = new EvRec0();
     data->SetBranchAddress("recoevent",&evReco);
 
+    double S1_max = 1500;
+    double S2_max = 6000;
+    double S2_S1_max = 5;
+    //double range_scale = 1;
 
-    double range_scale = 0.5;
+    //time stability
+    TH2F *h2_S2_event = new TH2F("h2_S2_event", "h2_S2_event", 150, 0, 50000, 150, 0, 1E6);
 
     //S1_ij
-    TH2F *h2_S1_ij = new TH2F("h2 S1_i vs S1_j", "h2 S1_i vs S1_j", 150, 0, 900, 150, 0, 900);//S1_i vs S1_j
+    TH2F *h2_S1_ij = new TH2F("h2 S1_i vs S1_j", "h2 S1_i vs S1_j", 150, 0, S1_max, 150, 0, S1_max);//S1_i vs S1_j
     TH2F *h2 = new TH2F("h2 XY S2", "h2 title", 200, 0, 5, 200, 0, 5);//XY S2
     TH2F *h2_S1 = new TH2F("h2 XY S1", "h2 title", 200, 0, 5, 200, 0, 5);//XY S1
     vector<double> S1_i_v;
     vector<double> S1_j_v;
 
     //S2_ij
-    TH2F *h2_S2_ij = new TH2F("h2_S2_ij", "h2_S2_ij", 150, 0, 900, 150, 0, 900);
+    TH2F *h2_S2_ij = new TH2F("h2_S2_ij", "h2_S2_ij", 150, 0, S2_max, 150, 0, S2_max);
     vector<double> S2_i_v;
     vector<double> S2_j_v;
 
-    TH2F *h2_S1_S2 = new TH2F("h2_S1_S2", "h2_S1_S2", 150, 0, 1200, 150, 0, 1500);
+    TH2F *h2_S1_S2 = new TH2F("h2_S1_S2", "h2_S1_S2", 150, 0, S1_max, 150, 0, S2_max);
 
     TH1F *h1;
 
     //TBA
-    TH2F *h2_S1_TBA = new TH2F("h2_S1_TBA", "h2_S1_TBA", 200, -0.5, 0.5, 200, 0, 1500);//Am S1
+    TH2F *h2_S1_TBA = new TH2F("h2_S1_TBA", "h2_S1_TBA", 200, -0.5, 0.5, 200, 0, S1_max);//Am S1
     vector<double> v_S1;
     vector<double> v_TBA;
 
 
-    TH1F *h1_S1_top = new TH1F("h1_S1_top", "h1_S1_top", 200, 0, 600);//Am S1
-    TH1F *h1_S1_bot = new TH1F("h1_S1_bot", "h1_S1_bot", 200, 0, 600);//Am S1
-    TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, 0, 1000);//Am S1 charge
+    TH1F *h1_S1_top = new TH1F("h1_S1_top", "h1_S1_top", 200, 0, S1_max);//Am S1
+    TH1F *h1_S1_bot = new TH1F("h1_S1_bot", "h1_S1_bot", 200, 0, S1_max);//Am S1
+    TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, 0, S1_max);//Am S1 charge
     //TH1F *h1_S1 = new TH1F("h1 S1", "h1 title", 400, -100, 2000*range_scale);//Am S1 charge
 
-    TH1F *h1_S2 = new TH1F("h1 S2", "h1 title", 400, -100, 10000*range_scale);//Am S2 charge
-    TH1F *h1_S2_top = new TH1F("h1 S2 top", "h1 title", 200, -100, (5000 - 50)*range_scale );
-    TH1F *h1_S2_bot = new TH1F("h1 S2 bot", "h1 title", 200, -100, (5000 - 50)*range_scale );
+    TH1F *h1_S2 = new TH1F("h1 S2", "h1 title", 400, -100, S2_max);//Am S2 charge
+    TH1F *h1_S2_top = new TH1F("h1 S2 top", "h1 title", 200, -100, S2_max/2.0 );
+    TH1F *h1_S2_bot = new TH1F("h1 S2 bot", "h1 title", 200, -100, S2_max/2.0 );
     TH1F *h1_S2_S1_ratio = new TH1F("h1 S2/S1", "h1 title", 300, -1, 30);//Am S2_charge/S1_charge
     //TH1F *h1 = new TH1F("h1 S2", "h1 title", 400, -100, 8000);//Am S2 tot_charge_top or tot_charge_bottom
     //TH1F *h1 = new TH1F("h1 S2", "h1 title", 400, -100, 1000);//Am S1 tot_charge_top or tot_charge_bottom
@@ -341,8 +369,9 @@ int main(/*int argc, char *argv[]*/)
     TH1F *h1_Tdrift = new TH1F("h1 Tdrift", "h1 Tdrift", 71, -1, 70);//
     //h1 = h1_Tdrift;
 
-    TH2F *h2_S2_tdrift = new TH2F("h2_S2_tdrift", "h2_S2_tdrift", 150, 0, 100, 200, 0, 1500);
-    TH2F *h2_S2_S1_tdrift = new TH2F("h2_S2_S1_tdrift", "h2_S2_S1_tdrift", 150, 0, 100, 200, 0, 3);
+    TH2F *h2_S2_tdrift = new TH2F("h2_S2_tdrift", "h2_S2_tdrift", 150, 0, 100, 200, 0, S2_max);
+    TH2F *h2_S2_S1_tdrift = new TH2F("h2_S2_S1_tdrift", "h2_S2_S1_tdrift", 150, 0, 100, 200, 0, S2_S1_max);
+    TH2F *h2_S1_tdrift = new TH2F("h2_S1_tdrift", "h2_S1_tdrift", 150, 0, 100, 150, 0, S1_max);
 
 
     vector<double> S2_v;
@@ -382,6 +411,8 @@ int main(/*int argc, char *argv[]*/)
 
     vector<bool> is_in_cut(data->GetEntries(), false);
 
+
+
     //first event loop
     TString total_cut_srt_loop1_0;
     TString total_cut_srt_loop1;
@@ -415,7 +446,7 @@ int main(/*int argc, char *argv[]*/)
 
             for(int nc_i = 0; nc_i < nc; nc_i++)
             {
-                double radius = sqrt( pow(clusters.at(nc_i)->pos_x - 2.62, 2.0) + pow(clusters.at(nc_i)->pos_y - 2.54, 2.0) );
+                double radius = sqrt( pow(clusters.at(nc_i)->bar_x - 2.62, 2.0) + pow(clusters.at(nc_i)->bar_y - 2.54, 2.0) );
 
                 //total_cut = cuts(clusters, nc_i);
                 BoolCut C1(clusters, nc_i);
@@ -427,7 +458,9 @@ int main(/*int argc, char *argv[]*/)
                 //&& Tdrift > 30 && Tdrift < 45
                 //C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 540
                 //C1.is_S2_v2 && C1.is_good_r550_v1
-                REMEMBER_CUT_LOOP1(C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 200  );
+                //C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 200
+                //C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 700 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                REMEMBER_CUT_LOOP1(C1.nc == 2 && C1.cls1 && C1.cls0_is_full);
 
                 if ( cut_loop1_bool ) //cuts
                 {
@@ -436,8 +469,9 @@ int main(/*int argc, char *argv[]*/)
                     S2_v.push_back(clusters.at(nc_i)->charge);
 
                     h1_Tdrift->Fill(Tdrift);
-                    //cout << "   pos_x = " << clusters[nc_i]->pos_x << "; pos_y = " << clusters[nc_i]->pos_y << endl;
-                    h2->Fill(clusters.at(nc_i)->pos_x, clusters.at(nc_i)->pos_y);
+                    //cout << "   bar_x = " << clusters[nc_i]->bar_x << "; bar_y = " << clusters[nc_i]->bar_y << endl;
+                    //h2->Fill(clusters.at(nc_i)->bar_x, clusters.at(nc_i)->bar_y);
+                    h2->Fill(clusters.at(nc_i)->bar_x, clusters.at(nc_i)->bar_y);
                     h1_S2->Fill(clusters.at(nc_i)->charge);
                     h1_S2_top->Fill(clusters.at(nc_i)->tot_charge_top);
                     h1_S2_bot->Fill(clusters.at(nc_i)->tot_charge_bottom);
@@ -448,13 +482,18 @@ int main(/*int argc, char *argv[]*/)
                     h2_S1_S2->Fill(clusters.at(0)->charge, clusters.at(1)->charge);
                     h2_S2_tdrift->Fill(Tdrift, clusters.at(1)->charge);
                     h2_S2_S1_tdrift->Fill(Tdrift, clusters.at(1)->charge/clusters.at(0)->charge);
+                    h2_S1_tdrift->Fill(Tdrift, clusters.at(0)->charge);
+
                 }
 
 
             }   // end nc_i loop
 
             if(is_in_cut[ev])
+            {
                 event_v.push_back(ev);
+                h2_S2_event->Fill(ev, clusters.at(1)->charge);
+            }
 
 
         }// end if(nc)
@@ -486,7 +525,7 @@ int main(/*int argc, char *argv[]*/)
                 {
                     h1_S1_f90->Fill(clusters.at(nc_i)->f90);
 
-                    h2_S1->Fill(clusters.at(nc_i)->pos_x, clusters.at(nc_i)->pos_y);
+                    h2_S1->Fill(clusters.at(nc_i)->bar_x, clusters.at(nc_i)->bar_y);
                     h1_S1->Fill(clusters.at(nc_i)->charge);
 
                     {
@@ -1427,8 +1466,8 @@ int main(/*int argc, char *argv[]*/)
         h2->SetTitle(cut_loop1_srt);
         h2->GetXaxis()->SetTitle("x [cm]");
         h2->GetYaxis()->SetTitle("y [cm]");
-        h2->GetXaxis()->SetRangeUser(1.5, 3.5);
-        h2->GetYaxis()->SetRangeUser(1.5, 3.5);
+        h2->GetXaxis()->SetRangeUser(0, 5);
+        h2->GetYaxis()->SetRangeUser(0, 5);
         h2->Draw("colz");
         //h2->SetStats(0); //delete statbox
         gPad->Update();
@@ -1439,15 +1478,29 @@ int main(/*int argc, char *argv[]*/)
 
 
         c1->cd(2);
-        TGraph *gr_S2_event = new TGraph(event_v.size(), &event_v[0], &S2_v[0]);
-        gr_S2_event->Draw("AP");
-        gPad->SetLogy();
-        gr_S2_event->SetMarkerStyle(20);
-        gr_S2_event->SetMarkerSize(0.5);
-        gr_S2_event->GetXaxis()->SetTitle("event number");
-        gr_S2_event->GetYaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
-        gr_S2_event->SetTitle(cut_loop1_srt);
-        gr_S2_event->GetYaxis()->SetRangeUser(10, 2E5);
+//        TGraph *gr_S2_event = new TGraph(event_v.size(), &event_v[0], &S2_v[0]);
+//        gr_S2_event->Draw("AP");
+//        gPad->SetLogy();
+//        gr_S2_event->SetMarkerStyle(20);
+//        gr_S2_event->SetMarkerSize(0.5);
+//        gr_S2_event->GetXaxis()->SetTitle("event number");
+//        gr_S2_event->GetYaxis()->SetTitle("clusters.at(nc_i)->charge [PE]");
+//        gr_S2_event->SetTitle(cut_loop1_srt);
+//        gr_S2_event->GetYaxis()->SetRangeUser(10, 2E5);
+        h2_S2_event->SetTitle(cut_loop1_srt);
+        h2_S2_event->GetXaxis()->SetTitle("event");
+        h2_S2_event->GetYaxis()->SetTitle("S2");
+        //h2_S2_event->GetXaxis()->SetRangeUser(1.5, 3.5);
+        //h2_S2_event->GetYaxis()->SetRangeUser(2, 1E5);
+        //h2_S2_event->Draw("colz");
+        TProfile *prof_h2_S2_event = h2_S2_event->ProfileX();
+        //TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
+        //prof->Fit("f1_exp_purity","R","",left_lim,right_lim);
+        //cout << "e- lifetime (S1 vs T_drift) [us] = " << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << endl;
+        //cout <<  << endl;
+        prof_h2_S2_event->Draw();
+        gPad->Modified(); gPad->Update();
+
 
         c1->cd(5);
         gStyle->SetOptFit(1);
@@ -1564,6 +1617,9 @@ int main(/*int argc, char *argv[]*/)
         st_h1_S1_f90->SetY1NDC(0.50); st_h1_S1_f90->SetY2NDC(0.89);
         gPad->Modified(); gPad->Update();
 
+        double left_lim = 20;
+        double right_lim = 60;
+
         c1->cd(12);
         h2_S2_tdrift->SetTitle(cut_loop1_srt);
         h2_S2_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
@@ -1572,9 +1628,9 @@ int main(/*int argc, char *argv[]*/)
         c1->cd(13);
         TProfile *prof = h2_S2_tdrift->ProfileX();
         TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
-        prof->Fit("f1_exp_purity","R","",12,60);
+        prof->Fit("f1_exp_purity","R","",left_lim,right_lim);
         cout << "e- lifetime (S1 vs T_drift) [us] = " << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << endl;
-        cout <<  << endl;
+        //cout <<  << endl;
         gPad->Modified(); gPad->Update();
 
         c1->cd(14);
@@ -1585,7 +1641,7 @@ int main(/*int argc, char *argv[]*/)
         c1->cd(15);
         TProfile *prof_S2_S1_TDrift = h2_S2_S1_tdrift->ProfileX();
         TF1 *f1_exp_purity_S2_S1 = new TF1("f1_exp_purity_S2_S1","exp([0] + x*[1])",0,150);
-        prof_S2_S1_TDrift->Fit("f1_exp_purity_S2_S1","R","",12,60);
+        prof_S2_S1_TDrift->Fit("f1_exp_purity_S2_S1","R","",left_lim,right_lim);
         cout << "e- lifetime (S2/S1 vs T_drift) [us] = " << -1/f1_exp_purity_S2_S1->GetParameter(1) << " +- " << f1_exp_purity_S2_S1->GetParError(1)/pow(f1_exp_purity_S2_S1->GetParameter(1), 2.0) << endl;
         gPad->Modified(); gPad->Update();
 
@@ -1599,8 +1655,11 @@ int main(/*int argc, char *argv[]*/)
         st_h1_S2->SetY1NDC(0.50); st_h1_S2->SetY2NDC(0.89);
         gPad->Modified(); gPad->Update();
 
-
-
+        c1->cd(16);
+        h2_S1_tdrift->SetTitle(cut_loop1_srt);
+        h2_S1_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+        h2_S1_tdrift->GetYaxis()->SetTitle("S1");
+        h2_S1_tdrift->Draw("colz");
 
 
 

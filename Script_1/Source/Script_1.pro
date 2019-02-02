@@ -22,7 +22,8 @@ SOURCES += \
     toymc.cpp \
     correlation_mc.cpp \
     chancorr.cpp \
-    very_simple_mc.cpp
+    very_simple_mc.cpp \
+    main2.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 
