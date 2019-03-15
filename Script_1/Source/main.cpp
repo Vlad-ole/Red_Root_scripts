@@ -74,7 +74,7 @@ using namespace std;
 //int run_number = 544; //ph2     Am241
 //int run_number = 550; //ph2     Am241
 //int run_number = 554; //ph2     Am241 error
-int run_number = 744; //ph2     Am241
+//int run_number = 744; //ph2     Am241
 //int run_number = 847; //ph2     Am241
 //int run_number = 854; //ph2     Am241
 //int run_number = 857; //ph2     Am241
@@ -91,6 +91,12 @@ int run_number = 744; //ph2     Am241
 //int run_number = 892; //ph2     Am241
 //int run_number = 921; //ph2     Am241
 //int run_number = 924; //ph2     Am241
+//int run_number = 956; //ph2     Am241
+//int run_number = 971; //ph2     Kr
+//int run_number = 979; //ph2     Kr
+//int run_number = 996; //ph2     Am241
+
+int run_number = 853;
 
 //var1: 1.5 2.1 2.9 3.5
 //var2:1.5 2.3 2.7 3.5
@@ -302,9 +308,11 @@ int main(/*int argc, char *argv[]*/)
     //path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/lns/camp_V/v4/" << "run_" << run_number << ".root";
     //path_root_file << "/home/vlad/Soft/Red_Soft/red-daq-light/src/Level1/" << "run_" << run_number << ".root";
     //path_root_file << "/media/vlad/Data/DS-data/reco/rm3reco/naples/" << "run_" << run_number << ".root";
-    path_root_file << "/media/vlad/Data/DS-data/reco/v1/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/v1/" << "run_" << run_number << ".root";
     //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v1/" << "run_" << run_number << ".root";
     //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/CVII_v2/" << "run_" << run_number << ".root";
+    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
     TString filename = path_root_file.str().c_str();
 
     TFile *f = new TFile(filename, "read");
@@ -322,9 +330,9 @@ int main(/*int argc, char *argv[]*/)
     EvRec0* evReco = new EvRec0();
     data->SetBranchAddress("recoevent",&evReco);
 
-    double S1_max = 1500;
-    double S2_max = 6000;
-    double S2_S1_max = 5;
+    double S1_max = 1000;
+    double S2_max = 7000;
+    double S2_S1_max = 12;
     //double range_scale = 1;
 
     //time stability
@@ -460,7 +468,11 @@ int main(/*int argc, char *argv[]*/)
                 //C1.is_S2_v2 && C1.is_good_r550_v1
                 //C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 200
                 //C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 700 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
-                REMEMBER_CUT_LOOP1(C1.nc == 2 && C1.cls1 && C1.cls0_is_full);
+                //C1.is_S2_v2 && clusters.at(0)->charge > 500 && clusters.at(0)->charge < 900 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 3000
+                //956//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750  && clusters.at(1)->charge > 300 && clusters.at(1)->charge < 2500
+                //971//C1.is_S2_v2 && clusters.at(0)->charge > 350 && clusters.at(0)->charge < 520 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //979//C1.is_S2_v2 && clusters.at(0)->charge > 350 && clusters.at(0)->charge < 520 && clusters.at(1)->charge > 1000 && clusters.at(1)->charge <6000
+                REMEMBER_CUT_LOOP1(C1.nc == 2 && C1.cls1);
 
                 if ( cut_loop1_bool ) //cuts
                 {
@@ -1617,8 +1629,8 @@ int main(/*int argc, char *argv[]*/)
         st_h1_S1_f90->SetY1NDC(0.50); st_h1_S1_f90->SetY2NDC(0.89);
         gPad->Modified(); gPad->Update();
 
-        double left_lim = 20;
-        double right_lim = 60;
+        double left_lim = /*20*/15;
+        double right_lim = /*60*/50;
 
         c1->cd(12);
         h2_S2_tdrift->SetTitle(cut_loop1_srt);
@@ -1629,7 +1641,7 @@ int main(/*int argc, char *argv[]*/)
         TProfile *prof = h2_S2_tdrift->ProfileX();
         TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
         prof->Fit("f1_exp_purity","R","",left_lim,right_lim);
-        cout << "e- lifetime (S1 vs T_drift) [us] = " << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << endl;
+        cout << "e- lifetime (S2 vs T_drift) [us] = " << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << endl;
         //cout <<  << endl;
         gPad->Modified(); gPad->Update();
 

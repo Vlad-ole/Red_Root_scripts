@@ -39,10 +39,14 @@ TString cut_loop0_srt;
 bool cut_loop0_bool = false;
 #define REMEMBER_CUT_LOOP0(x) cut_loop0_srt = #x;  cut_loop0_bool = x;
 
+TString cut_loop2_srt;
+bool cut_loop2_bool = false;
+#define REMEMBER_CUT_LOOP2(x) cut_loop2_srt = #x;  cut_loop2_bool = x;
+
 using namespace std;
 
 
-int run_number = 749;
+int run_number = 872;
 
 double area_cut_x1 = 1.5;//cm
 double area_cut_x2 = 2.1;//cm
@@ -213,8 +217,15 @@ void main2()
 
     //main code
     ostringstream path_root_file;
-    path_root_file << "/media/vlad/Data/DS-data/reco/v1/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/v1/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v1/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/CVII_v2/" << "run_" << run_number << ".root";
+    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
     TString filename = path_root_file.str().c_str();
+
+    ostringstream path_file_out;
+    path_file_out << "/home/vlad/Reports/S1_LY/TBA/run_" << run_number << ".txt";
+    ofstream file_out(path_file_out.str().c_str());
 
     TFile *f = new TFile(filename, "read");
     if (!(f->IsOpen()))
@@ -231,10 +242,16 @@ void main2()
     EvRec0* evReco = new EvRec0();
     data->SetBranchAddress("recoevent",&evReco);
 
-    double S1_max = 1600;
+    vector<bool> is_in_cut(data->GetEntries(), false);
+
+    //double S1_max = 1600; //standart
+    double S1_max = 2500; //V=35, V=70
+    //double S1_max = 10000;//bkg
+    double S2_max = 5000;
 
     //TH1::SetDefaultSumw2(kTRUE);
     TH1F *h1_nc = new TH1F("h1_nc", "h1_nc", 200, 0, 10);
+    TH1F *h1_Tdrift = new TH1F("h1_Tdrift", "h1_Tdrift", 100, 0, 100);
     TH1F *h1_S1_top = new TH1F("h1_S1_top", "h1_S1_top", 200, 0, S1_max*0.6);
     TH1F *h1_S1_bot = new TH1F("h1_S1_bot", "h1_S1_bot", 200, 0, S1_max*0.6);
     TH1F *h1_S1_total = new TH1F("h1 S1", "h1_S1_total", 400, 0, S1_max);
@@ -244,6 +261,10 @@ void main2()
     TH2F *h2_f90_S1_total = new TH2F("h2_f90_S1_total", "h2_f90_S1_total", 200, 0, 1, 200, 0, S1_max);
     TH2F *h2_S1_bot_S1_top = new TH2F("h2_S1_bot_S1_top", "h2_S1_bot_S1_top", 200, 0, S1_max/2.0, 200, 0, S1_max/2.0);
     TH2F *h2_S1_total_TBA = new TH2F("h2_S1_total_TBA", "h2_S1_total_TBA", 200, 0, S1_max, 200, -1, 1);
+
+    TH2F *h2_f90_S2_total = new TH2F("h2_f90_S2_total", "h2_f90_S2_total", 200, 0, 1, 200, 0, S2_max);
+    TH1F *h1_S2_total = new TH1F("h1 S2", "h1_S2_total", 400, 0, S2_max);
+    TH1F *h1_S2_rms_time = new TH1F("h1_S2_rms_time", "h1_S2_rms_time", 400, -1000000, 10000000);
 
 
     //zero event loop
@@ -256,12 +277,18 @@ void main2()
 
         BoolCut C_S1(clusters, 0);
         //C_S1.nc == 1 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35
-        //REMEMBER_CUT_LOOP0(C_S1.nc == 1);
-        REMEMBER_CUT_LOOP0(C_S1.nc == 1 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35);
+        REMEMBER_CUT_LOOP0(C_S1.nc == 2 && C_S1.cls0);
+        //REMEMBER_CUT_LOOP0(C_S1.nc == 1 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35);
+        //REMEMBER_CUT_LOOP0(C_S1.nc == 1 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35 && C_S1.cls0_is_full);
+
         h1_nc->Fill(nc);
+        //if(nc == 2)
+         //   h1_Tdrift->Fill( (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 );
 
         if(cut_loop0_bool)
         {
+           is_in_cut[ev] = true;
+
            h1_S1_total->Fill(clusters.at(0)->charge);
            h1_S1_bot->Fill(clusters.at(0)->tot_charge_bottom);
            h1_S1_top->Fill(clusters.at(0)->tot_charge_top);
@@ -269,14 +296,47 @@ void main2()
            double TBA = (clusters.at(0)->tot_charge_top - clusters.at(0)->tot_charge_bottom) /
                    (clusters.at(0)->tot_charge_top + clusters.at(0)->tot_charge_bottom);
            h1_TBA->Fill(TBA);
+           file_out << TBA << endl;
 
            h2_f90_S1_total->Fill(clusters.at(0)->f90, clusters.at(0)->charge);
            h2_S1_bot_S1_top->Fill(clusters.at(0)->tot_charge_bottom, clusters.at(0)->tot_charge_top);
            h2_S1_total_TBA->Fill(clusters.at(0)->charge, TBA);
         }
 
+    }
+
+    //second event loop
+    TString total_cut_srt_loop2;
+    for (int ev = 0; ev < data->GetEntries(); ev++)
+    {
+        data->GetEntry(ev);
+        vector<RDCluster*> clusters = evReco->GetClusters();
+        size_t nc = clusters.size();
+
+        if(is_in_cut[ev])
+        {
+            for(int nc_i = 0; nc_i < nc; nc_i++)
+            {
+                BoolCut C_S2(clusters, nc_i);
+                //C_S1.nc == 1 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35
+                REMEMBER_CUT_LOOP2(C_S2.nc == 2 && C_S2.cls1);
+
+                if(cut_loop2_bool)
+                {
+                    h2_f90_S2_total->Fill(clusters.at(1)->f90, clusters.at(1)->charge);
+                    h1_S2_total->Fill(clusters.at(1)->charge);
+                    h1_S2_rms_time->Fill(clusters.at(1)->rms_time);
+
+                    if(nc == 2)
+                       h1_Tdrift->Fill( (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 );
+                }
+            }
+        }
 
     }
+
+
+
 
     TCanvas *c1 = new TCanvas("c1","c1");
     c1->Divide(3,3,0.01,0.01);
@@ -336,6 +396,11 @@ void main2()
     h1_S1_f90->SetTitle(cut_loop0_srt);
     h1_S1_f90->GetXaxis()->SetTitle("S1_f90");
     h1_S1_f90->Draw();
+    h1_S1_f90->Fit("gaus","","",0.19,0.32);
+    TF1 *myfunc3 = h1_S1_f90->GetFunction("gaus");
+    double mean_3 = myfunc3->GetParameter(1);
+    double sigma_3 = myfunc3->GetParameter(2);
+    h1_S1_f90->Fit("gaus","","",mean_3-1.5*sigma_3,mean_3+1.5*sigma_3);
     gPad->Update();
     TPaveStats *st_h1_S1_f90 = (TPaveStats*)h1_S1_f90->GetListOfFunctions()->FindObject("stats");
     st_h1_S1_f90->SetX1NDC(0.12+shift); st_h1_S1_f90->SetX2NDC(0.35+shift);
@@ -399,5 +464,59 @@ void main2()
     gPad->Modified(); gPad->Update();
 
 
+    TCanvas *c2 = new TCanvas("c2","c2");
+    c2->Divide(2,2,0.01,0.01);
+    gStyle->SetOptFit(1);
+
+    c2->cd(1);
+    h1_Tdrift->GetXaxis()->SetTitle("Tdrift [us]");
+    h1_Tdrift->Draw();
+
+    c2->cd(2);
+    h2_f90_S2_total->SetTitle(cut_loop2_srt);
+    h2_f90_S2_total->GetXaxis()->SetTitle("S2_f90");
+    h2_f90_S2_total->GetYaxis()->SetTitle("S2_total [PE]");
+    h2_f90_S2_total->Draw("colz");
+    gPad->Update();
+    TPaveStats *st_h2_f90_S2_total = (TPaveStats*)h2_f90_S2_total->GetListOfFunctions()->FindObject("stats");
+    st_h2_f90_S2_total->SetX1NDC(0.12+shift); st_h2_f90_S2_total->SetX2NDC(0.35+shift);
+    st_h2_f90_S2_total->SetY1NDC(0.72); st_h2_f90_S2_total->SetY2NDC(0.89);
+    gPad->Modified(); gPad->Update();
+
+    c2->cd(3);
+    h1_S2_total->SetTitle(cut_loop2_srt);
+    h1_S2_total->GetXaxis()->SetTitle("S2_total [PE]");
+    h1_S2_total->Draw();
+    //h1_S2_total->Fit("gaus");
+    //TF1 *myfunc = h1_S1_total->GetFunction("gaus");
+    //double mean = myfunc->GetParameter(1);
+    //double sigma = myfunc->GetParameter(2);
+    //h1_S1_total->Fit("gaus","","",mean-1.5*sigma,mean+1.5*sigma);
+    //gPad->Update();
+//    TPaveStats *st_h1_S2_total = (TPaveStats*)h1_S2_total->GetListOfFunctions()->FindObject("stats");
+//    st_h1_S2_total->SetX1NDC(0.12+shift+shift_x1); st_h1_S2_total->SetX2NDC(0.35+shift);
+//    st_h1_S2_total->SetY1NDC(0.72+shift_y1); st_h1_S2_total->SetY2NDC(0.89);
+//    gPad->Modified(); gPad->Update();
+
+    c2->cd(4);
+    h1_S2_rms_time->SetTitle(cut_loop2_srt);
+    h1_S2_rms_time->GetXaxis()->SetTitle("S2_rms_time");
+    h1_S2_rms_time->Draw();
+    gPad->Update();
+    TPaveStats *st_h1_S2_rms_time = (TPaveStats*)h1_S2_rms_time->GetListOfFunctions()->FindObject("stats");
+    st_h1_S2_rms_time->SetX1NDC(0.12+shift); st_h1_S2_rms_time->SetX2NDC(0.35+shift);
+    st_h1_S2_rms_time->SetY1NDC(0.72); st_h1_S2_rms_time->SetY2NDC(0.89);
+    gPad->Modified(); gPad->Update();
+
+
+
+//    TCanvas *c3 = new TCanvas("c3","c3");
+//    h1_S1_f90->Draw();
+//    h1_S1_f90->Fit("gaus","","",0.19,0.32);
+//    TF1 *myfunc3 = h1_S1_f90->GetFunction("gaus");
+//    double mean_3 = myfunc3->GetParameter(1);
+//    double sigma_3 = myfunc3->GetParameter(2);
+//    h1_S1_f90->Fit("gaus","","",mean-1.5*sigma,mean+1.5*sigma);
+//    //TF1 *myfunc2 = h2_f90_S1_total->GetFunction("gaus");
 
 }

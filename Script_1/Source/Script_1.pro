@@ -23,7 +23,10 @@ SOURCES += \
     correlation_mc.cpp \
     chancorr.cpp \
     very_simple_mc.cpp \
-    main2.cpp
+    main2.cpp \
+    f90.cpp \
+    f90_draw.cpp \
+    tba_draw.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 
