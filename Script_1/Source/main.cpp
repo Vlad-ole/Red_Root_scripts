@@ -13,6 +13,7 @@
 #include "TGraph.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TStyle.h"
 #include "TTree.h"
 #include "TROOT.h"
@@ -54,49 +55,8 @@ using namespace std;
 
 
 //some predefined vars
-//list of runs
-
-//ph1
-//int run_number = 399; //ph1     Am241
-//int run_number = 418; //ph1     Am241
-//int run_number = 511; //ph1     Am241
-//int run_number = 744; //ph1     Am241
-//int run_number = 779; //ph1     Am241
-
-//ph2
-//int run_number = 426; //ph2     Am241 error
-//int run_number = 448; //ph2     Am241 error
-//int run_number = 532; //ph2    BEAM ON (E = 28 MeV, i = 12 nA)
-//int run_number = 534; //ph2     backgroud
-//int run_number = 537; //ph2     Am241
-//int run_number = 540; //ph2     Cf252
-//int run_number = 542; //ph2     Am241
-//int run_number = 544; //ph2     Am241
-//int run_number = 550; //ph2     Am241
-//int run_number = 554; //ph2     Am241 error
-//int run_number = 744; //ph2     Am241
-//int run_number = 847; //ph2     Am241
-//int run_number = 854; //ph2     Am241
-//int run_number = 857; //ph2     Am241
-//int run_number = 860; //ph2     Am241
-//int run_number = 865; //ph2     Am241
-//int run_number = 872; //ph2     Am241
-//int run_number = 874; //ph2     Am241
-//int run_number = 878; //ph2     Am241
-//int run_number = 880; //ph2     Am241
-//int run_number = 882; //ph2     Am241
-//int run_number = 884; //ph2     Am241
-//int run_number = 887; //ph2     Am241
-//int run_number = 888; //ph2     Am241
-//int run_number = 892; //ph2     Am241
-//int run_number = 921; //ph2     Am241
-//int run_number = 924; //ph2     Am241
-//int run_number = 956; //ph2     Am241
-//int run_number = 971; //ph2     Kr
-//int run_number = 979; //ph2     Kr
-//int run_number = 996; //ph2     Am241
-
-int run_number = 853;
+//int run_number = 844; //for xy reco
+int run_number = 1051;
 
 //var1: 1.5 2.1 2.9 3.5
 //var2:1.5 2.3 2.7 3.5
@@ -312,8 +272,28 @@ int main(/*int argc, char *argv[]*/)
     //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v1/" << "run_" << run_number << ".root";
     //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/" << "run_" << run_number << ".root";
     //path_root_file << "/media/vlad/Data/DS-data/reco/CVII_v2/" << "run_" << run_number << ".root";
-    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/camp_V/v4/" << "run_" << run_number << ".root";
+    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VIII/" << "run_" << run_number << ".root";
     TString filename = path_root_file.str().c_str();
+
+    ostringstream path_file_out_s1_tdrift;
+    path_file_out_s1_tdrift << "/home/vlad/Reports/S1_LY/s1_tdrift/run_" << run_number << ".txt";
+    ofstream file_out_s1_tdrift(path_file_out_s1_tdrift.str().c_str());
+
+    ostringstream path_file_out_s1_bottom_tdrift;
+    path_file_out_s1_bottom_tdrift << "/home/vlad/Reports/S1_LY/s1_bottom_tdrift/run_" << run_number << ".txt";
+    ofstream file_out_s1_bottom_tdrift(path_file_out_s1_bottom_tdrift.str().c_str());
+
+    ostringstream path_file_out_s1_top_tdrift;
+    path_file_out_s1_top_tdrift << "/home/vlad/Reports/S1_LY/s1_top_tdrift/run_" << run_number << ".txt";
+    ofstream file_out_s1_top_tdrift(path_file_out_s1_top_tdrift.str().c_str());
+
+    ostringstream path_file_out_x_corrections;
+    path_file_out_x_corrections << "/home/vlad/Reports/XY/xy_corrections/run_" << run_number << "/x_corr" <<".txt";
+    ofstream file_out_x_corrections(path_file_out_x_corrections.str().c_str());
+
+    cout << path_file_out_x_corrections.str() << endl;
 
     TFile *f = new TFile(filename, "read");
     if (!(f->IsOpen()))
@@ -331,12 +311,16 @@ int main(/*int argc, char *argv[]*/)
     data->SetBranchAddress("recoevent",&evReco);
 
     double S1_max = 1000;
-    double S2_max = 7000;
-    double S2_S1_max = 12;
+    double S2_max = 2500;
+    double S2_S1_max = 4;
     //double range_scale = 1;
+    double left_lim = 15 /*15*/;
+    double right_lim = 55 /*55*/;
+
+
 
     //time stability
-    TH2F *h2_S2_event = new TH2F("h2_S2_event", "h2_S2_event", 150, 0, 50000, 150, 0, 1E6);
+    TH2F *h2_S2_event = new TH2F("h2_S2_event", "h2_S2_event", 110, 0, 110000, 150, 0, 1E4);
 
     //S1_ij
     TH2F *h2_S1_ij = new TH2F("h2 S1_i vs S1_j", "h2 S1_i vs S1_j", 150, 0, S1_max, 150, 0, S1_max);//S1_i vs S1_j
@@ -355,7 +339,8 @@ int main(/*int argc, char *argv[]*/)
     TH1F *h1;
 
     //TBA
-    TH2F *h2_S1_TBA = new TH2F("h2_S1_TBA", "h2_S1_TBA", 200, -0.5, 0.5, 200, 0, S1_max);//Am S1
+    TH2F *h2_S1_TBA = new TH2F("h2_S1_TBA", "h2_S1_TBA", 200, -0.5, 0.5, 200, 0, S1_max);
+    TH2F *h2_Tdrift_TBA = new TH2F("h2_Tdrift_TBA", "h2_Tdrift_TBA", 200, -0.5, 0.5, 100, 0, 100);
     vector<double> v_S1;
     vector<double> v_TBA;
 
@@ -380,7 +365,26 @@ int main(/*int argc, char *argv[]*/)
     TH2F *h2_S2_tdrift = new TH2F("h2_S2_tdrift", "h2_S2_tdrift", 150, 0, 100, 200, 0, S2_max);
     TH2F *h2_S2_S1_tdrift = new TH2F("h2_S2_S1_tdrift", "h2_S2_S1_tdrift", 150, 0, 100, 200, 0, S2_S1_max);
     TH2F *h2_S1_tdrift = new TH2F("h2_S1_tdrift", "h2_S1_tdrift", 150, 0, 100, 150, 0, S1_max);
+    TH2F *h2_S1_bot_tdrift = new TH2F("h2_S1_bot_tdrift", "h2_S1_bot_tdrift", 150, 0, 100, 150, 0, S1_max/2.0);
+    TH2F *h2_S1_top_tdrift = new TH2F("h2_S1_top_tdrift", "h2_S1_top_tdrift", 150, 0, 100, 150, 0, S1_max/2.0);
 
+    //xy
+    vector<TH1F*> h1_x_bar_v;
+    h1_x_bar_v.push_back(new TH1F("h1_x_bar_v_#0", "h1_x_bar_v_#0", 250, -1, 6));
+    h1_x_bar_v.push_back(new TH1F("h1_x_bar_v_#1", "h1_x_bar_v_#1", 250, -1, 6));
+    h1_x_bar_v.push_back(new TH1F("h1_x_bar_v_#2", "h1_x_bar_v_#2", 250, -1, 6));
+    h1_x_bar_v.push_back(new TH1F("h1_x_bar_v_#3", "h1_x_bar_v_#4", 250, -1, 6));
+    TH2F *h2_xmaxch_xbar = new TH2F("h2_xmaxch_xbar", "h2_xmaxch_xbar", 50, -1, 6, 50, -1, 6);
+    TH2F *h2_xbar_xmaxch = new TH2F("h2_xbar_xmaxch", "h2_xbar_xmaxch", 50, -1, 6, 50, -1, 6);
+    TH3F *h3_xmaxch_xbar_ybar = new TH3F("h3_xmaxch_xbar_ybar", "h3_xmaxch_xbar_ybar", 50, -1, 6, 50, -1, 6, 50, -1, 6);
+    vector<TH1F*> h1_LRF_v;
+    for(int ih1 = 0; ih1 < 24; ih1++)
+    {
+        ostringstream h1_name;
+        h1_name << "h1_LRF_" << ih1;
+        h1_LRF_v.push_back( new TH1F(h1_name.str().c_str(), h1_name.str().c_str(), 100, 0, 0.3) );
+    }
+    vector<double> x_centers = {0.625, 1.875, 3.125, 4.375};
 
     vector<double> S2_v;
     vector<double> event_v;
@@ -432,15 +436,13 @@ int main(/*int argc, char *argv[]*/)
         vector<RDCluster*> clusters = evReco->GetClusters();
         size_t nc = clusters.size();
         //cout << "Found n. " << nc << " clusters" << endl;
-
+        double Tdrift = -1;
 
         if(nc)
         {
 
             BoolCut C0(clusters, 0);
             total_cut_srt_loop1_0 = "C0.nc == 2";
-            double Tdrift = -1;
-
 
             if(C0.nc == 2)
             {
@@ -467,12 +469,41 @@ int main(/*int argc, char *argv[]*/)
                 //C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 540
                 //C1.is_S2_v2 && C1.is_good_r550_v1
                 //C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 200
-                //C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 700 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //537//C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 700 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //550//C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 120 && clusters.at(0)->charge < 270 && clusters.at(1)->charge > 120 && clusters.at(1)->charge < 1200
                 //C1.is_S2_v2 && clusters.at(0)->charge > 500 && clusters.at(0)->charge < 900 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 3000
+                //C1.is_S2_v2 && C1.region_of_S2_uniformity && clusters.at(0)->charge > 300 && clusters.at(0)->charge < 540
+
+                //844//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //847//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 1500
+                //852//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //
+                //854//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 &&  clusters.at(1)->charge > 200 && clusters.at(1)->charge < 1500
+                //857//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 &&  clusters.at(1)->charge > 200 && clusters.at(1)->charge < 1500
+                //870//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //872//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //874//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //878//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //880//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //882//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //884//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //892//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //893//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //898//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //899//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //919//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //921//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //931//
+                //946//
+                //948//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                //952//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 250 && clusters.at(1)->charge < 2500
                 //956//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750  && clusters.at(1)->charge > 300 && clusters.at(1)->charge < 2500
+                //952//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 250 && clusters.at(1)->charge < 2500
                 //971//C1.is_S2_v2 && clusters.at(0)->charge > 350 && clusters.at(0)->charge < 520 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
                 //979//C1.is_S2_v2 && clusters.at(0)->charge > 350 && clusters.at(0)->charge < 520 && clusters.at(1)->charge > 1000 && clusters.at(1)->charge <6000
-                REMEMBER_CUT_LOOP1(C1.nc == 2 && C1.cls1);
+                //993//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge < 800
+                //996//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
+                REMEMBER_CUT_LOOP1(C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000);
 
                 if ( cut_loop1_bool ) //cuts
                 {
@@ -495,6 +526,38 @@ int main(/*int argc, char *argv[]*/)
                     h2_S2_tdrift->Fill(Tdrift, clusters.at(1)->charge);
                     h2_S2_S1_tdrift->Fill(Tdrift, clusters.at(1)->charge/clusters.at(0)->charge);
                     h2_S1_tdrift->Fill(Tdrift, clusters.at(0)->charge);
+                    //file_out_s1_tdrift << Tdrift << "\t" << clusters.at(0)->charge << endl;
+                    h2_S1_top_tdrift->Fill(Tdrift, clusters.at(0)->tot_charge_top);
+                    h2_S1_bot_tdrift->Fill(Tdrift, clusters.at(0)->tot_charge_bottom);
+
+                    h2_xmaxch_xbar->Fill(clusters.at(1)->bar_x, clusters.at(1)->pos_x);
+                    h2_xbar_xmaxch->Fill(clusters.at(1)->pos_x, clusters.at(1)->bar_x);
+                    h3_xmaxch_xbar_ybar->Fill(clusters.at(1)->bar_x, clusters.at(1)->bar_y, clusters.at(1)->pos_x);
+
+
+//                    if(ev < 100)
+//                    {
+//                        cout << clusters.at(1)->pos_x << endl;
+//                    }
+
+                    if(clusters.at(1)->pos_x == 0.625)
+                        h1_x_bar_v[0]->Fill(clusters.at(1)->bar_x);
+
+                    if(clusters.at(1)->pos_x == 1.875)
+                        h1_x_bar_v[1]->Fill(clusters.at(1)->bar_x);
+
+                    if(clusters.at(1)->pos_x == 3.125)
+                        h1_x_bar_v[2]->Fill(clusters.at(1)->bar_x);
+
+                    if(clusters.at(1)->pos_x == 4.375)
+                        h1_x_bar_v[3]->Fill(clusters.at(1)->bar_x);
+
+                    for(int ih1 = 0; ih1 < 24; ih1++)
+                    {
+                        h1_LRF_v[ih1]->Fill(clusters.at(nc_i)->charge_top[ih1]/clusters.at(nc_i)->tot_charge_top);
+                        h1_LRF_v[ih1]->SetTitle(cut_loop2_srt);
+                    }
+
 
                 }
 
@@ -523,6 +586,8 @@ int main(/*int argc, char *argv[]*/)
 
         if(is_in_cut[ev])
         {
+            double Tdrift = (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000;
+
             for(int nc_i = 0; nc_i < nc; nc_i++)
             {
 
@@ -593,7 +658,8 @@ int main(/*int argc, char *argv[]*/)
 
                         //TBA
                         double TBA = (clusters.at(nc_i)->tot_charge_top - clusters.at(nc_i)->tot_charge_bottom) / (clusters.at(nc_i)->tot_charge_top + clusters.at(nc_i)->tot_charge_bottom);
-                        h2_S1_TBA->Fill(TBA, clusters.at(0)->charge);
+                        h2_S1_TBA->Fill(TBA, clusters.at(0)->charge);                        
+                        h2_Tdrift_TBA->Fill(TBA, Tdrift);
                         v_S1.push_back(clusters.at(0)->charge);
                         v_TBA.push_back(TBA);
 
@@ -1506,11 +1572,11 @@ int main(/*int argc, char *argv[]*/)
         //h2_S2_event->GetYaxis()->SetRangeUser(2, 1E5);
         //h2_S2_event->Draw("colz");
         TProfile *prof_h2_S2_event = h2_S2_event->ProfileX();
+        prof_h2_S2_event->Draw();
         //TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
         //prof->Fit("f1_exp_purity","R","",left_lim,right_lim);
         //cout << "e- lifetime (S1 vs T_drift) [us] = " << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << endl;
-        //cout <<  << endl;
-        prof_h2_S2_event->Draw();
+        //cout <<  << endl;      
         gPad->Modified(); gPad->Update();
 
 
@@ -1629,33 +1695,32 @@ int main(/*int argc, char *argv[]*/)
         st_h1_S1_f90->SetY1NDC(0.50); st_h1_S1_f90->SetY2NDC(0.89);
         gPad->Modified(); gPad->Update();
 
-        double left_lim = /*20*/15;
-        double right_lim = /*60*/50;
 
-        c1->cd(12);
-        h2_S2_tdrift->SetTitle(cut_loop1_srt);
-        h2_S2_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
-        h2_S2_tdrift->GetYaxis()->SetTitle("S2 [PE]");
-        h2_S2_tdrift->Draw("colz");
-        c1->cd(13);
-        TProfile *prof = h2_S2_tdrift->ProfileX();
-        TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
-        prof->Fit("f1_exp_purity","R","",left_lim,right_lim);
-        cout << "e- lifetime (S2 vs T_drift) [us] = " << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << endl;
-        //cout <<  << endl;
-        gPad->Modified(); gPad->Update();
 
-        c1->cd(14);
-        h2_S2_S1_tdrift->SetTitle(cut_loop1_srt);
-        h2_S2_S1_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
-        h2_S2_S1_tdrift->GetYaxis()->SetTitle("S2/S1");
-        h2_S2_S1_tdrift->Draw("colz");
-        c1->cd(15);
-        TProfile *prof_S2_S1_TDrift = h2_S2_S1_tdrift->ProfileX();
-        TF1 *f1_exp_purity_S2_S1 = new TF1("f1_exp_purity_S2_S1","exp([0] + x*[1])",0,150);
-        prof_S2_S1_TDrift->Fit("f1_exp_purity_S2_S1","R","",left_lim,right_lim);
-        cout << "e- lifetime (S2/S1 vs T_drift) [us] = " << -1/f1_exp_purity_S2_S1->GetParameter(1) << " +- " << f1_exp_purity_S2_S1->GetParError(1)/pow(f1_exp_purity_S2_S1->GetParameter(1), 2.0) << endl;
-        gPad->Modified(); gPad->Update();
+//        c1->cd(12);
+//        h2_S2_tdrift->SetTitle(cut_loop1_srt);
+//        h2_S2_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+//        h2_S2_tdrift->GetYaxis()->SetTitle("S2 [PE]");
+//        h2_S2_tdrift->Draw("colz");
+//        c1->cd(13);
+//        TProfile *prof = h2_S2_tdrift->ProfileX();
+//        TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
+//        prof->Fit("f1_exp_purity","R","",left_lim,right_lim);
+//        cout << "e- lifetime (S2 vs T_drift) [us] = " << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << endl;
+//        //cout <<  << endl;
+//        gPad->Modified(); gPad->Update();
+
+//        c1->cd(14);
+//        h2_S2_S1_tdrift->SetTitle(cut_loop1_srt);
+//        h2_S2_S1_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+//        h2_S2_S1_tdrift->GetYaxis()->SetTitle("S2/S1");
+//        h2_S2_S1_tdrift->Draw("colz");
+//        c1->cd(15);
+//        TProfile *prof_S2_S1_TDrift = h2_S2_S1_tdrift->ProfileX();
+//        TF1 *f1_exp_purity_S2_S1 = new TF1("f1_exp_purity_S2_S1","exp([0] + x*[1])",0,150);
+//        prof_S2_S1_TDrift->Fit("f1_exp_purity_S2_S1","R","",left_lim,right_lim);
+//        cout << "e- lifetime (S2/S1 vs T_drift) [us] = " << -1/f1_exp_purity_S2_S1->GetParameter(1) << " +- " << f1_exp_purity_S2_S1->GetParError(1)/pow(f1_exp_purity_S2_S1->GetParameter(1), 2.0) << endl;
+//        gPad->Modified(); gPad->Update();
 
         c1->cd(8);
         h1_S2->SetTitle(cut_loop1_srt);
@@ -1667,12 +1732,215 @@ int main(/*int argc, char *argv[]*/)
         st_h1_S2->SetY1NDC(0.50); st_h1_S2->SetY2NDC(0.89);
         gPad->Modified(); gPad->Update();
 
-        c1->cd(16);
+//        c1->cd(16);
+//        h2_S1_tdrift->SetTitle(cut_loop1_srt);
+//        h2_S1_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+//        h2_S1_tdrift->GetYaxis()->SetTitle("S1");
+//        h2_S1_tdrift->Draw("colz");
+
+
+        TCanvas *c2 = new TCanvas("c2","c2");
+        c2->Divide(3,3,0.01,0.01);
+        c2->cd(1);
+        h2_S2_tdrift->SetTitle(cut_loop1_srt);
+        h2_S2_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+        h2_S2_tdrift->GetYaxis()->SetTitle("S2 [PE]");
+        h2_S2_tdrift->Draw("colz");
+        c2->cd(4);
+        TProfile *prof = h2_S2_tdrift->ProfileX();
+        prof->GetYaxis()->SetTitle("S2 [PE]");
+        TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
+        prof->Fit("f1_exp_purity","R","",left_lim,right_lim);
+        cout << "e- lifetime (S2 vs T_drift) [us] = " << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << endl;
+        //cout <<  << endl;
+        gPad->Modified(); gPad->Update();
+
+        c2->cd(2);
         h2_S1_tdrift->SetTitle(cut_loop1_srt);
         h2_S1_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
         h2_S1_tdrift->GetYaxis()->SetTitle("S1");
         h2_S1_tdrift->Draw("colz");
+        c2->cd(5);
+        TProfile *prof_h2_S1_tdrift = h2_S1_tdrift->ProfileX();
+        prof_h2_S1_tdrift->Draw();
+        prof_h2_S1_tdrift->GetYaxis()->SetTitle("S1");
+        //TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
+        //prof->Fit("f1_exp_purity","R","",left_lim,right_lim);
+        //cout << "e- lifetime (S2 vs T_drift) [us] = " << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << endl;
+        //cout <<  << endl;
+        gPad->Modified(); gPad->Update();
 
+        c2->cd(3);
+        h2_S2_S1_tdrift->SetTitle(cut_loop1_srt);
+        h2_S2_S1_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+        h2_S2_S1_tdrift->GetYaxis()->SetTitle("S2/S1");
+        h2_S2_S1_tdrift->Draw("colz");
+        c2->cd(6);
+        TProfile *prof_S2_S1_TDrift = h2_S2_S1_tdrift->ProfileX();
+        prof_S2_S1_TDrift->GetYaxis()->SetTitle("S2/S1");
+        TF1 *f1_exp_purity_S2_S1 = new TF1("f1_exp_purity_S2_S1","exp([0] + x*[1])",0,150);
+        prof_S2_S1_TDrift->Fit("f1_exp_purity_S2_S1","R","",left_lim,right_lim);
+        cout << "e- lifetime (S2/S1 vs T_drift) [us] = " << -1/f1_exp_purity_S2_S1->GetParameter(1) << " +- " << f1_exp_purity_S2_S1->GetParError(1)/pow(f1_exp_purity_S2_S1->GetParameter(1), 2.0) << endl;
+        gPad->Modified(); gPad->Update();
+
+        c2->cd(7);
+        h2_S1_TBA->SetTitle(cut_loop2_srt);
+        h2_S1_TBA->GetXaxis()->SetTitle("TBA");
+        h2_S1_TBA->GetYaxis()->SetTitle("S1");
+        h2_S1_TBA->Draw("colz");
+        c2->cd(8);
+        TProfile *prof_h2_S1_TBA = h2_S1_TBA->ProfileX();
+        prof_h2_S1_TBA->GetYaxis()->SetTitle("S1");
+        prof_h2_S1_TBA->Draw();
+        //TF1 *f1_exp_purity_S2_S1 = new TF1("f1_exp_purity_S2_S1","exp([0] + x*[1])",0,150);
+        //prof_S2_S1_TDrift->Fit("f1_exp_purity_S2_S1","R","",left_lim,right_lim);
+        //cout << "e- lifetime (S2/S1 vs T_drift) [us] = " << -1/f1_exp_purity_S2_S1->GetParameter(1) << " +- " << f1_exp_purity_S2_S1->GetParError(1)/pow(f1_exp_purity_S2_S1->GetParameter(1), 2.0) << endl;
+        gPad->Modified(); gPad->Update();
+
+        c2->cd(9);
+        h2_Tdrift_TBA->SetTitle(cut_loop2_srt);
+        h2_Tdrift_TBA->GetXaxis()->SetTitle("TBA");
+        h2_Tdrift_TBA->GetYaxis()->SetTitle("Tdrift [us]");
+        h2_Tdrift_TBA->Draw("colz");
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        TCanvas *c3 = new TCanvas("c3","c3");
+        c3->Divide(3,3,0.01,0.01);
+
+        c3->cd(1);
+        h2_S1_top_tdrift->SetTitle(cut_loop1_srt);
+        h2_S1_top_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+        h2_S1_top_tdrift->GetYaxis()->SetTitle("S1_top [pe]");
+        h2_S1_top_tdrift->Draw("colz");
+        h2_S1_top_tdrift->SetStats(0); //delete statbox
+        TProfile *prof_h2_S1_top_tdrift = h2_S1_top_tdrift->ProfileX();
+        prof_h2_S1_top_tdrift->Draw("same PC");
+        prof_h2_S1_top_tdrift->SetMarkerStyle(20);
+        prof_h2_S1_top_tdrift->SetStats(0); //delete statbox
+        gPad->Modified(); gPad->Update();
+        for(int i= 0; i < prof_h2_S1_top_tdrift->GetNbinsX(); i++)
+        {
+           file_out_s1_top_tdrift << prof_h2_S1_top_tdrift->GetBinCenter(i) << "\t" << prof_h2_S1_top_tdrift->GetBinContent(i) << endl;
+        }
+
+        c3->cd(2);
+        h2_S1_bot_tdrift->SetTitle(cut_loop1_srt);
+        h2_S1_bot_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+        h2_S1_bot_tdrift->GetYaxis()->SetTitle("S1_bottom [pe]");
+        h2_S1_bot_tdrift->Draw("colz");
+        h2_S1_bot_tdrift->SetStats(0); //delete statbox
+        TProfile *prof_h2_S1_bot_tdrift = h2_S1_bot_tdrift->ProfileX();
+        prof_h2_S1_bot_tdrift->Draw("same PC");
+        prof_h2_S1_bot_tdrift->SetMarkerStyle(20);
+        prof_h2_S1_bot_tdrift->SetStats(0); //delete statbox
+        gPad->Modified(); gPad->Update();
+        for(int i= 0; i < prof_h2_S1_bot_tdrift->GetNbinsX(); i++)
+        {
+           file_out_s1_bottom_tdrift << prof_h2_S1_bot_tdrift->GetBinCenter(i) << "\t" << prof_h2_S1_bot_tdrift->GetBinContent(i) << endl;
+        }
+
+
+        c3->cd(3);
+        h2_S1_tdrift->Draw("colz");
+        h2_S1_tdrift->SetStats(0); //delete statbox
+        prof_h2_S1_tdrift->Draw("same PC");
+        prof_h2_S1_tdrift->SetMarkerStyle(20);
+        prof_h2_S1_tdrift->SetStats(0); //delete statbox
+        gPad->Modified(); gPad->Update();
+
+        COUT(prof_h2_S1_tdrift->GetNbinsX());
+
+        for(int i= 0; i < prof_h2_S1_tdrift->GetNbinsX(); i++)
+        {
+           file_out_s1_tdrift << prof_h2_S1_tdrift->GetBinCenter(i) << "\t" << prof_h2_S1_tdrift->GetBinContent(i) << endl;
+        }
+
+
+//        c3->cd(4);
+//        h2_xmaxch_xbar->Draw("colz");
+//        TProfile *prof_h2_xmaxch_xbar = h2_xmaxch_xbar->ProfileY();
+//        prof_h2_xmaxch_xbar->Draw("same PC");
+//        prof_h2_xmaxch_xbar->SetMarkerStyle(20);
+//        prof_h2_xmaxch_xbar->SetMarkerColor(kRed);
+//        prof_h2_xmaxch_xbar->SetStats(0); //delete statbox
+//        gPad->Modified(); gPad->Update();
+
+//        c3->cd(5);
+//        h1_LRF_v[0]->Draw();
+
+//        c3->cd(6);
+//        h2_xbar_xmaxch->Draw("colz");
+//        //c3->cd(9);
+//        TProfile *prof_h2_xbar_xmaxch = h2_xbar_xmaxch->ProfileX();
+//        prof_h2_xbar_xmaxch->Draw("same PC");
+//        prof_h2_xbar_xmaxch->SetMarkerStyle(20);
+//        prof_h2_xbar_xmaxch->SetStats(0); //delete statbox
+//        gPad->Modified(); gPad->Update();
+
+        TCanvas *c4 = new TCanvas("c4","c4");
+        c4->cd(1);
+        auto legend = new TLegend(0.7,0.13,0.9,0.43);
+        ostringstream h1_name_oss_0;
+        h1_name_oss_0 << "pos_x = 0.625; <bar_x> = " << h1_x_bar_v[0]->GetMean();
+        ostringstream h1_name_oss_1;
+        h1_name_oss_1 << "pos_x = 1.875; <bar_x> = " << h1_x_bar_v[1]->GetMean();
+        ostringstream h1_name_oss_2;
+        h1_name_oss_2 << "pos_x = 3.125; <bar_x> = " << h1_x_bar_v[2]->GetMean();
+        ostringstream h1_name_oss_3;
+        h1_name_oss_3 << "pos_x = 4.375; <bar_x> = " << h1_x_bar_v[3]->GetMean();
+
+        legend->AddEntry(h1_x_bar_v[0], h1_name_oss_0.str().c_str(),"lep");
+        legend->AddEntry(h1_x_bar_v[1], h1_name_oss_1.str().c_str(),"lep");
+        legend->AddEntry(h1_x_bar_v[2], h1_name_oss_2.str().c_str(),"lep");
+        legend->AddEntry(h1_x_bar_v[3], h1_name_oss_3.str().c_str(),"lep");
+        h1_x_bar_v[0]->Scale(1/h1_x_bar_v[0]->Integral());
+        h1_x_bar_v[1]->Scale(1/h1_x_bar_v[1]->Integral());
+        h1_x_bar_v[2]->Scale(1/h1_x_bar_v[2]->Integral());
+        h1_x_bar_v[3]->Scale(1/h1_x_bar_v[3]->Integral());
+
+        h1_x_bar_v[0]->SetTitle("");
+        h1_x_bar_v[0]->SetStats(0); //delete statbox
+        h1_x_bar_v[0]->Draw();
+        h1_x_bar_v[1]->Draw("same");
+        h1_x_bar_v[2]->Draw("same");
+        h1_x_bar_v[3]->Draw("same");
+        legend->Draw();
+        h1_x_bar_v[0]->GetXaxis()->SetTitle("bar_x [cm]");
+        h1_x_bar_v[0]->SetLineWidth(2);
+        h1_x_bar_v[1]->SetLineWidth(2);
+        h1_x_bar_v[2]->SetLineWidth(2);
+        h1_x_bar_v[3]->SetLineWidth(2);
+        h1_x_bar_v[1]->SetLineColor(kRed);
+        h1_x_bar_v[2]->SetLineColor(kBlack);
+        h1_x_bar_v[3]->SetLineColor(kGreen);
+
+        TLine *line_x0 = new TLine(0.625, 0, 0.625, h1_x_bar_v[0]->GetMaximum());
+        line_x0->Draw("same");
+        line_x0->SetLineWidth(3);
+        line_x0->SetLineColor(kMagenta);
+        TLine *line_x1 = new TLine(1.875, 0, 1.875, h1_x_bar_v[0]->GetMaximum());
+        line_x1->Draw("same");
+        line_x1->SetLineWidth(3);
+        line_x1->SetLineColor(kMagenta);
+        TLine *line_x2 = new TLine(3.125, 0, 3.125, h1_x_bar_v[0]->GetMaximum());
+        line_x2->Draw("same");
+        line_x2->SetLineWidth(3);
+        line_x2->SetLineColor(kMagenta);
+        TLine *line_x3 = new TLine(4.375, 0, 4.375, h1_x_bar_v[0]->GetMaximum());
+        line_x3->Draw("same");
+        line_x3->SetLineWidth(3);
+        line_x3->SetLineColor(kMagenta);
+
+        file_out_x_corrections << (x_centers[0] - h1_x_bar_v[0]->GetMean()) << endl;
+        file_out_x_corrections << (x_centers[1] - h1_x_bar_v[1]->GetMean()) << endl;
+        file_out_x_corrections << (x_centers[2] - h1_x_bar_v[2]->GetMean()) << endl;
+        file_out_x_corrections << (x_centers[3] - h1_x_bar_v[3]->GetMean()) << endl;
+        //h3_xmaxch_xbar_ybar->Draw("iso");
+//        h3_xmaxch_xbar_ybar->Draw("box");
+//        h3_xmaxch_xbar_ybar->GetXaxis()->SetTitle("X_barycenter [cm]");
+//        h3_xmaxch_xbar_ybar->GetYaxis()->SetTitle("Y_barycenter [cm]");
+//        h3_xmaxch_xbar_ybar->GetZaxis()->SetTitle("X_maxch [cm]");
 
 
 

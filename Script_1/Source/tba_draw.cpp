@@ -44,7 +44,7 @@ void tba_draw()
     std::cout << "You are in program." << std::endl;
 
     //main code
-    vector<double> file_list{744, 833, 948, 952, 993};
+    vector<double> file_list{744, 867, 946};
     //vector<double> file_list{744, 745, 748, 749, 750};
     vector<TH1F*> TH1F_list;
     vector<double> f90_peak;

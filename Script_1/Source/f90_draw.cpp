@@ -44,10 +44,11 @@ void f90_draw()
     std::cout << "You are in program." << std::endl;
 
     //main code
-    vector<double> file_list{744, 745, 748, 749, 750, 751, 752, 753, 767, 768,
-                          769, 770, 779, 782, 785, 789, 794, 797, 800, 810,
-                          814, 817, 820, 823, 826, 827, 828, 829, 830, 831};
+//    vector<double> file_list{744, 745, 748, 749, 750, 751, 752, 753, 767, 768,
+//                          769, 770, 779, 782, 785, 789, 794, 797, 800, 810,
+//                          814, 817, 820, 823, 826, 827, 828, 829, 830, 831};
     //vector<double> file_list{744, 745, 748, 749, 750};
+    vector<double> file_list{847};//field
     vector<TH1F*> TH1F_list;
     vector<double> f90_peak;
 

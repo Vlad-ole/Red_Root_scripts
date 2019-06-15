@@ -26,7 +26,21 @@ SOURCES += \
     main2.cpp \
     f90.cpp \
     f90_draw.cpp \
-    tba_draw.cpp
+    tba_draw.cpp \
+    xy_reco1.cpp \
+    s1_tdrift_draw.cpp \
+    main3.cpp \
+    cuts.cpp \
+    test1.cpp \
+    s2_uniformity.cpp \
+    sub_main1.cpp \
+    sub_main2.cpp \
+    s2_s1_tdrift_draw.cpp \
+    s1_spectrum_draw.cpp \
+    sub_main3.cpp \
+    s1_ch_spectra.cpp \
+    s2_echo.cpp \
+    s2_analysis.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 

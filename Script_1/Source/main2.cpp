@@ -46,7 +46,10 @@ bool cut_loop2_bool = false;
 using namespace std;
 
 
-int run_number = 872;
+//int run_number = 1025;
+//int run_number = 1031;
+//int run_number = 1033;
+int run_number = 1051;
 
 double area_cut_x1 = 1.5;//cm
 double area_cut_x2 = 2.1;//cm
@@ -220,12 +223,39 @@ void main2()
     //path_root_file << "/media/vlad/Data/DS-data/reco/v1/" << "run_" << run_number << ".root";
     //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v1/" << "run_" << run_number << ".root";
     //path_root_file << "/media/vlad/Data/DS-data/reco/CVII_v2/" << "run_" << run_number << ".root";
-    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/camp_V/v4/" << "run_" << run_number << ".root";
+    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VIII/" << "run_" << run_number << ".root";
     TString filename = path_root_file.str().c_str();
 
-    ostringstream path_file_out;
-    path_file_out << "/home/vlad/Reports/S1_LY/TBA/run_" << run_number << ".txt";
-    ofstream file_out(path_file_out.str().c_str());
+    ostringstream path_file_out_common;
+    path_file_out_common << "/home/vlad/Reports/run_properties/run_" << run_number ;
+
+    ostringstream path_file_out_S1_f90;
+    path_file_out_S1_f90 << path_file_out_common.str() << "_S1_f90.txt";
+    ofstream file_out_S1_f90(path_file_out_S1_f90.str().c_str());
+
+    ostringstream path_file_out_TBA;
+    path_file_out_TBA << path_file_out_common.str() << "_TBA.txt";
+    ofstream file_out_TBA(path_file_out_TBA.str().c_str());
+
+    ostringstream path_file_out_S1_tot;
+    path_file_out_S1_tot << path_file_out_common.str() << "_S1_tot.txt";
+    ofstream file_out_S1_tot(path_file_out_S1_tot.str().c_str());
+
+    ostringstream path_file_out_S1_top;
+    path_file_out_S1_top << path_file_out_common.str() << "_S1_top.txt";
+    ofstream file_out_S1_top(path_file_out_S1_top.str().c_str());
+
+    ostringstream path_file_out_S1_bot;
+    path_file_out_S1_bot << path_file_out_common.str() << "_S1_bot.txt";
+    ofstream file_out_S1_bot(path_file_out_S1_bot.str().c_str());
+
+    ostringstream path_file_out_baseline_mean_ch_0_1_2_3;
+    path_file_out_baseline_mean_ch_0_1_2_3 << path_file_out_common.str() << "_baseline_mean_ch_0_1_2_3.txt";
+    ofstream file_out_baseline_mean_ch_0_1_2_3(path_file_out_baseline_mean_ch_0_1_2_3.str().c_str());
+
+
 
     TFile *f = new TFile(filename, "read");
     if (!(f->IsOpen()))
@@ -245,7 +275,7 @@ void main2()
     vector<bool> is_in_cut(data->GetEntries(), false);
 
     //double S1_max = 1600; //standart
-    double S1_max = 2500; //V=35, V=70
+    double S1_max = 3500; //V=35, V=70
     //double S1_max = 10000;//bkg
     double S2_max = 5000;
 
@@ -254,18 +284,21 @@ void main2()
     TH1F *h1_Tdrift = new TH1F("h1_Tdrift", "h1_Tdrift", 100, 0, 100);
     TH1F *h1_S1_top = new TH1F("h1_S1_top", "h1_S1_top", 200, 0, S1_max*0.6);
     TH1F *h1_S1_bot = new TH1F("h1_S1_bot", "h1_S1_bot", 200, 0, S1_max*0.6);
-    TH1F *h1_S1_total = new TH1F("h1 S1", "h1_S1_total", 400, 0, S1_max);
+    TH1F *h1_S1_total = new TH1F("h1 S1", "h1_S1_total", 500, 0, S1_max);
     TH1F *h1_S1_f90 = new TH1F("h1_S1_f90", "h1_S1_f90", 200, 0, 1);
     TH1F *h1_TBA = new TH1F("h1_TBA", "h1_TBA", 200, -1, 1);
 
     TH2F *h2_f90_S1_total = new TH2F("h2_f90_S1_total", "h2_f90_S1_total", 200, 0, 1, 200, 0, S1_max);
     TH2F *h2_S1_bot_S1_top = new TH2F("h2_S1_bot_S1_top", "h2_S1_bot_S1_top", 200, 0, S1_max/2.0, 200, 0, S1_max/2.0);
     TH2F *h2_S1_total_TBA = new TH2F("h2_S1_total_TBA", "h2_S1_total_TBA", 200, 0, S1_max, 200, -1, 1);
+    TH2F *h2_S1_TBA = new TH2F("h2_S1_TBA", "h2_S1_TBA", 200, -0.5, 0.5, 200, 0, S1_max);
 
     TH2F *h2_f90_S2_total = new TH2F("h2_f90_S2_total", "h2_f90_S2_total", 200, 0, 1, 200, 0, S2_max);
     TH1F *h1_S2_total = new TH1F("h1 S2", "h1_S2_total", 400, 0, S2_max);
     TH1F *h1_S2_rms_time = new TH1F("h1_S2_rms_time", "h1_S2_rms_time", 400, -1000000, 10000000);
 
+    int n_ev_number_of_clusters_more_0 = 0;
+    int n_ev_number_of_clusters_more_1 = 0;
 
     //zero event loop
     TString total_cut_srt_loop0;
@@ -275,11 +308,28 @@ void main2()
         vector<RDCluster*> clusters = evReco->GetClusters();
         size_t nc = clusters.size();
 
+        if(nc > 0)
+            n_ev_number_of_clusters_more_0++;
+        if(nc > 1)
+            n_ev_number_of_clusters_more_1++;
+
+        vector<double> BaseMean = evReco->GetBaseMean();
+
+        file_out_baseline_mean_ch_0_1_2_3 << BaseMean[0] << "\t" << BaseMean[1] << "\t" << BaseMean[2] << "\t" << BaseMean[3] << endl;
+
+
         BoolCut C_S1(clusters, 0);
         //C_S1.nc == 1 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35
-        REMEMBER_CUT_LOOP0(C_S1.nc == 2 && C_S1.cls0);
+        //744//C_S1.nc == 1 && C_S1.cls0 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35 && clusters.at(0)->charge > 350 && clusters.at(0)->charge < 850
+        //832//
+        //930//C_S1.nc == 1 && C_S1.cls0 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 900
+        //951//
+        REMEMBER_CUT_LOOP0(C_S1.nc == 1 && C_S1.cls0);
+        //REMEMBER_CUT_LOOP0(C_S1.nc == 1 && C_S1.cls0 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35);
         //REMEMBER_CUT_LOOP0(C_S1.nc == 1 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35);
         //REMEMBER_CUT_LOOP0(C_S1.nc == 1 && clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35 && C_S1.cls0_is_full);
+        //REMEMBER_CUT_LOOP0(C_S1.nc == 2 && C_S1.cls1 clusters.at(0)->f90 > 0.2 && clusters.at(0)->f90 < 0.35 && C_S1.cls0_is_full);
+
 
         h1_nc->Fill(nc);
         //if(nc == 2)
@@ -296,11 +346,20 @@ void main2()
            double TBA = (clusters.at(0)->tot_charge_top - clusters.at(0)->tot_charge_bottom) /
                    (clusters.at(0)->tot_charge_top + clusters.at(0)->tot_charge_bottom);
            h1_TBA->Fill(TBA);
-           file_out << TBA << endl;
+
+           file_out_S1_f90 << clusters.at(0)->f90 << endl;
+           file_out_TBA << TBA << endl;
+           file_out_S1_tot << clusters.at(0)->charge << endl;
+           file_out_S1_top << clusters.at(0)->tot_charge_top << endl;
+           file_out_S1_bot << clusters.at(0)->tot_charge_bottom << endl;
+
+           h2_S1_TBA->Fill(TBA, clusters.at(0)->charge);
 
            h2_f90_S1_total->Fill(clusters.at(0)->f90, clusters.at(0)->charge);
            h2_S1_bot_S1_top->Fill(clusters.at(0)->tot_charge_bottom, clusters.at(0)->tot_charge_top);
            h2_S1_total_TBA->Fill(clusters.at(0)->charge, TBA);
+
+
         }
 
     }
@@ -327,6 +386,7 @@ void main2()
                     h1_S2_total->Fill(clusters.at(1)->charge);
                     h1_S2_rms_time->Fill(clusters.at(1)->rms_time);
 
+
                     if(nc == 2)
                        h1_Tdrift->Fill( (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000 );
                 }
@@ -334,6 +394,7 @@ void main2()
         }
 
     }
+
 
 
 
@@ -403,8 +464,8 @@ void main2()
     h1_S1_f90->Fit("gaus","","",mean_3-1.5*sigma_3,mean_3+1.5*sigma_3);
     gPad->Update();
     TPaveStats *st_h1_S1_f90 = (TPaveStats*)h1_S1_f90->GetListOfFunctions()->FindObject("stats");
-    st_h1_S1_f90->SetX1NDC(0.12+shift); st_h1_S1_f90->SetX2NDC(0.35+shift);
-    st_h1_S1_f90->SetY1NDC(0.72); st_h1_S1_f90->SetY2NDC(0.89);
+    st_h1_S1_f90->SetX1NDC(0.12+shift+shift_x1); st_h1_S1_f90->SetX2NDC(0.35+shift);
+    st_h1_S1_f90->SetY1NDC(0.72+shift_y1); st_h1_S1_f90->SetY2NDC(0.89);
     gPad->Modified(); gPad->Update();
 
     c1->cd(5);
@@ -518,5 +579,24 @@ void main2()
 //    double sigma_3 = myfunc3->GetParameter(2);
 //    h1_S1_f90->Fit("gaus","","",mean-1.5*sigma,mean+1.5*sigma);
 //    //TF1 *myfunc2 = h2_f90_S1_total->GetFunction("gaus");
+
+    TCanvas *c3 = new TCanvas("c3","c3");
+    c3->Divide(3,3,0.01,0.01);
+    c3->cd(7);
+    h2_S1_TBA->SetTitle(cut_loop2_srt);
+    h2_S1_TBA->GetXaxis()->SetTitle("TBA");
+    h2_S1_TBA->GetYaxis()->SetTitle("S1");
+    h2_S1_TBA->Draw("colz");
+    c3->cd(8);
+    TProfile *prof_h2_S1_TBA = h2_S1_TBA->ProfileX();
+    prof_h2_S1_TBA->GetYaxis()->SetTitle("S1");
+    prof_h2_S1_TBA->Draw();
+    //TF1 *f1_exp_purity_S2_S1 = new TF1("f1_exp_purity_S2_S1","exp([0] + x*[1])",0,150);
+    //prof_S2_S1_TDrift->Fit("f1_exp_purity_S2_S1","R","",left_lim,right_lim);
+    //cout << "e- lifetime (S2/S1 vs T_drift) [us] = " << -1/f1_exp_purity_S2_S1->GetParameter(1) << " +- " << f1_exp_purity_S2_S1->GetParError(1)/pow(f1_exp_purity_S2_S1->GetParameter(1), 2.0) << endl;
+    gPad->Modified(); gPad->Update();
+
+    cout << "(number_of_clusters>1)/(number_of_clusters>0) = " <<  (double) n_ev_number_of_clusters_more_1 / n_ev_number_of_clusters_more_0 << endl;
+
 
 }
