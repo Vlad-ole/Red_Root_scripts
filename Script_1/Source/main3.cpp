@@ -57,7 +57,7 @@ using namespace std;
 //some predefined vars
 //int run_number = 844; //for xy reco
 int run_number = 1051;
-double e_lifetime_us = 150.8;
+double e_lifetime_us = 112.0;
 
 //var1: 1.5 2.1 2.9 3.5
 //var2:1.5 2.3 2.7 3.5
@@ -504,9 +504,9 @@ int main3(/*int argc, char *argv[]*/)
                 //C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800
                 //REMEMBER_CUT_LOOP1(C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800);
                 //C1.nc == 2 && C1.cls1 && C1.cls0_is_full && clusters.at(0)->f90 > 0.3 && clusters.at(0)->f90 < 0.35
-                REMEMBER_CUT_LOOP1(C1.nc == 2 && C1.cls1);
+                REMEMBER_CUT_LOOP1(C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800);
 
-                if ( cut_loop1_bool ) //cuts
+                if ( cut_loop1_bool /*&& clusters.at(1)->charge > 250 && clusters.at(1)->charge < 2000*/ ) //cuts
                 {
                     is_in_cut[ev] = true;
 

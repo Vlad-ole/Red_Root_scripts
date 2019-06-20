@@ -50,7 +50,9 @@ void s2_uniformity()
     c1->SetGridx(10);
 
     //main code
-    vector<int> file_list{847, 884, 921, 956, 971, 996, 1018};
+    vector<int> file_list{971, 1059, 1061};
+    //vector<int> file_list{921, 956, 971, 996, 1018, 1051, 1066};
+    //vector<int> file_list{847, 884, 921, 956, 971, 996, 1018};
     //vector<int> file_list{847, 884, 921, 956, 996, 971, 1018};
     //vector<int> file_list{993, 996};
     //vector<int> file_list{952, 956};
@@ -117,13 +119,21 @@ void s2_uniformity()
             if(file_list[i] == 956)
                 TGraph_name << "; Am front; GP 16V";
             if(file_list[i] == 971)
-                TGraph_name << "; Kr * const; GP 16V";
+                TGraph_name << "; Kr ; GP 16V";
             if(file_list[i] == 993)
                 TGraph_name << "; Am front; GP OFF";
             if(file_list[i] == 996)
                 TGraph_name << "; Am front; GP 16V";
             if(file_list[i] == 1018)
                 TGraph_name << "; Am front; GP OFF";
+            if(file_list[i] == 1051)
+                TGraph_name << "; Am ; GP 20V";
+            if(file_list[i] == 1059)
+                TGraph_name << "; Bkg ; GP 20V";
+            if(file_list[i] == 1061)
+                TGraph_name << "; Kr ; GP 20V";
+            if(file_list[i] == 1066)
+                TGraph_name << "; Am ; GP 20V";
 
 //            if(file_list[i] == 971)
 //            {
@@ -147,6 +157,8 @@ void s2_uniformity()
 
     }
 
+    vector<int> color = {kBlack, kRed, kBlue, kMagenta, kGreen, kOrange, 28};
+
 
     auto legend = new TLegend(0.7,0.13,0.9,0.43);
     for(int i = 0; i < TGraph_list.size(); i++)
@@ -159,8 +171,7 @@ void s2_uniformity()
            //TGraph_list.at(0)->GetXaxis()->SetRangeUser(20, 40);
            //TGraph_list.at(i)->Draw("APL");
            //TGraph_list.at(i)->SetStats(0);
-           TGraph_list.at(i)->SetLineColor(kBlack);
-           TGraph_list.at(i)->SetMarkerColor(kBlack);
+
            //TH1F_list.at(i)->GetXaxis()->SetTitle("TBA");
            //TH1F_list.at(i)->SetTitle("");
         }
@@ -169,38 +180,8 @@ void s2_uniformity()
             TGraph_list.at(i)->Draw("SAME PL");
         }
 
-        if(i == 1)
-        {
-            TGraph_list.at(i)->SetLineColor(kRed);
-            TGraph_list.at(i)->SetMarkerColor(kRed);
-        }
-        if(i == 2)
-        {
-            TGraph_list.at(i)->SetLineColor(kBlue);
-            TGraph_list.at(i)->SetMarkerColor(kBlue);
-        }
-        if(i == 3)
-        {
-            TGraph_list.at(i)->SetLineColor(kMagenta);
-            TGraph_list.at(i)->SetMarkerColor(kMagenta);
-        }
-        if(i == 4)
-        {
-            TGraph_list.at(i)->SetLineColor(kGreen);
-            TGraph_list.at(i)->SetMarkerColor(kGreen);
-        }
-        if(i == 5)
-        {
-            TGraph_list.at(i)->SetLineColor(kOrange);
-            TGraph_list.at(i)->SetMarkerColor(kOrange);
-        }
-        if(i == 6)
-        {
-            //TGraph_list.at(i)->SetLineColor(kTeal);
-            //TGraph_list.at(i)->SetMarkerColor(kTeal );
-            TGraph_list.at(i)->SetLineColor(kRed-3);
-            TGraph_list.at(i)->SetMarkerColor(kRed-3);
-        }
+        TGraph_list.at(i)->SetLineColor(color[i]);
+        TGraph_list.at(i)->SetMarkerColor(color[i]);
 
 
 //        kWhite =0,   kBlack =1,   kGray=920,

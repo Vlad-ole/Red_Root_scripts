@@ -503,7 +503,7 @@ int main(/*int argc, char *argv[]*/)
                 //979//C1.is_S2_v2 && clusters.at(0)->charge > 350 && clusters.at(0)->charge < 520 && clusters.at(1)->charge > 1000 && clusters.at(1)->charge <6000
                 //993//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge < 800
                 //996//C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 750 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000
-                REMEMBER_CUT_LOOP1(C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 200 && clusters.at(1)->charge < 2000);
+                REMEMBER_CUT_LOOP1(C1.is_S2_v2 && clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800 && clusters.at(1)->charge > 250 && clusters.at(1)->charge < 2000);
 
                 if ( cut_loop1_bool ) //cuts
                 {
@@ -658,7 +658,7 @@ int main(/*int argc, char *argv[]*/)
 
                         //TBA
                         double TBA = (clusters.at(nc_i)->tot_charge_top - clusters.at(nc_i)->tot_charge_bottom) / (clusters.at(nc_i)->tot_charge_top + clusters.at(nc_i)->tot_charge_bottom);
-                        h2_S1_TBA->Fill(TBA, clusters.at(0)->charge);                        
+                        h2_S1_TBA->Fill(TBA, clusters.at(0)->charge);
                         h2_Tdrift_TBA->Fill(TBA, Tdrift);
                         v_S1.push_back(clusters.at(0)->charge);
                         v_TBA.push_back(TBA);

@@ -40,7 +40,9 @@ SOURCES += \
     sub_main3.cpp \
     s1_ch_spectra.cpp \
     s2_echo.cpp \
-    s2_analysis.cpp
+    s2_analysis.cpp \
+    compare.cpp \
+    color_map.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 
