@@ -46,14 +46,14 @@ bool cut_loop2_bool = false;
 using namespace std;
 
 
-int run_number = 971;
+int run_number = 1079;
 
 
 void s2_analysis()
 {
     ostringstream path_root_file;
-    //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VIII/" << "run_" << run_number << ".root";
-    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
+    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VIII/" << "run_" << run_number << ".root";
+    //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
     TString filename = path_root_file.str().c_str();
     TFile *f = new TFile(filename, "read");
     if (!(f->IsOpen()))
@@ -70,6 +70,10 @@ void s2_analysis()
     path_file_out_s2_uniformity << "/home/vlad/Reports/XY/S2_uniformity/run_" << run_number << ".txt";
     ofstream file_out_s2_uniformity(path_file_out_s2_uniformity.str().c_str());
 
+    ostringstream path_file_out_xy_distr;
+    path_file_out_xy_distr << "/home/vlad/Reports/XY/xy_distr/run_" << run_number << ".txt";
+    ofstream file_out_xy_distr(path_file_out_xy_distr.str().c_str());
+
 
     TTree *data = (TTree*)f->Get("reco");
     EvRec0* evReco = new EvRec0();
@@ -81,9 +85,9 @@ void s2_analysis()
 //    double S2_S1_max = 40;
 
     //Kr83
-    double S1_max = 800;
-    double S2_max = 20000;
-    double S2_S1_max = 40;
+//    double S1_max = 800;
+//    double S2_max = 20000;
+//    double S2_S1_max = 40;
 
     //Am E_EL = 4.2kV
 //    double S1_max = 1000;
@@ -95,6 +99,11 @@ void s2_analysis()
 //    double S2_max = 20000;
 //    double S2_S1_max = 40;
 
+    //Am arb.
+    double S1_max = 2000;
+    double S2_max = 25000;
+    double S2_S1_max = 40;
+
     //double range_scale = 1;
     vector<double> x_centers = {0.625, 1.875, 3.125, 4.375};
     vector<double> y_centers = {0.416667, 1.25, 2.08333, 2.91667, 3.75, 4.58333};
@@ -103,6 +112,7 @@ void s2_analysis()
     double right_lim = 55 /*55*/;
     int max_ev_number = data->GetEntries();
     cout << "max_ev_number = " << max_ev_number << endl;
+    double Tdrift_max = 100;
 
     //hists
     TH1F *h1_S3_total = new TH1F("h1_S3_total", "h1_S3_total", 600, -2, 2500);
@@ -142,7 +152,7 @@ void s2_analysis()
     TGraph* gr_S2_maxch;
 
     //general
-    TH1F *h1_Tdrift = new TH1F("h1 Tdrift", "h1 Tdrift", 71, -1, 70);
+    TH1F *h1_Tdrift = new TH1F("h1 Tdrift", "h1 Tdrift", (Tdrift_max + 1.0), -1, Tdrift_max);
     TH1F *h1_nc = new TH1F("h1_nc", "h1_nc", 200, 0, 10);
 
 
@@ -160,20 +170,21 @@ void s2_analysis()
 
         h1_nc->Fill(clusters.size());
 
-        if(clusters.size() == 2)
+        if(clusters.size() == 2 /*&& ev > 15000*/ && ev < 8000)
         {
             double TBA_S1 = (clusters.at(0)->tot_charge_top - clusters.at(0)->tot_charge_bottom) / (clusters.at(0)->tot_charge_top + clusters.at(0)->tot_charge_bottom);
             double TBA_S2 = (clusters.at(1)->tot_charge_top - clusters.at(1)->tot_charge_bottom) / (clusters.at(1)->tot_charge_top + clusters.at(1)->tot_charge_bottom);
             double Tdrift = (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000;
 
             bool cut_f90 = clusters.at(0)->f90 > 0.2 && clusters.at(1)->f90 < 0.2;
-            bool cut_S1_total = clusters.at(0)->charge > 380 && clusters.at(0)->charge < 500;
-            bool cut_S2_total = clusters.at(1)->charge > 4000 /*&& clusters.at(1)->charge < 2000*/;
+            bool cut_S1_total = clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800;
+            bool cut_S2_total = clusters.at(1)->charge > 500 && clusters.at(1)->charge < 1500;
 //            bool cut_S1_total = true;
 //            bool cut_S2_total = true;
 
             if(cut_f90 && cut_S1_total /*&& cut_S2_total*/ && clusters.at(0)->rep == 1 /*&&
-                    clusters.at(1)->charge/clusters.at(0)->charge > 5*/)
+                    clusters.at(1)->charge/clusters.at(0)->charge > 5*/
+                    /*&& clusters.at(1)->f90 < 0.05 && clusters.at(1)->f90 > 0*/)
             {
                 //general
                 h1_Tdrift->Fill(Tdrift);
@@ -591,13 +602,22 @@ void s2_analysis()
 
 
 
-//    TCanvas *c4 = new TCanvas("General_analysis","General_analysis");
-//    c4->Divide(3,2,0.01,0.01);
-//    vector<TPaveStats*> st_general_analysis(6);
+    TCanvas *c4 = new TCanvas("General_analysis","General_analysis");
+    c4->Divide(2,2,0.01,0.01);
+    vector<TPaveStats*> st_general_analysis(4);
 
-//    cd_i = 0;
-//    c4->cd(cd_i + 1);
-//    h1_Tdrift->Draw();
+    cd_i = 0;
+    c4->cd(cd_i + 1);
+    h1_nc->Sumw2(kTRUE);
+    h1_nc->GetXaxis()->SetTitle("nc");
+    //h1_nc->Scale(1, "width");
+    //h1_nc->SetBarWidth(0.4);
+    h1_nc->SetFillColor(kMagenta);
+    h1_nc->Scale(1/h1_nc->Integral());
+    h1_nc->Draw("HIST b");
+    h1_nc->SetBarWidth(10);
+    h1_nc->SetBarOffset(0);
+    gPad->Modified(); gPad->Update();
 
     {
         TCanvas *c5 = new TCanvas("S2_uniformity (part 1)","S2_uniformity (part 1)");
@@ -645,6 +665,7 @@ void s2_analysis()
             S2_mean_v[i] = h1_S2_maxch_vec[i]->GetMean()/S2_sum_of_means;
             ch_number_v[i] = i+1;
             file_out_s2_uniformity << S2_mean_v[i] << endl;
+            file_out_xy_distr << h1_S2_maxch_vec[i]->GetEntries() << endl;
         }
 
         cd_i = 0;

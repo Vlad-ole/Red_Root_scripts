@@ -47,17 +47,23 @@ bool cut_loop2_bool = false;
 using namespace std;
 using namespace ROOT;
 
-int run_number = 971;
+int run_number = 1079;
 
 void color_map()
 {
+    //string run_text = ": Kr, heater 0.939W, A=+5211, R=+156, C=-744 ";
+    string run_text = ": Am @ center, heater 0.939W, A=+5211, R=+156, C=-744 (before jump)";
+
+
     ostringstream hist_title;
-    hist_title << "S2 relative charge. Run " << run_number << ": Kr, heater 0.935W, A=+3780, R=+85, C=-815" << endl;
+    hist_title << "S2 relative charge. Run " << run_number << run_text;
+
     //": Kr, heater 1.4W, A=+5211, R=+156, C=-744"
     //": Kr, GP 0.935W, A=+3780, R=+85, C=-815"
 
     ostringstream path_in_file;
     path_in_file << "/home/vlad/Reports/XY/S2_uniformity/run_" << run_number << ".txt";
+    //path_in_file << "/home/vlad/Reports/XY/xy_distr/run_" << run_number << ".txt";
     ifstream file_in(path_in_file.str().c_str());
     if(file_in.is_open())
     {
@@ -135,6 +141,9 @@ void color_map()
     const Double_t min = 0.65;
     const Double_t max = 1.3;
 
+//    const Double_t min = 0;
+//    const Double_t max = 600;
+
     const Int_t nLevels = 999;
     Double_t levels[nLevels];
 
@@ -168,6 +177,8 @@ void color_map()
     h2_S2_total_rel->GetZaxis()->SetRangeUser(min, max); // ... set the range ...
 
     h2_S2_total_rel->Draw("z same"); // draw the "color palette"
+    h2_S2_total_rel->SetMarkerStyle(20);
+    h2_S2_total_rel->SetMarkerSize(0);
 
     //----------------------------------------------------------------
 
