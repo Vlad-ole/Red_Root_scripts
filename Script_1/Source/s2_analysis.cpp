@@ -46,7 +46,7 @@ bool cut_loop2_bool = false;
 using namespace std;
 
 
-int run_number = 1079;
+int run_number = 1051;
 
 
 void s2_analysis()
@@ -101,8 +101,10 @@ void s2_analysis()
 
     //Am arb.
     double S1_max = 2000;
-    double S2_max = 25000;
-    double S2_S1_max = 40;
+    double S2_max = /*25000*/ 5000;
+    double S2_S1_max = /*40*/ 85;
+    double S1_low_cut = 400;
+    double S1_high_cut = 800;
 
     //double range_scale = 1;
     vector<double> x_centers = {0.625, 1.875, 3.125, 4.375};
@@ -170,14 +172,14 @@ void s2_analysis()
 
         h1_nc->Fill(clusters.size());
 
-        if(clusters.size() == 2 /*&& ev > 15000*/ && ev < 8000)
+        if(clusters.size() == 2 /*&& ev > 15000*/ /* && ev < 8000*/)
         {
             double TBA_S1 = (clusters.at(0)->tot_charge_top - clusters.at(0)->tot_charge_bottom) / (clusters.at(0)->tot_charge_top + clusters.at(0)->tot_charge_bottom);
             double TBA_S2 = (clusters.at(1)->tot_charge_top - clusters.at(1)->tot_charge_bottom) / (clusters.at(1)->tot_charge_top + clusters.at(1)->tot_charge_bottom);
             double Tdrift = (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000;
 
             bool cut_f90 = clusters.at(0)->f90 > 0.2 && clusters.at(1)->f90 < 0.2;
-            bool cut_S1_total = clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800;
+            bool cut_S1_total = clusters.at(0)->charge > S1_low_cut && clusters.at(0)->charge < S1_high_cut;
             bool cut_S2_total = clusters.at(1)->charge > 500 && clusters.at(1)->charge < 1500;
 //            bool cut_S1_total = true;
 //            bool cut_S2_total = true;
@@ -319,6 +321,7 @@ void s2_analysis()
     c1->cd(cd_i + 1);
     h2_S1_total_event->GetXaxis()->SetTitle("event");
     h2_S1_total_event->GetYaxis()->SetTitle("S1_total");
+    h2_S1_total_event->GetYaxis()->SetRangeUser(S1_low_cut, S1_high_cut);
     h2_S1_total_event->Draw("colz");
     TProfile *prof_h2_S1_total_event = h2_S1_total_event->ProfileX();
     prof_h2_S1_total_event->Draw("same");
@@ -332,6 +335,7 @@ void s2_analysis()
     TCanvas *c2 = new TCanvas("S2_analysis","S2_analysis (part 1)");
     c2->Divide(3,2,0.01,0.01);
     vector<TPaveStats*> st_h1_S2(6);
+    gStyle->SetOptFit(1);
 
     cd_i = 0;
     c2->cd(cd_i + 1);
@@ -515,6 +519,7 @@ void s2_analysis()
     h2_S2_TBA_ev->GetXaxis()->SetTitle("ev");
     h2_S2_TBA_ev->GetYaxis()->SetTitle("TBA_S2");
     h2_S2_TBA_ev->Draw("colz");
+    h2_S2_TBA_ev->GetYaxis()->SetRangeUser(-0.4,0.4);
     gPad->Update();
     TProfile *prof_h2_S2_TBA_ev = h2_S2_TBA_ev->ProfileX();
     prof_h2_S2_TBA_ev->Draw("same");
@@ -581,6 +586,8 @@ void s2_analysis()
         h2_S1_total_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
         h2_S1_total_tdrift->GetYaxis()->SetTitle("S1");
         h2_S1_total_tdrift->Draw("colz");
+        h2_S1_total_tdrift->GetXaxis()->SetRangeUser(10,70);
+        h2_S1_total_tdrift->GetYaxis()->SetRangeUser(S1_low_cut,S1_high_cut);
         gPad->Update();
 
         TProfile *prof_h2_S1_total_tdrift = h2_S1_total_tdrift->ProfileX();
@@ -620,7 +627,7 @@ void s2_analysis()
     gPad->Modified(); gPad->Update();
 
     {
-        TCanvas *c5 = new TCanvas("S2_uniformity (part 1)","S2_uniformity (part 1)");
+        TCanvas *c5 = new TCanvas("S2_uniformity (ch)","S2_uniformity (ch)");
         c5->Divide(4,6,0.01,0.01);
         vector<TPaveStats*> st_general_analysis(6);
         double S2_sum_of_means = 0;
@@ -640,8 +647,8 @@ void s2_analysis()
 
 
 
-    {
-        TCanvas *c6 = new TCanvas("S2_uniformity (part 2)","S2_uniformity (part 2)");
+
+        TCanvas *c6 = new TCanvas("S2_uniformity (rel. charge)","S2_uniformity (rel. charge)");
         c6->Divide(1,1,0.01,0.01);
 
         vector<double> S2_mean_v;
@@ -680,6 +687,59 @@ void s2_analysis()
 
 
 
+    TCanvas *c7 = new TCanvas("S2_uniformity (part 3)","S2_uniformity (part 3)");
+    //c6->Divide(1,1,0.01,0.01);
+
+    const Int_t NRGBs = 6;
+    const Int_t NCont = 999;
+
+    Double_t stops[NRGBs] = { 0.00, 0.2, 0.4, 0.6, 0.8, 1.00 };
+    Double_t red[NRGBs]   = { 0.99, 0.44, 0.00, 0.87, 1.00, 0.51 };
+    Double_t green[NRGBs] = { 0.00, 0.66, 0.81, 1.00, 0.20, 0.00 };
+    Double_t blue[NRGBs]  = { 0.99, 0.72, 1.00, 0.12, 0.00, 0.00 };
+
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+
+    gStyle->SetOptStat(0);
+
+    const Double_t min = 0.65;
+    const Double_t max = 1.3;
+
+    const Int_t nLevels = 999;
+    Double_t levels[nLevels];
+
+    for(int i = 1; i < nLevels; i++)
+    {
+        levels[i] = min + (max - min) / (nLevels - 1) * (i);
     }
+    levels[0] = 0.01;
+
+    TH2F* h2_S2_total_rel = new TH2F("h2_S2_total_rel","h2_S2_total_rel",4,0,5,6,0,5);
+    h2_S2_total_rel->SetContour((sizeof(levels)/sizeof(Double_t)), levels);
+
+    int n_events = 0;
+    for(int i = 0; i < 24; i++)
+    {
+        int xi = i % 4 + 1;
+        int yi = i/4 + 1;
+        h2_S2_total_rel->SetBinContent(xi,yi,S2_mean_v[i]);
+        cout << i << "\t" << xi << "\t" << yi << "\t" << h2_S2_total_rel->GetBinContent(xi,yi) <<  endl;
+        n_events++;
+    }
+
+    h2_S2_total_rel->SetTitle("S2 relative charge");
+    h2_S2_total_rel->GetXaxis()->SetTitle("x [cm]");
+    h2_S2_total_rel->GetYaxis()->SetTitle("y [cm]");
+    gStyle->SetPaintTextFormat("2.3f");
+
+
+    //----------------------------------------------------------------
+    h2_S2_total_rel->DrawClone("col text");// draw "axes", "contents", "statistics box"
+
+    h2_S2_total_rel->GetZaxis()->SetRangeUser(min, max); // ... set the range ...
+
+    h2_S2_total_rel->Draw("z same"); // draw the "color palette"
+
 
 }

@@ -50,12 +50,23 @@ using namespace std;
 void compare()
 {
     //vector<int> run_list{1051, 1057, 1059, 1066};
-    vector<int> run_list{1051, 1057};
+    //vector<int> run_list{1079, 1083, 1085, 1089, 1092};
+    //vector<int> run_list{1093, 1097, 1098, 1099};
+    vector<int> run_list{1093};
     TTree *data = NULL;
     EvRec0* evReco = NULL;
 
+    string plot_type = "S2";
+    //string plot_type = "tdrift";
+
+    double S1_max = 2000;
+    double S2_max = /*25000*/ 45000;
+    double S2_S1_max = 40;
+
     vector<TH1F*> h1_Tdrift_vec(run_list.size());
     vector<TH1F*> h1_S1_TBA_vec(run_list.size());
+    vector<TH1F*> h1_S2_total_vec(run_list.size());
+
     for(int i = 0; i< run_list.size(); i++)
     {
         ostringstream h1_Tdrift_vec_name;
@@ -73,8 +84,36 @@ void compare()
         if(run_list[i] == 1066)
             h1_Tdrift_vec_name << "Am GP 1.4W 5211/156/-744";
 
+        if(run_list[i] == 1079)
+            h1_Tdrift_vec_name << "Am GP 0.939W 5211/156/-744";
+
+        if(run_list[i] == 1083)
+            h1_Tdrift_vec_name << "Am GP 1.17W 5211/156/-744";
+
+        if(run_list[i] == 1085)
+            h1_Tdrift_vec_name << "Am GP 1.42W 5211/156/-744";
+
+        if(run_list[i] == 1089)
+            h1_Tdrift_vec_name << "Am GP 1.99W 5211/156/-744";
+
+        if(run_list[i] == 1092)
+            h1_Tdrift_vec_name << "Am GP 0.830W 5211/156/-744";
+
+        if(run_list[i] == 1093)
+            h1_Tdrift_vec_name << "Am GP 1.99W 5211/156/-744";
+
+        if(run_list[i] == 1097)
+            h1_Tdrift_vec_name << "Am GP 1.99W 5500/156/-744";
+
+        if(run_list[i] == 1098)
+            h1_Tdrift_vec_name << "Am GP 1.99W 6000/156/-744";
+
+        if(run_list[i] == 1099)
+            h1_Tdrift_vec_name << "Am GP 1.99W 6500/156/-744";
+
         h1_Tdrift_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "Tdrift").c_str() , h1_Tdrift_vec_name.str().c_str(), 101, -1, 100);
         h1_S1_TBA_vec[i] =new TH1F( (h1_Tdrift_vec_name.str() + "TBA").c_str() , h1_Tdrift_vec_name.str().c_str(), 101, -1, 100);
+        h1_S2_total_vec[i] =new TH1F( (h1_Tdrift_vec_name.str() + "S2_total").c_str() , h1_Tdrift_vec_name.str().c_str(), 400, -100, S2_max);
     }
 
     for(int i = 0; i < run_list.size(); i++)
@@ -106,13 +145,14 @@ void compare()
             if(clusters.size() == 2)
             {
                 bool cut_f90 = clusters.at(0)->f90 > 0.2 && clusters.at(1)->f90 < 0.2;
-                bool cut_S1_total = clusters.at(0)->charge < 30000;
+                bool cut_S1_total = clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800;
                 bool cut_S2_total = clusters.at(1)->charge < 30000;
 
-                if (cut_f90 && clusters.at(0)->rep == 1 && cut_S1_total && cut_S2_total)
+                if (cut_f90 /*&& clusters.at(0)->rep == 1*/ && cut_S1_total /*&& cut_S2_total*/)
                 {
                     double Tdrift = (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000;
                     h1_Tdrift_vec[i]->Fill(Tdrift);
+                    h1_S2_total_vec[i]->Fill(clusters.at(1)->charge);
                 }
 
             }
@@ -138,24 +178,51 @@ void compare()
     {
         if(i == 0)
         {
-            h1_Tdrift_vec[i]->Draw("HIST");
-            h1_Tdrift_vec[i]->SetStats(0);
+            if (plot_type == "tdrift")
+            {
+                h1_Tdrift_vec[i]->Draw("HIST");
+                h1_Tdrift_vec[i]->SetStats(0);
+            }
+
+            if(plot_type == "S2")
+            {
+                h1_S2_total_vec[i]->Draw("HIST");
+                h1_S2_total_vec[i]->SetStats(0);
+            }
         }
         else
         {
-            h1_Tdrift_vec[i]->Draw("HIST SAME");
-
+           if (plot_type == "tdrift") h1_Tdrift_vec[i]->Draw("HIST SAME");
+           if(plot_type == "S2") h1_S2_total_vec[i]->Draw("HIST SAME");
         }
-        h1_Tdrift_vec[i]->SetLineColor(hist_color[i]);
-        h1_Tdrift_vec[i]->Scale(1/h1_Tdrift_vec[i]->Integral());
 
+        if (plot_type == "tdrift")
+        {
+            h1_Tdrift_vec[i]->SetLineColor(hist_color[i]);
+            h1_Tdrift_vec[i]->Scale(1/h1_Tdrift_vec[i]->Integral());
+            legend->AddEntry(h1_Tdrift_vec[i],h1_Tdrift_vec[i]->GetTitle(),"lp");
+        }
+        if(plot_type == "S2")
+        {
+            h1_S2_total_vec[i]->SetLineColor(hist_color[i]);
+            h1_S2_total_vec[i]->Scale(1/h1_S2_total_vec[i]->Integral());
+            legend->AddEntry(h1_S2_total_vec[i],h1_S2_total_vec[i]->GetTitle(),"lp");
+        }
 
-        legend->AddEntry(h1_Tdrift_vec[i],h1_Tdrift_vec[i]->GetTitle(),"lp");
     }
     legend->Draw();
-    h1_Tdrift_vec[0]->GetXaxis()->SetTitle("Tdrift [us]");
-    h1_Tdrift_vec[0]->SetTitle("");
 
+    if (plot_type == "tdrift")
+    {
+        h1_Tdrift_vec[0]->GetXaxis()->SetTitle("Tdrift [us]");
+        h1_Tdrift_vec[0]->SetTitle("");
+    }
+    if(plot_type == "S2")
+    {
+        h1_S2_total_vec[0]->GetXaxis()->SetTitle("S2 [pe]");
+        h1_S2_total_vec[0]->SetTitle("");
+
+    }
 
 
 }
