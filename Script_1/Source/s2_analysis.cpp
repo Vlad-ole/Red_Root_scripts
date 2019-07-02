@@ -46,11 +46,14 @@ bool cut_loop2_bool = false;
 using namespace std;
 
 
-int run_number = 1051;
+int run_number = 1099;
 
 
 void s2_analysis()
 {
+    //string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch more_plots";
+    string draw_plots = "S2_uniformity_h2";
+
     ostringstream path_root_file;
     path_root_file << "/media/vlad/Data/DS-data/reco/camp_VIII/" << "run_" << run_number << ".root";
     //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
@@ -101,7 +104,7 @@ void s2_analysis()
 
     //Am arb.
     double S1_max = 2000;
-    double S2_max = /*25000*/ 5000;
+    double S2_max = /*25000*/ 45000;
     double S2_S1_max = /*40*/ 85;
     double S1_low_cut = 400;
     double S1_high_cut = 800;
@@ -142,6 +145,8 @@ void s2_analysis()
     //TH2F *h2_S2_TBA = new TH2F("h2_S2_TBA", "h2_S2_TBA", 200, -0.5, 0.5, 200, 0, S2_max);
     TH2F *h2_S2_TBA_ev = new TH2F("h2_S2_TBA_ev", "h2_S2_TBA_ev", 110, 0, max_ev_number, 200, -1, 1);
     TH2F *h2_S2_S1_ratio_tdrift = new TH2F("h2_S2_S1_ratio_tdrift", "h2_S2_S1_ratio_tdrift", 150, 0, 100, 200, 0, S2_S1_max);
+    TH2F *h2_S2_bot_S2_top = new TH2F("h2_S2_bot_S2_top", "h2_S2_bot_S2_top", 200, 0, S2_max*0.5, 200, 0, S2_max*0.5);
+    TH2F* h2_S2_total_rel = new TH2F("h2_S2_total_rel","h2_S2_total_rel",4,0,5,6,0,5);
 
     //S2 uniformity
     vector<TH1F*> h1_S2_maxch_vec;
@@ -152,6 +157,10 @@ void s2_analysis()
         h1_S2_maxch_vec.push_back( new TH1F(oss.str().c_str(), oss.str().c_str(), 400, -100, S2_max) );
     }
     TGraph* gr_S2_maxch;
+    vector<double> S2_mean_v;
+    vector<double> ch_number_v;
+    S2_mean_v.resize(24);
+    ch_number_v.resize(24);
 
     //general
     TH1F *h1_Tdrift = new TH1F("h1 Tdrift", "h1 Tdrift", (Tdrift_max + 1.0), -1, Tdrift_max);
@@ -213,6 +222,7 @@ void s2_analysis()
                 h2_S2_TBA_ev->Fill(ev, TBA_S2);
                 h2_S2_total_event->Fill(ev, clusters.at(1)->charge);
                 h2_S2_S1_ratio_tdrift->Fill(Tdrift, clusters.at(1)->charge/clusters.at(0)->charge);
+                h2_S2_bot_S2_top->Fill(clusters.at(1)->tot_charge_top, clusters.at(1)->tot_charge_bottom);
 
                 //S2 uniformity
                 double epsilon = 0.01;
@@ -262,372 +272,384 @@ void s2_analysis()
     double Y2NDC = 0.99;
     int cd_i = 0;
 
-    TCanvas *c1 = new TCanvas("S1_analysis","S1_analysis");
-    c1->Divide(3,2,0.01,0.01);
-    vector<TPaveStats*> st_h1_S1(6);
-
-    cd_i = 0;
-    c1->cd(cd_i + 1);
-    h1_S1_total->Draw();
-    h1_S1_total->GetXaxis()->SetTitle("[PE]");
-    gPad->Update();
-    st_h1_S1[cd_i] = (TPaveStats*)h1_S1_total->GetListOfFunctions()->FindObject("stats");
-    st_h1_S1[cd_i]->SetX1NDC(X1NDC); st_h1_S1[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S1[cd_i]->SetY1NDC(Y1NDC); st_h1_S1[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-    cd_i = 1;
-    c1->cd(cd_i + 1);
-    h1_S1_top->Draw();
-    h1_S1_top->GetXaxis()->SetTitle("[PE]");
-    gPad->Update();
-    st_h1_S1[cd_i] = (TPaveStats*)h1_S1_top->GetListOfFunctions()->FindObject("stats");
-    st_h1_S1[cd_i]->SetX1NDC(X1NDC); st_h1_S1[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S1[cd_i]->SetY1NDC(Y1NDC); st_h1_S1[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-    cd_i = 2;
-    c1->cd(cd_i + 1);
-    h1_S1_bot->Draw();
-    h1_S1_bot->GetXaxis()->SetTitle("[PE]");
-    gPad->Update();
-    st_h1_S1[cd_i] = (TPaveStats*)h1_S1_bot->GetListOfFunctions()->FindObject("stats");
-    st_h1_S1[cd_i]->SetX1NDC(X1NDC); st_h1_S1[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S1[cd_i]->SetY1NDC(Y1NDC); st_h1_S1[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-    cd_i = 3;
-    c1->cd(cd_i + 1);
-    h1_S1_f90->Draw();
-    //h1_S1_f90->GetXaxis()->SetTitle("[PE]");
-    gPad->Update();
-    st_h1_S1[cd_i] = (TPaveStats*)h1_S1_f90->GetListOfFunctions()->FindObject("stats");
-    st_h1_S1[cd_i]->SetX1NDC(X1NDC); st_h1_S1[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S1[cd_i]->SetY1NDC(Y1NDC); st_h1_S1[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-
-    cd_i = 4;
-    c1->cd(cd_i + 1);
-    h1_S1_TBA->Draw();
-    //h1_S1_f90->GetXaxis()->SetTitle("[PE]");
-    gPad->Update();
-    st_h1_S1[cd_i] = (TPaveStats*)h1_S1_TBA->GetListOfFunctions()->FindObject("stats");
-    st_h1_S1[cd_i]->SetX1NDC(X1NDC); st_h1_S1[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S1[cd_i]->SetY1NDC(Y1NDC); st_h1_S1[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-    cd_i = 5;
-    c1->cd(cd_i + 1);
-    h2_S1_total_event->GetXaxis()->SetTitle("event");
-    h2_S1_total_event->GetYaxis()->SetTitle("S1_total");
-    h2_S1_total_event->GetYaxis()->SetRangeUser(S1_low_cut, S1_high_cut);
-    h2_S1_total_event->Draw("colz");
-    TProfile *prof_h2_S1_total_event = h2_S1_total_event->ProfileX();
-    prof_h2_S1_total_event->Draw("same");
-    prof_h2_S1_total_event->SetMarkerStyle(20);
-    prof_h2_S1_total_event->SetMarkerColor(kRed);
-    gPad->Modified(); gPad->Update();
-
-
-
-
-    TCanvas *c2 = new TCanvas("S2_analysis","S2_analysis (part 1)");
-    c2->Divide(3,2,0.01,0.01);
-    vector<TPaveStats*> st_h1_S2(6);
-    gStyle->SetOptFit(1);
-
-    cd_i = 0;
-    c2->cd(cd_i + 1);
-    h1_S2_total->Draw();
-    h1_S2_total->GetXaxis()->SetTitle("[PE]");
-    gPad->Update();
-    st_h1_S2[cd_i] = (TPaveStats*)h1_S2_total->GetListOfFunctions()->FindObject("stats");
-    st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-    cd_i = 1;
-    c2->cd(cd_i + 1);
-    h1_S2_top->Draw();
-    h1_S2_top->GetXaxis()->SetTitle("[PE]");
-    gPad->Update();
-    st_h1_S2[cd_i] = (TPaveStats*)h1_S2_top->GetListOfFunctions()->FindObject("stats");
-    st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-    cd_i = 2;
-    c2->cd(cd_i + 1);
-    h1_S2_bot->Draw();
-    h1_S2_bot->GetXaxis()->SetTitle("[PE]");
-    gPad->Update();
-    st_h1_S2[cd_i] = (TPaveStats*)h1_S2_bot->GetListOfFunctions()->FindObject("stats");
-    st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-    cd_i = 3;
-    c2->cd(cd_i + 1);
-    h1_S2_f90->Draw();
-    //h1_S1_f90->GetXaxis()->SetTitle("[PE]");
-    gPad->Update();
-    st_h1_S2[cd_i] = (TPaveStats*)h1_S2_f90->GetListOfFunctions()->FindObject("stats");
-    st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-    cd_i = 4;
-    c2->cd(cd_i + 1);
-    h1_S2_TBA->Draw();
-    //h1_S1_f90->GetXaxis()->SetTitle("[PE]");
-    gPad->Update();
-    st_h1_S2[cd_i] = (TPaveStats*)h1_S2_TBA->GetListOfFunctions()->FindObject("stats");
-    st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-    cd_i = 5;
-    c2->cd(cd_i + 1);
-    h2_S2_total_event->GetXaxis()->SetTitle("event");
-    h2_S2_total_event->GetYaxis()->SetTitle("S2_total [PE]");
-    h2_S2_total_event->Draw("colz");
-    gPad->Update();
-    TProfile *prof_h2_S2_total_event = h2_S2_total_event->ProfileX();
-    prof_h2_S2_total_event->Draw("same");
-    prof_h2_S2_total_event->SetMarkerStyle(20);
-    prof_h2_S2_total_event->SetMarkerColor(kBlack);
-    TF1 *f1_S2_evcorr = new TF1("f1_S2_evcorr","[0] + x*[1]",0,max_ev_number);
-    prof_h2_S2_total_event->Fit("f1_S2_evcorr","R","",0,data->GetEntries());
-    cout << "f1_S2_evcorr: par0 = " << f1_S2_evcorr->GetParameter(0) << "; par1 = " << f1_S2_evcorr->GetParameter(1) << endl;
-    gPad->Modified(); gPad->Update();
-
-
-
-
-    TCanvas *c3 = new TCanvas("S2_analysis p2","S2_analysis (part 2)");
-    c3->Divide(3,2,0.01,0.01);
-    vector<TPaveStats*> st_h1_S2_p2(6);
-
-    cd_i = 0;
-    c3->cd(cd_i + 1);
-    h2_S2_total_tdrift->Draw();
-    h2_S2_total_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
-    h2_S2_total_tdrift->GetYaxis()->SetTitle("S2 [PE]");
-    h2_S2_total_tdrift->Draw("colz");
-    gPad->Update();
-
-    TProfile *prof_h2_S2_total_tdrift = h2_S2_total_tdrift->ProfileX();
-    prof_h2_S2_total_tdrift->Draw("same");
-    prof_h2_S2_total_tdrift->SetMarkerStyle(20);
-    prof_h2_S2_total_tdrift->SetMarkerColor(kBlack);
-
-    st_h1_S2_p2[cd_i] = (TPaveStats*)h2_S2_total_tdrift->GetListOfFunctions()->FindObject("stats");
-    st_h1_S2_p2[cd_i]->SetX1NDC(0.45); st_h1_S2_p2[cd_i]->SetX2NDC(0.89);
-    st_h1_S2_p2[cd_i]->SetY1NDC(0.8); st_h1_S2_p2[cd_i]->SetY2NDC(0.89);
-
-    TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
-    prof_h2_S2_total_tdrift->Fit("f1_exp_purity","R","",left_lim,right_lim);
-    ostringstream TPaveStats_fit_info_l1;
-    TPaveStats_fit_info_l1 << "Lifetime = " << std::fixed << std::showpoint << std::setprecision(1) << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << " us";
-
-    st_h1_S2_p2[cd_i] = (TPaveStats*)gPad->GetPrimitive("stats");
-    st_h1_S2_p2[cd_i]->SetName("mystats_c2_cd1");
-
-    TList *listOfLines = st_h1_S2_p2[cd_i]->GetListOfLines();
-
-    TText *tconst = st_h1_S2_p2[cd_i]->GetLineWith("Std");
-    listOfLines->Remove(tconst);
-    tconst = st_h1_S2_p2[cd_i]->GetLineWith("Std");
-    listOfLines->Remove(tconst);
-    tconst = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
-    listOfLines->Remove(tconst);
-    tconst = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
-    listOfLines->Remove(tconst);
-    tconst = st_h1_S2_p2[cd_i]->GetLineWith("h2");
-    listOfLines->Remove(tconst);
-    tconst = st_h1_S2_p2[cd_i]->GetLineWith("Entries");
-    listOfLines->Remove(tconst);
-
-    TLatex *myt = new TLatex(0,0,TPaveStats_fit_info_l1.str().c_str());
-       myt ->SetTextFont(42);
-       myt ->SetTextSize(0.04);
-       myt ->SetTextColor(kRed);
-       listOfLines->Add(myt);
-       h2_S2_total_tdrift->SetStats(0);
-    gPad->Modified();
-
-    if(0)
+    if(draw_plots.find("S1") != std::string::npos)
     {
+        TCanvas *c1 = new TCanvas("S1_analysis","S1_analysis");
+        c1->Divide(3,2,0.01,0.01);
+        vector<TPaveStats*> st_h1_S1(6);
+
+        cd_i = 0;
+        c1->cd(cd_i + 1);
+        h1_S1_total->Draw();
+        h1_S1_total->GetXaxis()->SetTitle("[PE]");
+        gPad->Update();
+        st_h1_S1[cd_i] = (TPaveStats*)h1_S1_total->GetListOfFunctions()->FindObject("stats");
+        st_h1_S1[cd_i]->SetX1NDC(X1NDC); st_h1_S1[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S1[cd_i]->SetY1NDC(Y1NDC); st_h1_S1[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
+
+        cd_i = 1;
+        c1->cd(cd_i + 1);
+        h1_S1_top->Draw();
+        h1_S1_top->GetXaxis()->SetTitle("[PE]");
+        gPad->Update();
+        st_h1_S1[cd_i] = (TPaveStats*)h1_S1_top->GetListOfFunctions()->FindObject("stats");
+        st_h1_S1[cd_i]->SetX1NDC(X1NDC); st_h1_S1[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S1[cd_i]->SetY1NDC(Y1NDC); st_h1_S1[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
+
+        cd_i = 2;
+        c1->cd(cd_i + 1);
+        h1_S1_bot->Draw();
+        h1_S1_bot->GetXaxis()->SetTitle("[PE]");
+        gPad->Update();
+        st_h1_S1[cd_i] = (TPaveStats*)h1_S1_bot->GetListOfFunctions()->FindObject("stats");
+        st_h1_S1[cd_i]->SetX1NDC(X1NDC); st_h1_S1[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S1[cd_i]->SetY1NDC(Y1NDC); st_h1_S1[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
+
+        cd_i = 3;
+        c1->cd(cd_i + 1);
+        h1_S1_f90->Draw();
+        //h1_S1_f90->GetXaxis()->SetTitle("[PE]");
+        gPad->Update();
+        st_h1_S1[cd_i] = (TPaveStats*)h1_S1_f90->GetListOfFunctions()->FindObject("stats");
+        st_h1_S1[cd_i]->SetX1NDC(X1NDC); st_h1_S1[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S1[cd_i]->SetY1NDC(Y1NDC); st_h1_S1[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
+
+
+        cd_i = 4;
+        c1->cd(cd_i + 1);
+        h1_S1_TBA->Draw();
+        //h1_S1_f90->GetXaxis()->SetTitle("[PE]");
+        gPad->Update();
+        st_h1_S1[cd_i] = (TPaveStats*)h1_S1_TBA->GetListOfFunctions()->FindObject("stats");
+        st_h1_S1[cd_i]->SetX1NDC(X1NDC); st_h1_S1[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S1[cd_i]->SetY1NDC(Y1NDC); st_h1_S1[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
+
+        cd_i = 5;
+        c1->cd(cd_i + 1);
+        h2_S1_total_event->GetXaxis()->SetTitle("event");
+        h2_S1_total_event->GetYaxis()->SetTitle("S1_total");
+        h2_S1_total_event->GetYaxis()->SetRangeUser(S1_low_cut, S1_high_cut);
+        h2_S1_total_event->Draw("colz");
+        TProfile *prof_h2_S1_total_event = h2_S1_total_event->ProfileX();
+        prof_h2_S1_total_event->Draw("same");
+        prof_h2_S1_total_event->SetMarkerStyle(20);
+        prof_h2_S1_total_event->SetMarkerColor(kRed);
+        gPad->Modified(); gPad->Update();
+    }
+
+    if(draw_plots.find("S2_p1") != std::string::npos)
+    {
+        TCanvas *c2 = new TCanvas("S2_analysis","S2_analysis (part 1)");
+        c2->Divide(3,2,0.01,0.01);
+        vector<TPaveStats*> st_h1_S2(6);
+        gStyle->SetOptFit(1);
+
+        cd_i = 0;
+        c2->cd(cd_i + 1);
+        h1_S2_total->Draw();
+        h1_S2_total->GetXaxis()->SetTitle("[PE]");
+        gPad->Update();
+        st_h1_S2[cd_i] = (TPaveStats*)h1_S2_total->GetListOfFunctions()->FindObject("stats");
+        st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
+
+        cd_i = 1;
+        c2->cd(cd_i + 1);
+        h1_S2_top->Draw();
+        h1_S2_top->GetXaxis()->SetTitle("[PE]");
+        gPad->Update();
+        st_h1_S2[cd_i] = (TPaveStats*)h1_S2_top->GetListOfFunctions()->FindObject("stats");
+        st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
+
+        cd_i = 2;
+        c2->cd(cd_i + 1);
+        h1_S2_bot->Draw();
+        h1_S2_bot->GetXaxis()->SetTitle("[PE]");
+        gPad->Update();
+        st_h1_S2[cd_i] = (TPaveStats*)h1_S2_bot->GetListOfFunctions()->FindObject("stats");
+        st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
+
+        cd_i = 3;
+        c2->cd(cd_i + 1);
+        h1_S2_f90->Draw();
+        //h1_S1_f90->GetXaxis()->SetTitle("[PE]");
+        gPad->Update();
+        st_h1_S2[cd_i] = (TPaveStats*)h1_S2_f90->GetListOfFunctions()->FindObject("stats");
+        st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
+
+        cd_i = 4;
+        c2->cd(cd_i + 1);
+        h1_S2_TBA->Draw();
+        //h1_S1_f90->GetXaxis()->SetTitle("[PE]");
+        gPad->Update();
+        st_h1_S2[cd_i] = (TPaveStats*)h1_S2_TBA->GetListOfFunctions()->FindObject("stats");
+        st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
+
+        cd_i = 5;
+        c2->cd(cd_i + 1);
+        h2_S2_total_event->GetXaxis()->SetTitle("event");
+        h2_S2_total_event->GetYaxis()->SetTitle("S2_total [PE]");
+        h2_S2_total_event->Draw("colz");
+        gPad->Update();
+        TProfile *prof_h2_S2_total_event = h2_S2_total_event->ProfileX();
+        prof_h2_S2_total_event->Draw("same");
+        prof_h2_S2_total_event->SetMarkerStyle(20);
+        prof_h2_S2_total_event->SetMarkerColor(kBlack);
+        TF1 *f1_S2_evcorr = new TF1("f1_S2_evcorr","[0] + x*[1]",0,max_ev_number);
+        prof_h2_S2_total_event->Fit("f1_S2_evcorr","R","",0,data->GetEntries());
+        cout << "f1_S2_evcorr: par0 = " << f1_S2_evcorr->GetParameter(0) << "; par1 = " << f1_S2_evcorr->GetParameter(1) << endl;
+        gPad->Modified(); gPad->Update();
+
+    }
+
+    if(draw_plots.find("S2_p2") != std::string::npos)
+    {
+        TCanvas *c3 = new TCanvas("S2_analysis p2","S2_analysis (part 2)");
+        c3->Divide(3,2,0.01,0.01);
+        vector<TPaveStats*> st_h1_S2_p2(6);
+
+        cd_i = 0;
+        c3->cd(cd_i + 1);
+        h2_S2_total_tdrift->Draw();
+        h2_S2_total_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+        h2_S2_total_tdrift->GetYaxis()->SetTitle("S2 [PE]");
+        h2_S2_total_tdrift->Draw("colz");
+        gPad->Update();
+
+        TProfile *prof_h2_S2_total_tdrift = h2_S2_total_tdrift->ProfileX();
+        prof_h2_S2_total_tdrift->Draw("same");
+        prof_h2_S2_total_tdrift->SetMarkerStyle(20);
+        prof_h2_S2_total_tdrift->SetMarkerColor(kBlack);
+
+        st_h1_S2_p2[cd_i] = (TPaveStats*)h2_S2_total_tdrift->GetListOfFunctions()->FindObject("stats");
+        st_h1_S2_p2[cd_i]->SetX1NDC(0.45); st_h1_S2_p2[cd_i]->SetX2NDC(0.89);
+        st_h1_S2_p2[cd_i]->SetY1NDC(0.8); st_h1_S2_p2[cd_i]->SetY2NDC(0.89);
+
+        TF1 *f1_exp_purity = new TF1("f1_exp_purity","exp([0] + x*[1])",0,150);
+        prof_h2_S2_total_tdrift->Fit("f1_exp_purity","R","",left_lim,right_lim);
+        ostringstream TPaveStats_fit_info_l1;
+        TPaveStats_fit_info_l1 << "Lifetime = " << std::fixed << std::showpoint << std::setprecision(1) << -1/f1_exp_purity->GetParameter(1) << " +- " << f1_exp_purity->GetParError(1)/pow(f1_exp_purity->GetParameter(1), 2.0) << " us";
+
+        st_h1_S2_p2[cd_i] = (TPaveStats*)gPad->GetPrimitive("stats");
+        st_h1_S2_p2[cd_i]->SetName("mystats_c2_cd1");
+
+        TList *listOfLines = st_h1_S2_p2[cd_i]->GetListOfLines();
+
+        TText *tconst = st_h1_S2_p2[cd_i]->GetLineWith("Std");
+        listOfLines->Remove(tconst);
+        tconst = st_h1_S2_p2[cd_i]->GetLineWith("Std");
+        listOfLines->Remove(tconst);
+        tconst = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
+        listOfLines->Remove(tconst);
+        tconst = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
+        listOfLines->Remove(tconst);
+        tconst = st_h1_S2_p2[cd_i]->GetLineWith("h2");
+        listOfLines->Remove(tconst);
+        tconst = st_h1_S2_p2[cd_i]->GetLineWith("Entries");
+        listOfLines->Remove(tconst);
+
+        TLatex *myt = new TLatex(0,0,TPaveStats_fit_info_l1.str().c_str());
+        myt ->SetTextFont(42);
+        myt ->SetTextSize(0.04);
+        myt ->SetTextColor(kRed);
+        listOfLines->Add(myt);
+        h2_S2_total_tdrift->SetStats(0);
+        gPad->Modified();
+
+        if(0)
+        {
+            cd_i = 1;
+            c3->cd(cd_i + 1);
+            h2_S2_total_evcorr_tdrift->Draw();
+            h2_S2_total_evcorr_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+            h2_S2_total_evcorr_tdrift->GetYaxis()->SetTitle("S2 [PE]");
+            h2_S2_total_evcorr_tdrift->Draw("colz");
+            gPad->Update();
+
+            TProfile *prof_h2_S2_total_evcorr_tdriftt = h2_S2_total_evcorr_tdrift->ProfileX();
+            prof_h2_S2_total_evcorr_tdriftt->Draw("same");
+            prof_h2_S2_total_evcorr_tdriftt->SetMarkerStyle(20);
+            prof_h2_S2_total_evcorr_tdriftt->SetMarkerColor(kBlack);
+
+            st_h1_S2_p2[cd_i] = (TPaveStats*)h2_S2_total_evcorr_tdrift->GetListOfFunctions()->FindObject("stats");
+            st_h1_S2_p2[cd_i]->SetX1NDC(0.45); st_h1_S2_p2[cd_i]->SetX2NDC(0.89);
+            st_h1_S2_p2[cd_i]->SetY1NDC(0.8); st_h1_S2_p2[cd_i]->SetY2NDC(0.89);
+
+            TF1 *f1_exp_purity_2 = new TF1("f1_exp_purity_2","exp([0] + x*[1])",0,150);
+            prof_h2_S2_total_evcorr_tdriftt->Fit("f1_exp_purity_2","R","",left_lim,right_lim);
+            ostringstream TPaveStats_fit_info_l1_2;
+            TPaveStats_fit_info_l1_2 << "Lifetime = " << std::fixed << std::showpoint << std::setprecision(1) << -1/f1_exp_purity_2->GetParameter(1) << " +- " << f1_exp_purity_2->GetParError(1)/pow(f1_exp_purity_2->GetParameter(1), 2.0) << " us";
+
+            st_h1_S2_p2[cd_i] = (TPaveStats*)gPad->GetPrimitive("stats");
+            st_h1_S2_p2[cd_i]->SetName("mystats_c2_cd1");
+
+            TList *listOfLines_2 = st_h1_S2_p2[cd_i]->GetListOfLines();
+
+            TText *tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("Std");
+            listOfLines_2->Remove(tconst_2);
+            tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("Std");
+            listOfLines_2->Remove(tconst_2);
+            tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
+            listOfLines_2->Remove(tconst_2);
+            tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
+            listOfLines_2->Remove(tconst_2);
+            tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("h2");
+            listOfLines_2->Remove(tconst_2);
+            tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("Entries");
+            listOfLines_2->Remove(tconst_2);
+
+            TLatex *myt_2 = new TLatex(0,0,TPaveStats_fit_info_l1_2.str().c_str());
+            myt_2 ->SetTextFont(42);
+            myt_2 ->SetTextSize(0.04);
+            myt_2 ->SetTextColor(kRed);
+            listOfLines_2->Add(myt_2);
+            h2_S2_total_evcorr_tdrift->SetStats(0);
+            gPad->Modified();
+        }
+
         cd_i = 1;
         c3->cd(cd_i + 1);
-        h2_S2_total_evcorr_tdrift->Draw();
-        h2_S2_total_evcorr_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
-        h2_S2_total_evcorr_tdrift->GetYaxis()->SetTitle("S2 [PE]");
-        h2_S2_total_evcorr_tdrift->Draw("colz");
-        gPad->Update();
-
-        TProfile *prof_h2_S2_total_evcorr_tdriftt = h2_S2_total_evcorr_tdrift->ProfileX();
-        prof_h2_S2_total_evcorr_tdriftt->Draw("same");
-        prof_h2_S2_total_evcorr_tdriftt->SetMarkerStyle(20);
-        prof_h2_S2_total_evcorr_tdriftt->SetMarkerColor(kBlack);
-
-        st_h1_S2_p2[cd_i] = (TPaveStats*)h2_S2_total_evcorr_tdrift->GetListOfFunctions()->FindObject("stats");
-        st_h1_S2_p2[cd_i]->SetX1NDC(0.45); st_h1_S2_p2[cd_i]->SetX2NDC(0.89);
-        st_h1_S2_p2[cd_i]->SetY1NDC(0.8); st_h1_S2_p2[cd_i]->SetY2NDC(0.89);
-
-        TF1 *f1_exp_purity_2 = new TF1("f1_exp_purity_2","exp([0] + x*[1])",0,150);
-        prof_h2_S2_total_evcorr_tdriftt->Fit("f1_exp_purity_2","R","",left_lim,right_lim);
-        ostringstream TPaveStats_fit_info_l1_2;
-        TPaveStats_fit_info_l1_2 << "Lifetime = " << std::fixed << std::showpoint << std::setprecision(1) << -1/f1_exp_purity_2->GetParameter(1) << " +- " << f1_exp_purity_2->GetParError(1)/pow(f1_exp_purity_2->GetParameter(1), 2.0) << " us";
-
-        st_h1_S2_p2[cd_i] = (TPaveStats*)gPad->GetPrimitive("stats");
-        st_h1_S2_p2[cd_i]->SetName("mystats_c2_cd1");
-
-        TList *listOfLines_2 = st_h1_S2_p2[cd_i]->GetListOfLines();
-
-        TText *tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("Std");
-        listOfLines_2->Remove(tconst_2);
-        tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("Std");
-        listOfLines_2->Remove(tconst_2);
-        tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
-        listOfLines_2->Remove(tconst_2);
-        tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
-        listOfLines_2->Remove(tconst_2);
-        tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("h2");
-        listOfLines_2->Remove(tconst_2);
-        tconst_2 = st_h1_S2_p2[cd_i]->GetLineWith("Entries");
-        listOfLines_2->Remove(tconst_2);
-
-        TLatex *myt_2 = new TLatex(0,0,TPaveStats_fit_info_l1_2.str().c_str());
-        myt_2 ->SetTextFont(42);
-        myt_2 ->SetTextSize(0.04);
-        myt_2 ->SetTextColor(kRed);
-        listOfLines_2->Add(myt_2);
-        h2_S2_total_evcorr_tdrift->SetStats(0);
-        gPad->Modified();
-    }
-
-    cd_i = 1;
-    c3->cd(cd_i + 1);
-    h1_Tdrift->Draw();
+        h1_Tdrift->Draw();
 
 
-    cd_i = 2;
-    c3->cd(cd_i + 1);
-    h2_S2_TBA_ev->Draw();
-    h2_S2_TBA_ev->GetXaxis()->SetTitle("ev");
-    h2_S2_TBA_ev->GetYaxis()->SetTitle("TBA_S2");
-    h2_S2_TBA_ev->Draw("colz");
-    h2_S2_TBA_ev->GetYaxis()->SetRangeUser(-0.4,0.4);
-    gPad->Update();
-    TProfile *prof_h2_S2_TBA_ev = h2_S2_TBA_ev->ProfileX();
-    prof_h2_S2_TBA_ev->Draw("same");
-    prof_h2_S2_TBA_ev->SetMarkerStyle(20);
-    prof_h2_S2_TBA_ev->SetMarkerColor(kBlack);
-    gPad->Modified(); gPad->Update();
-
-
-    {
-        cd_i = 3;
+        cd_i = 2;
         c3->cd(cd_i + 1);
-        h2_S2_S1_ratio_tdrift->Draw();
-        h2_S2_S1_ratio_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
-        h2_S2_S1_ratio_tdrift->GetYaxis()->SetTitle("S2/S1");
-        h2_S2_S1_ratio_tdrift->Draw("colz");
+        h2_S2_TBA_ev->Draw();
+        h2_S2_TBA_ev->GetXaxis()->SetTitle("ev");
+        h2_S2_TBA_ev->GetYaxis()->SetTitle("TBA_S2");
+        h2_S2_TBA_ev->Draw("colz");
+        h2_S2_TBA_ev->GetYaxis()->SetRangeUser(-0.4,0.4);
         gPad->Update();
-
-        TProfile *prof_h2_S2_S1_ratio_tdrift = h2_S2_S1_ratio_tdrift->ProfileX();
-        prof_h2_S2_S1_ratio_tdrift->Draw("same");
-        prof_h2_S2_S1_ratio_tdrift->SetMarkerStyle(20);
-        prof_h2_S2_S1_ratio_tdrift->SetMarkerColor(kBlack);
-
-        st_h1_S2_p2[cd_i] = (TPaveStats*)h2_S2_S1_ratio_tdrift->GetListOfFunctions()->FindObject("stats");
-        st_h1_S2_p2[cd_i]->SetX1NDC(0.45); st_h1_S2_p2[cd_i]->SetX2NDC(0.89);
-        st_h1_S2_p2[cd_i]->SetY1NDC(0.8); st_h1_S2_p2[cd_i]->SetY2NDC(0.89);
-
-        TF1 *f1_exp_purity_3 = new TF1("f1_exp_purity_3","exp([0] + x*[1])",0,150);
-        prof_h2_S2_S1_ratio_tdrift->Fit("f1_exp_purity_3","R","",left_lim,right_lim);
-        ostringstream TPaveStats_fit_info_l1_3;
-        TPaveStats_fit_info_l1_3 << "Lifetime = " << std::fixed << std::showpoint << std::setprecision(1) << -1/f1_exp_purity_3->GetParameter(1) << " +- " << f1_exp_purity_3->GetParError(1)/pow(f1_exp_purity_3->GetParameter(1), 2.0) << " us";
-
-        st_h1_S2_p2[cd_i] = (TPaveStats*)gPad->GetPrimitive("stats");
-        st_h1_S2_p2[cd_i]->SetName("mystats_c2_cd1");
-
-        TList *listOfLines_3 = st_h1_S2_p2[cd_i]->GetListOfLines();
-
-        TText *tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("Std");
-        listOfLines_3->Remove(tconst_3);
-        tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("Std");
-        listOfLines_3->Remove(tconst_3);
-        tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
-        listOfLines_3->Remove(tconst_3);
-        tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
-        listOfLines_3->Remove(tconst_3);
-        tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("h2");
-        listOfLines_3->Remove(tconst_3);
-        tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("Entries");
-        listOfLines_3->Remove(tconst_3);
-
-        TLatex *myt_3 = new TLatex(0,0,TPaveStats_fit_info_l1_3.str().c_str());
-        myt_3 ->SetTextFont(42);
-        myt_3 ->SetTextSize(0.04);
-        myt_3 ->SetTextColor(kRed);
-        listOfLines_3->Add(myt_3);
-        h2_S2_S1_ratio_tdrift->SetStats(0);
-        gPad->Modified();
-    }
+        TProfile *prof_h2_S2_TBA_ev = h2_S2_TBA_ev->ProfileX();
+        prof_h2_S2_TBA_ev->Draw("same");
+        prof_h2_S2_TBA_ev->SetMarkerStyle(20);
+        prof_h2_S2_TBA_ev->SetMarkerColor(kBlack);
+        gPad->Modified(); gPad->Update();
 
 
-    {
-        cd_i = 4;
+        {
+            cd_i = 3;
+            c3->cd(cd_i + 1);
+            h2_S2_S1_ratio_tdrift->Draw();
+            h2_S2_S1_ratio_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+            h2_S2_S1_ratio_tdrift->GetYaxis()->SetTitle("S2/S1");
+            h2_S2_S1_ratio_tdrift->Draw("colz");
+            gPad->Update();
+
+            TProfile *prof_h2_S2_S1_ratio_tdrift = h2_S2_S1_ratio_tdrift->ProfileX();
+            prof_h2_S2_S1_ratio_tdrift->Draw("same");
+            prof_h2_S2_S1_ratio_tdrift->SetMarkerStyle(20);
+            prof_h2_S2_S1_ratio_tdrift->SetMarkerColor(kBlack);
+
+            st_h1_S2_p2[cd_i] = (TPaveStats*)h2_S2_S1_ratio_tdrift->GetListOfFunctions()->FindObject("stats");
+            st_h1_S2_p2[cd_i]->SetX1NDC(0.45); st_h1_S2_p2[cd_i]->SetX2NDC(0.89);
+            st_h1_S2_p2[cd_i]->SetY1NDC(0.8); st_h1_S2_p2[cd_i]->SetY2NDC(0.89);
+
+            TF1 *f1_exp_purity_3 = new TF1("f1_exp_purity_3","exp([0] + x*[1])",0,150);
+            prof_h2_S2_S1_ratio_tdrift->Fit("f1_exp_purity_3","R","",left_lim,right_lim);
+            ostringstream TPaveStats_fit_info_l1_3;
+            TPaveStats_fit_info_l1_3 << "Lifetime = " << std::fixed << std::showpoint << std::setprecision(1) << -1/f1_exp_purity_3->GetParameter(1) << " +- " << f1_exp_purity_3->GetParError(1)/pow(f1_exp_purity_3->GetParameter(1), 2.0) << " us";
+
+            st_h1_S2_p2[cd_i] = (TPaveStats*)gPad->GetPrimitive("stats");
+            st_h1_S2_p2[cd_i]->SetName("mystats_c2_cd1");
+
+            TList *listOfLines_3 = st_h1_S2_p2[cd_i]->GetListOfLines();
+
+            TText *tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("Std");
+            listOfLines_3->Remove(tconst_3);
+            tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("Std");
+            listOfLines_3->Remove(tconst_3);
+            tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
+            listOfLines_3->Remove(tconst_3);
+            tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("Mean");
+            listOfLines_3->Remove(tconst_3);
+            tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("h2");
+            listOfLines_3->Remove(tconst_3);
+            tconst_3 = st_h1_S2_p2[cd_i]->GetLineWith("Entries");
+            listOfLines_3->Remove(tconst_3);
+
+            TLatex *myt_3 = new TLatex(0,0,TPaveStats_fit_info_l1_3.str().c_str());
+            myt_3 ->SetTextFont(42);
+            myt_3 ->SetTextSize(0.04);
+            myt_3 ->SetTextColor(kRed);
+            listOfLines_3->Add(myt_3);
+            h2_S2_S1_ratio_tdrift->SetStats(0);
+            gPad->Modified();
+        }
+
+
+        {
+            cd_i = 4;
+            c3->cd(cd_i + 1);
+            h2_S1_total_tdrift->Draw();
+            h2_S1_total_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+            h2_S1_total_tdrift->GetYaxis()->SetTitle("S1");
+            h2_S1_total_tdrift->Draw("colz");
+            h2_S1_total_tdrift->GetXaxis()->SetRangeUser(10,70);
+            h2_S1_total_tdrift->GetYaxis()->SetRangeUser(S1_low_cut,S1_high_cut);
+            gPad->Update();
+
+            TProfile *prof_h2_S1_total_tdrift = h2_S1_total_tdrift->ProfileX();
+            prof_h2_S1_total_tdrift->Draw("same");
+            prof_h2_S1_total_tdrift->SetMarkerStyle(20);
+            prof_h2_S1_total_tdrift->SetMarkerColor(kBlack);
+
+        }
+
+        cd_i = 5;
         c3->cd(cd_i + 1);
-        h2_S1_total_tdrift->Draw();
-        h2_S1_total_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
-        h2_S1_total_tdrift->GetYaxis()->SetTitle("S1");
-        h2_S1_total_tdrift->Draw("colz");
-        h2_S1_total_tdrift->GetXaxis()->SetRangeUser(10,70);
-        h2_S1_total_tdrift->GetYaxis()->SetRangeUser(S1_low_cut,S1_high_cut);
+        h1_S2_S1_ratio->Draw();
+        //h1_S2_S1_ratio->GetXaxis()->SetTitle("");
         gPad->Update();
-
-        TProfile *prof_h2_S1_total_tdrift = h2_S1_total_tdrift->ProfileX();
-        prof_h2_S1_total_tdrift->Draw("same");
-        prof_h2_S1_total_tdrift->SetMarkerStyle(20);
-        prof_h2_S1_total_tdrift->SetMarkerColor(kBlack);
+        st_h1_S2_p2[cd_i] = (TPaveStats*)h1_S2_S1_ratio->GetListOfFunctions()->FindObject("stats");
+        st_h1_S2_p2[cd_i]->SetX1NDC(X1NDC); st_h1_S2_p2[cd_i]->SetX2NDC(X2NDC);
+        st_h1_S2_p2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2_p2[cd_i]->SetY2NDC(Y2NDC);
+        gPad->Modified(); gPad->Update();
 
     }
 
-    cd_i = 5;
-    c3->cd(cd_i + 1);
-    h1_S2_S1_ratio->Draw();
-    //h1_S2_S1_ratio->GetXaxis()->SetTitle("");
-    gPad->Update();
-    st_h1_S2_p2[cd_i] = (TPaveStats*)h1_S2_S1_ratio->GetListOfFunctions()->FindObject("stats");
-    st_h1_S2_p2[cd_i]->SetX1NDC(X1NDC); st_h1_S2_p2[cd_i]->SetX2NDC(X2NDC);
-    st_h1_S2_p2[cd_i]->SetY1NDC(Y1NDC); st_h1_S2_p2[cd_i]->SetY2NDC(Y2NDC);
-    gPad->Modified(); gPad->Update();
-
-
-
-    TCanvas *c4 = new TCanvas("General_analysis","General_analysis");
-    c4->Divide(2,2,0.01,0.01);
-    vector<TPaveStats*> st_general_analysis(4);
-
-    cd_i = 0;
-    c4->cd(cd_i + 1);
-    h1_nc->Sumw2(kTRUE);
-    h1_nc->GetXaxis()->SetTitle("nc");
-    //h1_nc->Scale(1, "width");
-    //h1_nc->SetBarWidth(0.4);
-    h1_nc->SetFillColor(kMagenta);
-    h1_nc->Scale(1/h1_nc->Integral());
-    h1_nc->Draw("HIST b");
-    h1_nc->SetBarWidth(10);
-    h1_nc->SetBarOffset(0);
-    gPad->Modified(); gPad->Update();
-
+    if(draw_plots.find("more_plots") != std::string::npos)
     {
-        TCanvas *c5 = new TCanvas("S2_uniformity (ch)","S2_uniformity (ch)");
+        TCanvas *c4 = new TCanvas("More plots","More plots");
+        c4->Divide(2,2,0.01,0.01);
+        vector<TPaveStats*> st_general_analysis(4);
+
+        cd_i = 0;
+        c4->cd(cd_i + 1);
+        h1_nc->Sumw2(kTRUE);
+        h1_nc->GetXaxis()->SetTitle("nc");
+        //h1_nc->Scale(1, "width");
+        //h1_nc->SetBarWidth(0.4);
+        h1_nc->SetFillColor(kMagenta);
+        h1_nc->Scale(1/h1_nc->Integral());
+        h1_nc->Draw("HIST b");
+        h1_nc->SetBarWidth(10);
+        h1_nc->SetBarOffset(0);
+        gPad->Modified(); gPad->Update();
+
+        cd_i = 1;
+        c4->cd(cd_i + 1);
+        h2_S2_bot_S2_top->Draw("colz");
+        gPad->Modified(); gPad->Update();
+    }
+
+    if(draw_plots.find("S2_uniformity_ch") != std::string::npos)
+    {
+        TCanvas *c5 = new TCanvas("S2_uniformity_ch","S2_uniformity_ch");
         c5->Divide(4,6,0.01,0.01);
         vector<TPaveStats*> st_general_analysis(6);
         double S2_sum_of_means = 0;
@@ -645,16 +667,7 @@ void s2_analysis()
         }
     }
 
-
-
-
-        TCanvas *c6 = new TCanvas("S2_uniformity (rel. charge)","S2_uniformity (rel. charge)");
-        c6->Divide(1,1,0.01,0.01);
-
-        vector<double> S2_mean_v;
-        vector<double> ch_number_v;
-        S2_mean_v.resize(24);
-        ch_number_v.resize(24);
+    {
         double S2_sum_of_means = 0;
         int n_ch_not_null =0;
         for(int i = 0; i < 24; i++)
@@ -674,6 +687,12 @@ void s2_analysis()
             file_out_s2_uniformity << S2_mean_v[i] << endl;
             file_out_xy_distr << h1_S2_maxch_vec[i]->GetEntries() << endl;
         }
+    }
+
+    if(draw_plots.find("S2_uniformity_gr") != std::string::npos)
+    {
+        TCanvas *c6 = new TCanvas("S2_uniformity (rel. charge)","S2_uniformity (rel. charge)");
+        c6->Divide(1,1,0.01,0.01);
 
         cd_i = 0;
         c6->cd(cd_i + 1);
@@ -684,62 +703,71 @@ void s2_analysis()
         gr_S2_maxch->GetYaxis()->SetTitle("S2_total_relative");
         gPad->SetGrid();
         //COUT(n_events_test);
-
-
-
-    TCanvas *c7 = new TCanvas("S2_uniformity (part 3)","S2_uniformity (part 3)");
-    //c6->Divide(1,1,0.01,0.01);
-
-    const Int_t NRGBs = 6;
-    const Int_t NCont = 999;
-
-    Double_t stops[NRGBs] = { 0.00, 0.2, 0.4, 0.6, 0.8, 1.00 };
-    Double_t red[NRGBs]   = { 0.99, 0.44, 0.00, 0.87, 1.00, 0.51 };
-    Double_t green[NRGBs] = { 0.00, 0.66, 0.81, 1.00, 0.20, 0.00 };
-    Double_t blue[NRGBs]  = { 0.99, 0.72, 1.00, 0.12, 0.00, 0.00 };
-
-    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
-    gStyle->SetNumberContours(NCont);
-
-    gStyle->SetOptStat(0);
-
-    const Double_t min = 0.65;
-    const Double_t max = 1.3;
-
-    const Int_t nLevels = 999;
-    Double_t levels[nLevels];
-
-    for(int i = 1; i < nLevels; i++)
-    {
-        levels[i] = min + (max - min) / (nLevels - 1) * (i);
-    }
-    levels[0] = 0.01;
-
-    TH2F* h2_S2_total_rel = new TH2F("h2_S2_total_rel","h2_S2_total_rel",4,0,5,6,0,5);
-    h2_S2_total_rel->SetContour((sizeof(levels)/sizeof(Double_t)), levels);
-
-    int n_events = 0;
-    for(int i = 0; i < 24; i++)
-    {
-        int xi = i % 4 + 1;
-        int yi = i/4 + 1;
-        h2_S2_total_rel->SetBinContent(xi,yi,S2_mean_v[i]);
-        cout << i << "\t" << xi << "\t" << yi << "\t" << h2_S2_total_rel->GetBinContent(xi,yi) <<  endl;
-        n_events++;
     }
 
-    h2_S2_total_rel->SetTitle("S2 relative charge");
-    h2_S2_total_rel->GetXaxis()->SetTitle("x [cm]");
-    h2_S2_total_rel->GetYaxis()->SetTitle("y [cm]");
-    gStyle->SetPaintTextFormat("2.3f");
+    if(draw_plots.find("S2_uniformity_h2") != std::string::npos)
+    {
+        TCanvas *c7 = new TCanvas("S2_uniformity_h2","S2_uniformity_h2");
+        //c6->Divide(1,1,0.01,0.01);
+
+        const Int_t NRGBs = 6;
+        const Int_t NCont = 999;
+
+        Double_t stops[NRGBs] = { 0.00, 0.2, 0.4, 0.6, 0.8, 1.00 };
+        Double_t red[NRGBs]   = { 0.99, 0.44, 0.00, 0.87, 1.00, 0.51 };
+        Double_t green[NRGBs] = { 0.00, 0.66, 0.81, 1.00, 0.20, 0.00 };
+        Double_t blue[NRGBs]  = { 0.99, 0.72, 1.00, 0.12, 0.00, 0.00 };
+
+        TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+        gStyle->SetNumberContours(NCont);
+
+        //gStyle->SetOptStat(0);
 
 
-    //----------------------------------------------------------------
-    h2_S2_total_rel->DrawClone("col text");// draw "axes", "contents", "statistics box"
+        const Double_t min = 0.65;
+        const Double_t max = 1.3;
 
-    h2_S2_total_rel->GetZaxis()->SetRangeUser(min, max); // ... set the range ...
+        const Int_t nLevels = 999;
+        Double_t levels[nLevels];
 
-    h2_S2_total_rel->Draw("z same"); // draw the "color palette"
+        for(int i = 1; i < nLevels; i++)
+        {
+            levels[i] = min + (max - min) / (nLevels - 1) * (i);
+        }
+        levels[0] = 0.01;
+
+
+        h2_S2_total_rel->SetContour((sizeof(levels)/sizeof(Double_t)), levels);
+
+        int n_events = 0;
+        for(int i = 0; i < 24; i++)
+        {
+            int xi = i % 4 + 1;
+            int yi = i/4 + 1;
+            h2_S2_total_rel->SetBinContent(xi,yi,S2_mean_v[i]);
+            cout << i << "\t" << xi << "\t" << yi << "\t" << h2_S2_total_rel->GetBinContent(xi,yi) <<  endl;
+            n_events++;
+        }
+
+        h2_S2_total_rel->SetTitle("S2 relative charge");
+        h2_S2_total_rel->GetXaxis()->SetTitle("x [cm]");
+        h2_S2_total_rel->GetYaxis()->SetTitle("y [cm]");
+        gStyle->SetPaintTextFormat("2.3f");
+
+
+        //----------------------------------------------------------------
+
+        //h2_S2_total_rel->DrawClone("col text");// draw "axes", "contents", "statistics box"
+        h2_S2_total_rel->Draw("col text");
+        gPad->Update();
+        h2_S2_total_rel->SetStats(0);
+
+        h2_S2_total_rel->GetZaxis()->SetRangeUser(min, max); // ... set the range ...
+
+        h2_S2_total_rel->Draw("z same"); // draw the "color palette"
+        //gPad->Update();
+        //
+    }
 
 
 }
