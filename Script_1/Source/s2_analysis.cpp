@@ -46,17 +46,20 @@ bool cut_loop2_bool = false;
 using namespace std;
 
 
-int run_number = 1099;
+int run_number = 1134;
 
 
 void s2_analysis()
 {
-    //string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch more_plots";
-    string draw_plots = "S2_uniformity_h2";
+    string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch more_plots";
+    //string draw_plots = "more_plots";
 
     ostringstream path_root_file;
-    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VIII/" << "run_" << run_number << ".root";
-    //path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
+    if(run_number >= 743 && run_number <= 1034)
+        path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
+    else if(run_number >= 1040)
+        path_root_file << "/media/vlad/Data/DS-data/reco/camp_VIII/" << "run_" << run_number << ".root";
+
     TString filename = path_root_file.str().c_str();
     TFile *f = new TFile(filename, "read");
     if (!(f->IsOpen()))
@@ -104,10 +107,11 @@ void s2_analysis()
 
     //Am arb.
     double S1_max = 2000;
-    double S2_max = /*25000*/ 45000;
-    double S2_S1_max = /*40*/ 85;
+    double S2_max = /*25000*/ 25000;
+    double S2_S1_max = /*40*/ 40;
     double S1_low_cut = 400;
-    double S1_high_cut = 800;
+    double S1_high_cut = 800;//Am
+    //double S1_high_cut = 530;//Kr
 
     //double range_scale = 1;
     vector<double> x_centers = {0.625, 1.875, 3.125, 4.375};
@@ -644,6 +648,8 @@ void s2_analysis()
         cd_i = 1;
         c4->cd(cd_i + 1);
         h2_S2_bot_S2_top->Draw("colz");
+        h2_S2_bot_S2_top->GetXaxis()->SetTitle("S2_top [pe]");
+        h2_S2_bot_S2_top->GetYaxis()->SetTitle("S2_bottom [pe]");
         gPad->Modified(); gPad->Update();
     }
 
@@ -749,7 +755,9 @@ void s2_analysis()
             n_events++;
         }
 
-        h2_S2_total_rel->SetTitle("S2 relative charge");
+        ostringstream h2_S2_total_rel_name;
+        h2_S2_total_rel_name << "S2 relative charge: run " << run_number;
+        h2_S2_total_rel->SetTitle(h2_S2_total_rel_name.str().c_str());
         h2_S2_total_rel->GetXaxis()->SetTitle("x [cm]");
         h2_S2_total_rel->GetYaxis()->SetTitle("y [cm]");
         gStyle->SetPaintTextFormat("2.3f");
