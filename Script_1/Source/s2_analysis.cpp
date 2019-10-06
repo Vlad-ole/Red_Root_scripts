@@ -46,12 +46,12 @@ bool cut_loop2_bool = false;
 using namespace std;
 
 
-int run_number = 1134;
+int run_number = 1099;
 
 
 void s2_analysis()
 {
-    string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch more_plots";
+    string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch S2_max_ch_h2 more_plots To_print";
     //string draw_plots = "more_plots";
 
     ostringstream path_root_file;
@@ -107,7 +107,7 @@ void s2_analysis()
 
     //Am arb.
     double S1_max = 2000;
-    double S2_max = /*25000*/ 25000;
+    double S2_max = /*25000*/ 45000;
     double S2_S1_max = /*40*/ 40;
     double S1_low_cut = 400;
     double S1_high_cut = 800;//Am
@@ -150,9 +150,11 @@ void s2_analysis()
     TH2F *h2_S2_TBA_ev = new TH2F("h2_S2_TBA_ev", "h2_S2_TBA_ev", 110, 0, max_ev_number, 200, -1, 1);
     TH2F *h2_S2_S1_ratio_tdrift = new TH2F("h2_S2_S1_ratio_tdrift", "h2_S2_S1_ratio_tdrift", 150, 0, 100, 200, 0, S2_S1_max);
     TH2F *h2_S2_bot_S2_top = new TH2F("h2_S2_bot_S2_top", "h2_S2_bot_S2_top", 200, 0, S2_max*0.5, 200, 0, S2_max*0.5);
-    TH2F* h2_S2_total_rel = new TH2F("h2_S2_total_rel","h2_S2_total_rel",4,0,5,6,0,5);
+
 
     //S2 uniformity
+    TH2F* h2_S2_total_rel = new TH2F("h2_S2_total_rel","h2_S2_total_rel",4,0,5,6,0,5);
+    TH2F* h2_S2_max_ch = new TH2F("h2_S2_max_ch","h2_S2_max_ch",4,0,5,6,0,5);
     vector<TH1F*> h1_S2_maxch_vec;
     for(int i = 0; i < 24; i++)
     {
@@ -760,7 +762,9 @@ void s2_analysis()
         h2_S2_total_rel->SetTitle(h2_S2_total_rel_name.str().c_str());
         h2_S2_total_rel->GetXaxis()->SetTitle("x [cm]");
         h2_S2_total_rel->GetYaxis()->SetTitle("y [cm]");
-        gStyle->SetPaintTextFormat("2.3f");
+        gStyle->SetPaintTextFormat("2.2f");
+        //gStyle->SetPaintTextFormat("2d");
+        h2_S2_total_rel->SetMarkerSize(2);
 
 
         //----------------------------------------------------------------
@@ -777,5 +781,123 @@ void s2_analysis()
         //
     }
 
+    if(draw_plots.find("S2_max_ch_h2") != std::string::npos)
+    {
+        TCanvas *c8 = new TCanvas("S2_max_ch_h2","S2_max_ch_h2");
+        //c6->Divide(1,1,0.01,0.01);
+
+        //gStyle->SetOptStat(0);
+
+        Double_t min_ = h1_S2_maxch_vec[0]->GetEntries();
+        Double_t max_ = h1_S2_maxch_vec[0]->GetEntries();
+        for(int i = 0; i < 24; i++)
+        {
+            double tmp = h1_S2_maxch_vec[i]->GetEntries();
+            if(tmp < min_) min_ = tmp;
+            if(tmp > max_) max_ = tmp;
+        }
+
+        cout << "min = " << min_ << "; max = " << max_ << endl;
+
+
+        const Double_t min = min_;//warning
+        const Double_t max = max_;//warning
+
+        const Int_t nLevels = 999;
+        Double_t levels[nLevels];
+
+        for(int i = 1; i < nLevels; i++)
+        {
+            levels[i] = min + (max - min) / (nLevels - 1) * (i);
+        }
+        levels[0] = 0.01;
+
+
+        h2_S2_max_ch->SetContour((sizeof(levels)/sizeof(Double_t)), levels);
+
+
+        int n_events = 0;
+        for(int i = 0; i < 24; i++)
+        {
+            int xi = i % 4 + 1;
+            int yi = i/4 + 1;
+            h2_S2_max_ch->SetBinContent(xi,yi,h1_S2_maxch_vec[i]->GetEntries());
+            //cout << i << "\t" << xi << "\t" << yi << "\t" << h2_S2_max_ch->GetBinContent(xi,yi) <<  endl;
+            n_events++;
+        }
+
+        ostringstream h2_S2_max_ch_name;
+        h2_S2_max_ch_name << "S2_max_ch: run " << run_number;
+        h2_S2_max_ch->SetTitle(h2_S2_max_ch_name.str().c_str());
+        h2_S2_max_ch->GetXaxis()->SetTitle("x [cm]");
+        h2_S2_max_ch->GetYaxis()->SetTitle("y [cm]");
+        //gStyle->SetPaintTextFormat("3.3f");
+        //gStyle->SetPaintTextFormat("3.0f");
+        h2_S2_max_ch->SetMarkerSize(2);
+
+
+        //----------------------------------------------------------------
+
+        //h2_S2_total_rel->DrawClone("col text");// draw "axes", "contents", "statistics box"
+        //h2_S2_max_ch->Draw("col text");
+        h2_S2_max_ch->Draw("col text scat=0.0");
+        gPad->Update();
+        h2_S2_max_ch->SetStats(0);
+
+        h2_S2_max_ch->GetZaxis()->SetRangeUser(min, max); // ... set the range ...
+        h2_S2_max_ch->Draw("z same scat=0.0"); // draw the "color palette"
+
+        //gPad->Update();
+        //
+    }
+
+    if(draw_plots.find("To_print") != std::string::npos)
+    {
+        TCanvas *c9 = new TCanvas("To_print","To_print");
+        //c9->Divide(1,1,0.01,0.01);
+        vector<TPaveStats*> st_h1_to_print(6);
+
+        //S2 vs Td
+//        h2_S2_total_tdrift->Draw();
+//        h2_S2_total_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+//        h2_S2_total_tdrift->GetYaxis()->SetTitle("S2 [PE]");
+//        h2_S2_total_tdrift->Draw("colz");
+//        h2_S2_total_tdrift->GetXaxis()->SetRangeUser(0, 70);
+//        ostringstream run_number_string;
+//        run_number_string << "run " << run_number;
+//        h2_S2_total_tdrift->SetTitle( run_number_string.str().c_str() );
+//        gPad->Update();
+
+//        TProfile *prof_h2_S2_total_tdrift = h2_S2_total_tdrift->ProfileX();
+//        prof_h2_S2_total_tdrift->Draw("same");
+//        prof_h2_S2_total_tdrift->SetMarkerStyle(20);
+//        prof_h2_S2_total_tdrift->SetMarkerColor(kBlack);
+
+//        TF1 *f1_exp_purity_3 = new TF1("f1_exp_purity_3","exp([0] + x*[1])",0,150);
+//        prof_h2_S2_total_tdrift->Fit("f1_exp_purity_3","R","",left_lim,right_lim);
+//        ostringstream TPaveStats_fit_info_l1;
+//        TPaveStats_fit_info_l1 << "Lifetime = " << std::fixed << std::showpoint << std::setprecision(1) << -1/f1_exp_purity_3->GetParameter(1) << " +- " << f1_exp_purity_3->GetParError(1)/pow(f1_exp_purity_3->GetParameter(1), 2.0) << " us";
+//        gPad->Modified();
+
+        //S1 vs Td
+        h2_S1_total_tdrift->Draw();
+        h2_S1_total_tdrift->GetXaxis()->SetTitle("Tdrif [us]");
+        h2_S1_total_tdrift->GetYaxis()->SetTitle("S1_total[PE]");
+        h2_S1_total_tdrift->Draw("colz");
+        h2_S1_total_tdrift->GetXaxis()->SetRangeUser(10,70);
+        h2_S1_total_tdrift->GetYaxis()->SetRangeUser(S1_low_cut,S1_high_cut);
+        ostringstream run_number_string;
+        run_number_string << "run " << run_number;
+        h2_S1_total_tdrift->SetTitle(run_number_string.str().c_str());
+        gPad->Update();
+
+        TProfile *prof_h2_S1_total_tdrift = h2_S1_total_tdrift->ProfileX();
+        prof_h2_S1_total_tdrift->Draw("same");
+        prof_h2_S1_total_tdrift->SetMarkerStyle(20);
+        prof_h2_S1_total_tdrift->SetMarkerColor(kBlack);
+        h2_S1_total_tdrift->SetStats(0);
+
+
+    }
 
 }

@@ -42,7 +42,8 @@ SOURCES += \
     s2_echo.cpp \
     s2_analysis.cpp \
     compare.cpp \
-    color_map.cpp
+    color_map.cpp \
+    sub_main4.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 
