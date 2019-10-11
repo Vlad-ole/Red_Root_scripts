@@ -43,7 +43,10 @@ SOURCES += \
     s2_analysis.cpp \
     compare.cpp \
     color_map.cpp \
-    sub_main4.cpp
+    sub_main4.cpp \
+    article_stability.cpp \
+    s1_analysis.cpp \
+    article_uniformity.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 

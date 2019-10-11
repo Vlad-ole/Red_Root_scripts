@@ -55,8 +55,8 @@ void compare()
     vector<int> run_list{1093, 1097, 1098, 1099};
     vector<int> lifetimes{770, 620, 700, 870};
     //vector<double> correstions{1.0, 1.0, 1.0, 1.0};
-    vector<double> corrections_S2{12150.0/12150.0, 12150.0/16500.0 * 1.01, 12150.0/21700.0 * 0.98, 12150.0/27300.0 * 0.97}; //S2 vs Tdrift
-    vector<double> corrections_S1{645.0/645.0, 645.0/654.0, 645.0/647.0, 645.0/642.0}; //S1 vs Tdrift
+    //vector<double> corrections_S2{12150.0/12150.0, 12150.0/16500.0 * 1.01, 12150.0/21700.0 * 0.98, 12150.0/27300.0 * 0.97}; //S2 vs Tdrift
+    //vector<double> corrections_S1{645.0/645.0, 645.0/654.0, 645.0/647.0, 645.0/642.0}; //S1 vs Tdrift
     //vector<double> correstions{1/645.0, 1/654.0, 1/647.0, 1/642.0}; //S1 vs Tdrift
     //vector<double> correstions{1/100.0, 1/100.0, 1/100.0, 1/100.0}; //S1 vs Tdrift
 
@@ -75,8 +75,9 @@ void compare()
     //string plot_type = "S2";
     //string plot_type = "S2_over_S1";
     //string plot_type = "tdrift";
-    string plot_type = "S2_total_tdrift";
+    //string plot_type = "S2_total_tdrift";
     //string plot_type = "S1_total_tdrift";
+    string plot_type = "TBA";
 
 
     double S1_max = 2000;
@@ -85,7 +86,7 @@ void compare()
 
     vector<TH1F*> h1_S1_vec(run_list.size());
     vector<TH1F*> h1_Tdrift_vec(run_list.size());
-    vector<TH1F*> h1_S1_TBA_vec(run_list.size());
+    vector<TH1F*> h1_TBA_vec(run_list.size());
     vector<TH1F*> h1_S2_total_vec(run_list.size());
     vector<TH1F*> h1_S2_over_S1_vec(run_list.size());
     vector<TH2F*> h2_S2_total_tdrift_vec(run_list.size());
@@ -171,7 +172,7 @@ void compare()
         h1_S2_over_S1_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S2_over_S1").c_str() , h1_Tdrift_vec_name.str().c_str(), 100, 0, 30);
         h1_S1_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S1").c_str() , h1_Tdrift_vec_name.str().c_str(), 400, 0, 1000);
         h1_Tdrift_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "Tdrift").c_str() , h1_Tdrift_vec_name.str().c_str(), 101*4, -1, 100);
-        h1_S1_TBA_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "TBA").c_str() , h1_Tdrift_vec_name.str().c_str(), 101, -1, 100);
+        h1_TBA_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "TBA").c_str() , h1_Tdrift_vec_name.str().c_str(), 100, -1, 1);
         h1_S2_total_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S2_total").c_str() , h1_Tdrift_vec_name.str().c_str(), /*400*/200, -100, S2_max);
         h2_S2_total_tdrift_vec[i] = new TH2F( (h1_Tdrift_vec_name.str() + "S2_total_tdrift").c_str(), h1_Tdrift_vec_name.str().c_str(), /*150*/50, 0, 100, 200, 0, S2_max );
         h2_S1_total_tdrift_vec[i] = new TH2F( (h1_Tdrift_vec_name.str() + "S1_total_tdrift").c_str(), h1_Tdrift_vec_name.str().c_str(), /*150*/50, 0, 100, 200, 0, S1_max );
@@ -203,6 +204,11 @@ void compare()
         {
             data->GetEntry(ev);
             vector<RDCluster*> clusters = evReco->GetClusters();
+
+            if(clusters.size() == 1)
+            {
+
+            }
 
 
             if(clusters.size() == 2)

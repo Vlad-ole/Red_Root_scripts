@@ -46,13 +46,15 @@ bool cut_loop2_bool = false;
 using namespace std;
 
 
-int run_number = 1099;
+int run_number = 1104;
 
 
 void s2_analysis()
 {
-    string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch S2_max_ch_h2 more_plots To_print";
-    //string draw_plots = "more_plots";
+    //string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch S2_max_ch_h2 more_plots To_print";
+    string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch S2_max_ch_h2 more_plots";
+    //string draw_plots = "S1 S2_p1 S2_p2 more_plots";
+    //string draw_plots = "S1 S2_p1 S2_p2 more_plots";
 
     ostringstream path_root_file;
     if(run_number >= 743 && run_number <= 1034)
@@ -135,6 +137,7 @@ void s2_analysis()
     TH1F *h1_S1_TBA = new TH1F("h1_S1_TBA", "h1_S1_TBA", 200, -1, 1);
     //TH2F *h2_S1_TBA = new TH2F("h2_S1_TBA", "h2_S1_TBA", 200, -0.5, 0.5, 200, 0, S1_max);
     TH2F *h2_S1_total_tdrift = new TH2F("h2_S1_total_tdrift", "h2_S1_total_tdrift", 150, 0, 100, 200, 0, S1_max);
+    TH2F *h2_S1_TBA_tdrift = new TH2F("h2_S1_TBA_tdrift", "h2_S1_TBA_tdrift", (Tdrift_max + 1.0), -1, Tdrift_max, 200, -1, 1);
 
     //S2
     TH2F *h2_S2_total_event = new TH2F("h2_S2_total_event", "h2_S2_total_event", 110, 0, max_ev_number, 150, 0, S2_max);
@@ -150,6 +153,18 @@ void s2_analysis()
     TH2F *h2_S2_TBA_ev = new TH2F("h2_S2_TBA_ev", "h2_S2_TBA_ev", 110, 0, max_ev_number, 200, -1, 1);
     TH2F *h2_S2_S1_ratio_tdrift = new TH2F("h2_S2_S1_ratio_tdrift", "h2_S2_S1_ratio_tdrift", 150, 0, 100, 200, 0, S2_S1_max);
     TH2F *h2_S2_bot_S2_top = new TH2F("h2_S2_bot_S2_top", "h2_S2_bot_S2_top", 200, 0, S2_max*0.5, 200, 0, S2_max*0.5);
+
+    //S1 uniformity
+    TH2F* h2_S1_ch_avr = new TH2F("h2_S1_ch_avr","h2_S1_ch_avr",4,0,5,6,0,5);
+    vector<TH1F*> h1_S1_ch_avr;
+    for(int i = 0; i < 24; i++)
+    {
+        ostringstream oss;
+        oss << "h1_S1_ch_avr" << i;
+        h1_S1_ch_avr.push_back( new TH1F(oss.str().c_str(), oss.str().c_str(), 450, -50, 400) );
+    }
+    vector<double> S1_ch_avr_v;
+    S1_ch_avr_v.resize(24);
 
 
     //S2 uniformity
@@ -171,6 +186,7 @@ void s2_analysis()
     //general
     TH1F *h1_Tdrift = new TH1F("h1 Tdrift", "h1 Tdrift", (Tdrift_max + 1.0), -1, Tdrift_max);
     TH1F *h1_nc = new TH1F("h1_nc", "h1_nc", 200, 0, 10);
+
 
 
     double S2_ev_par0 = 911.403;
@@ -214,6 +230,7 @@ void s2_analysis()
                 h1_S1_top->Fill(clusters.at(0)->tot_charge_top);
                 h1_S1_bot->Fill(clusters.at(0)->tot_charge_bottom);
                 h1_S1_TBA->Fill(TBA_S1);
+                h2_S1_TBA_tdrift->Fill(Tdrift,TBA_S1);
                 //h2_S1_TBA->Fill(TBA_S1, clusters.at(0)->charge);
                 h2_S1_total_tdrift->Fill(Tdrift, clusters.at(0)->charge);
 
@@ -653,6 +670,12 @@ void s2_analysis()
         h2_S2_bot_S2_top->GetXaxis()->SetTitle("S2_top [pe]");
         h2_S2_bot_S2_top->GetYaxis()->SetTitle("S2_bottom [pe]");
         gPad->Modified(); gPad->Update();
+
+        c4->cd(3);
+        h2_S1_TBA_tdrift->Draw("colz");
+        h2_S1_TBA_tdrift->GetXaxis()->SetTitle("Drift time [us]");
+        h2_S1_TBA_tdrift->GetYaxis()->SetTitle("S1 TBA");
+        gPad->Modified(); gPad->Update();
     }
 
     if(draw_plots.find("S2_uniformity_ch") != std::string::npos)
@@ -751,7 +774,8 @@ void s2_analysis()
         for(int i = 0; i < 24; i++)
         {
             int xi = i % 4 + 1;
-            int yi = i/4 + 1;
+            //int yi = i/4 + 1;
+            int yi = 6 - i/4;
             h2_S2_total_rel->SetBinContent(xi,yi,S2_mean_v[i]);
             cout << i << "\t" << xi << "\t" << yi << "\t" << h2_S2_total_rel->GetBinContent(xi,yi) <<  endl;
             n_events++;

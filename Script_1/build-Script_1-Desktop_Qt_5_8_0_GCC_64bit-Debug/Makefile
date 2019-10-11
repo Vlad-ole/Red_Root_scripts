@@ -76,7 +76,10 @@ SOURCES       = ../Source/main.cpp \
 		../Source/s2_analysis.cpp \
 		../Source/compare.cpp \
 		../Source/color_map.cpp \
-		../Source/sub_main4.cpp 
+		../Source/sub_main4.cpp \
+		../Source/article_stability.cpp \
+		../Source/s1_analysis.cpp \
+		../Source/article_uniformity.cpp 
 OBJECTS       = main.o \
 		script.o \
 		Dict.o \
@@ -105,7 +108,10 @@ OBJECTS       = main.o \
 		s2_analysis.o \
 		compare.o \
 		color_map.o \
-		sub_main4.o
+		sub_main4.o \
+		article_stability.o \
+		s1_analysis.o \
+		article_uniformity.o
 DIST          = ../../../../Qt/5.8/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.8/gcc_64/mkspecs/common/unix.conf \
 		../../../../Qt/5.8/gcc_64/mkspecs/common/linux.conf \
@@ -279,7 +285,10 @@ DIST          = ../../../../Qt/5.8/gcc_64/mkspecs/features/spec_pre.prf \
 		../Source/s2_analysis.cpp \
 		../Source/compare.cpp \
 		../Source/color_map.cpp \
-		../Source/sub_main4.cpp
+		../Source/sub_main4.cpp \
+		../Source/article_stability.cpp \
+		../Source/s1_analysis.cpp \
+		../Source/article_uniformity.cpp
 QMAKE_TARGET  = Script_1
 DESTDIR       = 
 TARGET        = Script_1
@@ -602,7 +611,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../../Qt/5.8/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../Source/Linkdef.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../Source/main.cpp ../Source/script.cpp ../Source/Dict.cpp ../Source/sumsignals.cpp ../Source/toymc.cpp ../Source/correlation_mc.cpp ../Source/chancorr.cpp ../Source/very_simple_mc.cpp ../Source/main2.cpp ../Source/f90.cpp ../Source/f90_draw.cpp ../Source/tba_draw.cpp ../Source/xy_reco1.cpp ../Source/s1_tdrift_draw.cpp ../Source/main3.cpp ../Source/cuts.cpp ../Source/test1.cpp ../Source/s2_uniformity.cpp ../Source/sub_main1.cpp ../Source/sub_main2.cpp ../Source/s2_s1_tdrift_draw.cpp ../Source/s1_spectrum_draw.cpp ../Source/sub_main3.cpp ../Source/s1_ch_spectra.cpp ../Source/s2_echo.cpp ../Source/s2_analysis.cpp ../Source/compare.cpp ../Source/color_map.cpp ../Source/sub_main4.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../Source/main.cpp ../Source/script.cpp ../Source/Dict.cpp ../Source/sumsignals.cpp ../Source/toymc.cpp ../Source/correlation_mc.cpp ../Source/chancorr.cpp ../Source/very_simple_mc.cpp ../Source/main2.cpp ../Source/f90.cpp ../Source/f90_draw.cpp ../Source/tba_draw.cpp ../Source/xy_reco1.cpp ../Source/s1_tdrift_draw.cpp ../Source/main3.cpp ../Source/cuts.cpp ../Source/test1.cpp ../Source/s2_uniformity.cpp ../Source/sub_main1.cpp ../Source/sub_main2.cpp ../Source/s2_s1_tdrift_draw.cpp ../Source/s1_spectrum_draw.cpp ../Source/sub_main3.cpp ../Source/s1_ch_spectra.cpp ../Source/s2_echo.cpp ../Source/s2_analysis.cpp ../Source/compare.cpp ../Source/color_map.cpp ../Source/sub_main4.cpp ../Source/article_stability.cpp ../Source/s1_analysis.cpp ../Source/article_uniformity.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -3856,6 +3865,376 @@ sub_main4.o: ../Source/sub_main4.cpp ../../../root/builddir/include/TApplication
 		../../../root/builddir/include/TLegend.h \
 		../../../root/builddir/include/TProfile.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sub_main4.o ../Source/sub_main4.cpp
+
+article_stability.o: ../Source/article_stability.cpp ../../../root/builddir/include/TApplication.h \
+		../../../root/builddir/include/TObject.h \
+		../../../root/builddir/include/RConfigure.h \
+		../../../root/builddir/include/Rtypes.h \
+		../../../root/builddir/include/RtypesCore.h \
+		../../../root/builddir/include/ROOT/RConfig.h \
+		../../../root/builddir/include/RVersion.h \
+		../../../root/builddir/include/DllImport.h \
+		../../../root/builddir/include/snprintf.h \
+		../../../root/builddir/include/strlcpy.h \
+		../../../root/builddir/include/TGenericClassInfo.h \
+		../../../root/builddir/include/TSchemaHelper.h \
+		../../../root/builddir/include/TIsAProxy.h \
+		../../../root/builddir/include/TVirtualIsAProxy.h \
+		../../../root/builddir/include/TStorage.h \
+		../../../root/builddir/include/TVersionCheck.h \
+		../../../root/builddir/include/TQObject.h \
+		../../../root/builddir/include/TError.h \
+		../../../root/builddir/include/TList.h \
+		../../../root/builddir/include/TSeqCollection.h \
+		../../../root/builddir/include/TCollection.h \
+		../../../root/builddir/include/TIterator.h \
+		../../../root/builddir/include/TString.h \
+		../../../root/builddir/include/TMathBase.h \
+		../../../root/builddir/include/ROOT/RStringView.hxx \
+		../../../root/builddir/include/ROOT/RWrap_libcpp_string_view.h \
+		../../../root/builddir/include/ROOT/libcpp_string_view.h \
+		../../../root/builddir/include/ROOT/TypeTraits.hxx \
+		../../../root/builddir/include/ROOT/RSpan.hxx \
+		../../../root/builddir/include/ROOT/span.hxx \
+		../../../root/builddir/include/TVirtualRWMutex.h \
+		../../../root/builddir/include/TVirtualMutex.h \
+		../../../root/builddir/include/TVirtualQConnection.h \
+		../../../root/builddir/include/TInterpreter.h \
+		../../../root/builddir/include/TDictionary.h \
+		../../../root/builddir/include/TNamed.h \
+		../../../root/builddir/include/ESTLType.h \
+		../../../root/builddir/include/TQClass.h \
+		../../../root/builddir/include/TClass.h \
+		../../../root/builddir/include/TObjArray.h \
+		../../../root/builddir/include/TObjString.h \
+		../../../root/builddir/include/ThreadLocalStorage.h \
+		../../../root/builddir/include/TApplicationImp.h \
+		../../../root/builddir/include/TCanvas.h \
+		../../../root/builddir/include/TPad.h \
+		../../../root/builddir/include/TVirtualPad.h \
+		../../../root/builddir/include/TAttPad.h \
+		../../../root/builddir/include/TVirtualX.h \
+		../../../root/builddir/include/TAttLine.h \
+		../../../root/builddir/include/TAttFill.h \
+		../../../root/builddir/include/TAttText.h \
+		../../../root/builddir/include/TAttMarker.h \
+		../../../root/builddir/include/GuiTypes.h \
+		../../../root/builddir/include/Buttons.h \
+		../../../root/builddir/include/TAttBBox2D.h \
+		../../../root/builddir/include/TPoint.h \
+		../../../root/builddir/include/TAttCanvas.h \
+		../../../root/builddir/include/TCanvasImp.h \
+		../../../root/builddir/include/TFile.h \
+		../../../root/builddir/include/TDirectoryFile.h \
+		../../../root/builddir/include/TDirectory.h \
+		../../../root/builddir/include/TBuffer.h \
+		../../../root/builddir/include/TDatime.h \
+		../../../root/builddir/include/TUUID.h \
+		../../../root/builddir/include/TMap.h \
+		../../../root/builddir/include/THashTable.h \
+		../../../root/builddir/include/TUrl.h \
+		../../../root/builddir/include/ROOT/TRWSpinLock.hxx \
+		../../../root/builddir/include/ROOT/TSpinMutex.hxx \
+		../../../root/builddir/include/ROOT/RConcurrentHashColl.hxx \
+		../../../root/builddir/include/TGraph.h \
+		../../../root/builddir/include/TVectorFfwd.h \
+		../../../root/builddir/include/TVectorDfwd.h \
+		../../../root/builddir/include/TFitResultPtr.h \
+		../../../root/builddir/include/TGraphErrors.h \
+		../../../root/builddir/include/TH1F.h \
+		../../../root/builddir/include/TH1.h \
+		../../../root/builddir/include/TAxis.h \
+		../../../root/builddir/include/TAttAxis.h \
+		../../../root/builddir/include/TArrayD.h \
+		../../../root/builddir/include/TArray.h \
+		../../../root/builddir/include/TArrayC.h \
+		../../../root/builddir/include/TArrayS.h \
+		../../../root/builddir/include/TArrayI.h \
+		../../../root/builddir/include/TArrayF.h \
+		../../../root/builddir/include/Foption.h \
+		../../../root/builddir/include/Fit/FitExecutionPolicy.h \
+		../../../root/builddir/include/TH2F.h \
+		../../../root/builddir/include/TH2.h \
+		../../../root/builddir/include/TMatrixFBasefwd.h \
+		../../../root/builddir/include/TMatrixDBasefwd.h \
+		../../../root/builddir/include/TH3F.h \
+		../../../root/builddir/include/TH3.h \
+		../../../root/builddir/include/TAtt3D.h \
+		../../../root/builddir/include/TStyle.h \
+		../../../root/builddir/include/TColor.h \
+		../../../root/builddir/include/TTree.h \
+		../../../root/builddir/include/ROOT/TIOFeatures.hxx \
+		../../../root/builddir/include/TBasket.h \
+		../../../root/builddir/include/TKey.h \
+		../../../root/builddir/include/TBranch.h \
+		../../../root/builddir/include/TDataType.h \
+		../../../root/builddir/include/TBranchCacheInfo.h \
+		../../../root/builddir/include/TBits.h \
+		../../../root/builddir/include/TVirtualTreePlayer.h \
+		../../../root/builddir/include/TROOT.h \
+		../../../root/builddir/include/TPaveStats.h \
+		../../../root/builddir/include/TPaveText.h \
+		../../../root/builddir/include/TPave.h \
+		../../../root/builddir/include/TBox.h \
+		../../../root/builddir/include/TText.h \
+		../../../root/builddir/include/TLine.h \
+		../../../root/builddir/include/TArrow.h \
+		../../../root/builddir/include/TLatex.h \
+		../../../root/builddir/include/TF1.h \
+		../../../root/builddir/include/TFormula.h \
+		../../../root/builddir/include/TMethodCall.h \
+		../../../root/builddir/include/Math/Types.h \
+		../../../root/builddir/include/TF1AbsComposition.h \
+		../../../root/builddir/include/TMath.h \
+		../../../root/builddir/include/Math/ParamFunctor.h \
+		../../../root/builddir/include/TLegend.h \
+		../../../root/builddir/include/TProfile.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o article_stability.o ../Source/article_stability.cpp
+
+s1_analysis.o: ../Source/s1_analysis.cpp ../../../root/builddir/include/TApplication.h \
+		../../../root/builddir/include/TObject.h \
+		../../../root/builddir/include/RConfigure.h \
+		../../../root/builddir/include/Rtypes.h \
+		../../../root/builddir/include/RtypesCore.h \
+		../../../root/builddir/include/ROOT/RConfig.h \
+		../../../root/builddir/include/RVersion.h \
+		../../../root/builddir/include/DllImport.h \
+		../../../root/builddir/include/snprintf.h \
+		../../../root/builddir/include/strlcpy.h \
+		../../../root/builddir/include/TGenericClassInfo.h \
+		../../../root/builddir/include/TSchemaHelper.h \
+		../../../root/builddir/include/TIsAProxy.h \
+		../../../root/builddir/include/TVirtualIsAProxy.h \
+		../../../root/builddir/include/TStorage.h \
+		../../../root/builddir/include/TVersionCheck.h \
+		../../../root/builddir/include/TQObject.h \
+		../../../root/builddir/include/TError.h \
+		../../../root/builddir/include/TList.h \
+		../../../root/builddir/include/TSeqCollection.h \
+		../../../root/builddir/include/TCollection.h \
+		../../../root/builddir/include/TIterator.h \
+		../../../root/builddir/include/TString.h \
+		../../../root/builddir/include/TMathBase.h \
+		../../../root/builddir/include/ROOT/RStringView.hxx \
+		../../../root/builddir/include/ROOT/RWrap_libcpp_string_view.h \
+		../../../root/builddir/include/ROOT/libcpp_string_view.h \
+		../../../root/builddir/include/ROOT/TypeTraits.hxx \
+		../../../root/builddir/include/ROOT/RSpan.hxx \
+		../../../root/builddir/include/ROOT/span.hxx \
+		../../../root/builddir/include/TVirtualRWMutex.h \
+		../../../root/builddir/include/TVirtualMutex.h \
+		../../../root/builddir/include/TVirtualQConnection.h \
+		../../../root/builddir/include/TInterpreter.h \
+		../../../root/builddir/include/TDictionary.h \
+		../../../root/builddir/include/TNamed.h \
+		../../../root/builddir/include/ESTLType.h \
+		../../../root/builddir/include/TQClass.h \
+		../../../root/builddir/include/TClass.h \
+		../../../root/builddir/include/TObjArray.h \
+		../../../root/builddir/include/TObjString.h \
+		../../../root/builddir/include/ThreadLocalStorage.h \
+		../../../root/builddir/include/TApplicationImp.h \
+		../../../root/builddir/include/TCanvas.h \
+		../../../root/builddir/include/TPad.h \
+		../../../root/builddir/include/TVirtualPad.h \
+		../../../root/builddir/include/TAttPad.h \
+		../../../root/builddir/include/TVirtualX.h \
+		../../../root/builddir/include/TAttLine.h \
+		../../../root/builddir/include/TAttFill.h \
+		../../../root/builddir/include/TAttText.h \
+		../../../root/builddir/include/TAttMarker.h \
+		../../../root/builddir/include/GuiTypes.h \
+		../../../root/builddir/include/Buttons.h \
+		../../../root/builddir/include/TAttBBox2D.h \
+		../../../root/builddir/include/TPoint.h \
+		../../../root/builddir/include/TAttCanvas.h \
+		../../../root/builddir/include/TCanvasImp.h \
+		../../../root/builddir/include/TFile.h \
+		../../../root/builddir/include/TDirectoryFile.h \
+		../../../root/builddir/include/TDirectory.h \
+		../../../root/builddir/include/TBuffer.h \
+		../../../root/builddir/include/TDatime.h \
+		../../../root/builddir/include/TUUID.h \
+		../../../root/builddir/include/TMap.h \
+		../../../root/builddir/include/THashTable.h \
+		../../../root/builddir/include/TUrl.h \
+		../../../root/builddir/include/ROOT/TRWSpinLock.hxx \
+		../../../root/builddir/include/ROOT/TSpinMutex.hxx \
+		../../../root/builddir/include/ROOT/RConcurrentHashColl.hxx \
+		../../../root/builddir/include/TGraph.h \
+		../../../root/builddir/include/TVectorFfwd.h \
+		../../../root/builddir/include/TVectorDfwd.h \
+		../../../root/builddir/include/TFitResultPtr.h \
+		../../../root/builddir/include/TH1F.h \
+		../../../root/builddir/include/TH1.h \
+		../../../root/builddir/include/TAxis.h \
+		../../../root/builddir/include/TAttAxis.h \
+		../../../root/builddir/include/TArrayD.h \
+		../../../root/builddir/include/TArray.h \
+		../../../root/builddir/include/TArrayC.h \
+		../../../root/builddir/include/TArrayS.h \
+		../../../root/builddir/include/TArrayI.h \
+		../../../root/builddir/include/TArrayF.h \
+		../../../root/builddir/include/Foption.h \
+		../../../root/builddir/include/Fit/FitExecutionPolicy.h \
+		../../../root/builddir/include/TH2F.h \
+		../../../root/builddir/include/TH2.h \
+		../../../root/builddir/include/TMatrixFBasefwd.h \
+		../../../root/builddir/include/TMatrixDBasefwd.h \
+		../../../root/builddir/include/TStyle.h \
+		../../../root/builddir/include/TColor.h \
+		../../../root/builddir/include/TTree.h \
+		../../../root/builddir/include/ROOT/TIOFeatures.hxx \
+		../../../root/builddir/include/TBasket.h \
+		../../../root/builddir/include/TKey.h \
+		../../../root/builddir/include/TBranch.h \
+		../../../root/builddir/include/TDataType.h \
+		../../../root/builddir/include/TBranchCacheInfo.h \
+		../../../root/builddir/include/TBits.h \
+		../../../root/builddir/include/TVirtualTreePlayer.h \
+		../../../root/builddir/include/TROOT.h \
+		../../../root/builddir/include/TPaveStats.h \
+		../../../root/builddir/include/TPaveText.h \
+		../../../root/builddir/include/TPave.h \
+		../../../root/builddir/include/TBox.h \
+		../../../root/builddir/include/TText.h \
+		../../../root/builddir/include/TLine.h \
+		../../../root/builddir/include/TArrow.h \
+		../../../root/builddir/include/TLatex.h \
+		../../../root/builddir/include/TF1.h \
+		../../../root/builddir/include/TFormula.h \
+		../../../root/builddir/include/TMethodCall.h \
+		../../../root/builddir/include/Math/Types.h \
+		../../../root/builddir/include/TF1AbsComposition.h \
+		../../../root/builddir/include/TMath.h \
+		../../../root/builddir/include/Math/ParamFunctor.h \
+		../../../root/builddir/include/TLegend.h \
+		../../../root/builddir/include/TProfile.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o s1_analysis.o ../Source/s1_analysis.cpp
+
+article_uniformity.o: ../Source/article_uniformity.cpp ../../../root/builddir/include/TApplication.h \
+		../../../root/builddir/include/TObject.h \
+		../../../root/builddir/include/RConfigure.h \
+		../../../root/builddir/include/Rtypes.h \
+		../../../root/builddir/include/RtypesCore.h \
+		../../../root/builddir/include/ROOT/RConfig.h \
+		../../../root/builddir/include/RVersion.h \
+		../../../root/builddir/include/DllImport.h \
+		../../../root/builddir/include/snprintf.h \
+		../../../root/builddir/include/strlcpy.h \
+		../../../root/builddir/include/TGenericClassInfo.h \
+		../../../root/builddir/include/TSchemaHelper.h \
+		../../../root/builddir/include/TIsAProxy.h \
+		../../../root/builddir/include/TVirtualIsAProxy.h \
+		../../../root/builddir/include/TStorage.h \
+		../../../root/builddir/include/TVersionCheck.h \
+		../../../root/builddir/include/TQObject.h \
+		../../../root/builddir/include/TError.h \
+		../../../root/builddir/include/TList.h \
+		../../../root/builddir/include/TSeqCollection.h \
+		../../../root/builddir/include/TCollection.h \
+		../../../root/builddir/include/TIterator.h \
+		../../../root/builddir/include/TString.h \
+		../../../root/builddir/include/TMathBase.h \
+		../../../root/builddir/include/ROOT/RStringView.hxx \
+		../../../root/builddir/include/ROOT/RWrap_libcpp_string_view.h \
+		../../../root/builddir/include/ROOT/libcpp_string_view.h \
+		../../../root/builddir/include/ROOT/TypeTraits.hxx \
+		../../../root/builddir/include/ROOT/RSpan.hxx \
+		../../../root/builddir/include/ROOT/span.hxx \
+		../../../root/builddir/include/TVirtualRWMutex.h \
+		../../../root/builddir/include/TVirtualMutex.h \
+		../../../root/builddir/include/TVirtualQConnection.h \
+		../../../root/builddir/include/TInterpreter.h \
+		../../../root/builddir/include/TDictionary.h \
+		../../../root/builddir/include/TNamed.h \
+		../../../root/builddir/include/ESTLType.h \
+		../../../root/builddir/include/TQClass.h \
+		../../../root/builddir/include/TClass.h \
+		../../../root/builddir/include/TObjArray.h \
+		../../../root/builddir/include/TObjString.h \
+		../../../root/builddir/include/ThreadLocalStorage.h \
+		../../../root/builddir/include/TApplicationImp.h \
+		../../../root/builddir/include/TCanvas.h \
+		../../../root/builddir/include/TPad.h \
+		../../../root/builddir/include/TVirtualPad.h \
+		../../../root/builddir/include/TAttPad.h \
+		../../../root/builddir/include/TVirtualX.h \
+		../../../root/builddir/include/TAttLine.h \
+		../../../root/builddir/include/TAttFill.h \
+		../../../root/builddir/include/TAttText.h \
+		../../../root/builddir/include/TAttMarker.h \
+		../../../root/builddir/include/GuiTypes.h \
+		../../../root/builddir/include/Buttons.h \
+		../../../root/builddir/include/TAttBBox2D.h \
+		../../../root/builddir/include/TPoint.h \
+		../../../root/builddir/include/TAttCanvas.h \
+		../../../root/builddir/include/TCanvasImp.h \
+		../../../root/builddir/include/TFile.h \
+		../../../root/builddir/include/TDirectoryFile.h \
+		../../../root/builddir/include/TDirectory.h \
+		../../../root/builddir/include/TBuffer.h \
+		../../../root/builddir/include/TDatime.h \
+		../../../root/builddir/include/TUUID.h \
+		../../../root/builddir/include/TMap.h \
+		../../../root/builddir/include/THashTable.h \
+		../../../root/builddir/include/TUrl.h \
+		../../../root/builddir/include/ROOT/TRWSpinLock.hxx \
+		../../../root/builddir/include/ROOT/TSpinMutex.hxx \
+		../../../root/builddir/include/ROOT/RConcurrentHashColl.hxx \
+		../../../root/builddir/include/TGraph.h \
+		../../../root/builddir/include/TVectorFfwd.h \
+		../../../root/builddir/include/TVectorDfwd.h \
+		../../../root/builddir/include/TFitResultPtr.h \
+		../../../root/builddir/include/TH1F.h \
+		../../../root/builddir/include/TH1.h \
+		../../../root/builddir/include/TAxis.h \
+		../../../root/builddir/include/TAttAxis.h \
+		../../../root/builddir/include/TArrayD.h \
+		../../../root/builddir/include/TArray.h \
+		../../../root/builddir/include/TArrayC.h \
+		../../../root/builddir/include/TArrayS.h \
+		../../../root/builddir/include/TArrayI.h \
+		../../../root/builddir/include/TArrayF.h \
+		../../../root/builddir/include/Foption.h \
+		../../../root/builddir/include/Fit/FitExecutionPolicy.h \
+		../../../root/builddir/include/TH2F.h \
+		../../../root/builddir/include/TH2.h \
+		../../../root/builddir/include/TMatrixFBasefwd.h \
+		../../../root/builddir/include/TMatrixDBasefwd.h \
+		../../../root/builddir/include/TH3F.h \
+		../../../root/builddir/include/TH3.h \
+		../../../root/builddir/include/TAtt3D.h \
+		../../../root/builddir/include/TStyle.h \
+		../../../root/builddir/include/TColor.h \
+		../../../root/builddir/include/TTree.h \
+		../../../root/builddir/include/ROOT/TIOFeatures.hxx \
+		../../../root/builddir/include/TBasket.h \
+		../../../root/builddir/include/TKey.h \
+		../../../root/builddir/include/TBranch.h \
+		../../../root/builddir/include/TDataType.h \
+		../../../root/builddir/include/TBranchCacheInfo.h \
+		../../../root/builddir/include/TBits.h \
+		../../../root/builddir/include/TVirtualTreePlayer.h \
+		../../../root/builddir/include/TROOT.h \
+		../../../root/builddir/include/TPaveStats.h \
+		../../../root/builddir/include/TPaveText.h \
+		../../../root/builddir/include/TPave.h \
+		../../../root/builddir/include/TBox.h \
+		../../../root/builddir/include/TText.h \
+		../../../root/builddir/include/TLine.h \
+		../../../root/builddir/include/TArrow.h \
+		../../../root/builddir/include/TLatex.h \
+		../../../root/builddir/include/TF1.h \
+		../../../root/builddir/include/TFormula.h \
+		../../../root/builddir/include/TMethodCall.h \
+		../../../root/builddir/include/Math/Types.h \
+		../../../root/builddir/include/TF1AbsComposition.h \
+		../../../root/builddir/include/TMath.h \
+		../../../root/builddir/include/Math/ParamFunctor.h \
+		../../../root/builddir/include/TLegend.h \
+		../../../root/builddir/include/TProfile.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o article_uniformity.o ../Source/article_uniformity.cpp
 
 ####### Install
 
