@@ -35,8 +35,8 @@
 
 using namespace std;
 
-int run_number_kr = 966 /*1061*/;
-int run_number_bkg = 963 /*1059*/;
+int run_number_kr = 1106 /*966*/ /*1061*/;
+int run_number_bkg = 1059 /*963*/ /*1059*/;
 
 void CheckFile(TString filename, TFile *f)
 {
@@ -56,14 +56,14 @@ void article_uniformity()
     vector<double> x_centers = {0.625, 1.875, 3.125, 4.375};
     vector<double> y_centers = {0.416667, 1.25, 2.08333, 2.91667, 3.75, 4.58333};
 
-    int S2_n_bins = 35;//PE
-    double S2_max = 15000 /*17000*/;
-    double y_range_min = -50;
+    int S2_n_bins = 80/*35*/;//PE
+    double S2_max = 25000 /*17000*/;
+    double y_range_min = -5;
     double y_range_max = 120 /*25*/;
 
     //S1 cut for Kr
-    double S1_left_cut_sig = 350/*400*/;
-    double S1_right_cut_sig = 550/*600*/;
+    double S1_left_cut_sig = 400 /*350*/ /*400*/;
+    double S1_right_cut_sig = 530 /*550*/ /*800*/;
 
     //settings for Kr/Bkg normalisation
     double S2_max_right_tail = 30000;
@@ -250,7 +250,7 @@ void article_uniformity()
 
     }
 
-    double Corr_factor_S1 = 7.0;//test
+    double Corr_factor_S1 = 0.0;//test
     //double Corr_factor_S2 = Corr_factor_S1;
 
     //double Corr_factor_S1 = h1_S1_total_right_tail_kr->GetEntries() / h1_S1_total_right_tail_bkg->GetEntries();
@@ -263,49 +263,49 @@ void article_uniformity()
     COUT(h1_S1_total_bkg->GetEntries());
 
     //draw full S2 distributions to choose Kr/bkg normalization
-    TCanvas *c4 = new TCanvas("c4","c4");
-    c4->Divide(2,2,0.01,0.01);
+//    TCanvas *c4 = new TCanvas("c4","c4");
+//    c4->Divide(2,2,0.01,0.01);
 
-    c4->cd(1);
-    h1_S1_total_kr->Draw();
-    h1_S1_total_bkg->Draw("same");
-    h1_S1_total_kr->SetTitle("Kr vs. bkg before correction.");
-    h1_S1_total_kr->GetXaxis()->SetTitle("S1 [PE]");
-    h1_S1_total_bkg->SetFillColor(kRed);
-    h1_S1_total_bkg->SetFillStyle(3002);
-
-
-    c4->cd(2);
-//    h1_S2_total_right_tail_kr->Draw();
-//    h1_S2_total_right_tail_kr->GetXaxis()->SetTitle("S2 [PE]");
-
-    h1_S2_total_kr->Draw();
-    h1_S2_total_bkg->Draw("same");
-    h1_S2_total_kr->SetTitle("Kr vs. bkg before correction.");
-    h1_S2_total_kr->GetXaxis()->SetTitle("S2 [PE]");
-    h1_S2_total_bkg->SetFillColor(kRed);
-    h1_S2_total_bkg->SetFillStyle(3002);
-
-    c4->cd(3);
-    h1_S1_total_bkg_corr->Add(h1_S1_total_bkg, Corr_factor_S1);
-    h1_S1_total_bkg_corr->Draw();
-    h1_S1_total_bkg_corr->GetXaxis()->SetTitle("S1 [PE]");
-    h1_S1_total_bkg_corr->SetTitle("Kr vs. bkg after correction.");
-    h1_S1_total_bkg_corr->SetFillColor(kRed);
-    h1_S1_total_bkg_corr->SetFillStyle(3002);
-    h1_S1_total_kr->Draw("same");
+//    c4->cd(1);
+//    h1_S1_total_kr->Draw();
+//    h1_S1_total_bkg->Draw("same");
+//    h1_S1_total_kr->SetTitle("Kr vs. bkg before correction.");
+//    h1_S1_total_kr->GetXaxis()->SetTitle("S1 [PE]");
+//    h1_S1_total_bkg->SetFillColor(kRed);
+//    h1_S1_total_bkg->SetFillStyle(3002);
 
 
-    c4->cd(4);
-    //h1_S2_total_right_tail_bkg->Draw();
+//    c4->cd(2);
+////    h1_S2_total_right_tail_kr->Draw();
+////    h1_S2_total_right_tail_kr->GetXaxis()->SetTitle("S2 [PE]");
 
-    h1_S2_total_bkg_corr->Add(h1_S2_total_bkg, Corr_factor_S2);
-    h1_S2_total_bkg_corr->Draw();
-    h1_S2_total_bkg_corr->GetXaxis()->SetTitle("S2 [PE]");
-    h1_S2_total_bkg_corr->SetTitle("Kr vs. bkg after correction.");
-    h1_S2_total_bkg_corr->SetFillColor(kRed);
-    h1_S2_total_bkg_corr->SetFillStyle(3002);
-    h1_S2_total_kr->Draw("same");
+//    h1_S2_total_kr->Draw();
+//    h1_S2_total_bkg->Draw("same");
+//    h1_S2_total_kr->SetTitle("Kr vs. bkg before correction.");
+//    h1_S2_total_kr->GetXaxis()->SetTitle("S2 [PE]");
+//    h1_S2_total_bkg->SetFillColor(kRed);
+//    h1_S2_total_bkg->SetFillStyle(3002);
+
+//    c4->cd(3);
+//    h1_S1_total_bkg_corr->Add(h1_S1_total_bkg, Corr_factor_S1);
+//    h1_S1_total_bkg_corr->Draw();
+//    h1_S1_total_bkg_corr->GetXaxis()->SetTitle("S1 [PE]");
+//    h1_S1_total_bkg_corr->SetTitle("Kr vs. bkg after correction.");
+//    h1_S1_total_bkg_corr->SetFillColor(kRed);
+//    h1_S1_total_bkg_corr->SetFillStyle(3002);
+//    h1_S1_total_kr->Draw("same");
+
+
+//    c4->cd(4);
+//    //h1_S2_total_right_tail_bkg->Draw();
+
+//    h1_S2_total_bkg_corr->Add(h1_S2_total_bkg, Corr_factor_S2);
+//    h1_S2_total_bkg_corr->Draw();
+//    h1_S2_total_bkg_corr->GetXaxis()->SetTitle("S2 [PE]");
+//    h1_S2_total_bkg_corr->SetTitle("Kr vs. bkg after correction.");
+//    h1_S2_total_bkg_corr->SetFillColor(kRed);
+//    h1_S2_total_bkg_corr->SetFillStyle(3002);
+//    h1_S2_total_kr->Draw("same");
 
 
 
@@ -320,7 +320,7 @@ void article_uniformity()
         h1_S2_maxch_vec_bkg[i]->Draw("hist same");
         h1_S2_maxch_vec_bkg[i]->SetFillColor(kRed);
         h1_S2_maxch_vec_bkg[i]->SetFillStyle(3002);
-        h1_S2_maxch_vec_kr[i]->GetYaxis()->SetRangeUser(y_range_min, y_range_max);
+        //h1_S2_maxch_vec_kr[i]->GetYaxis()->SetRangeUser(y_range_min, y_range_max);
 
         h1_S2_maxch_vec_kr_bkg[i]->Add(h1_S2_maxch_vec_bkg[i], -1);
         h1_S2_maxch_vec_kr_bkg[i]->Draw("hist same");
@@ -338,7 +338,7 @@ void article_uniformity()
         h1_S2_maxch_vec_bkg[i+12]->Draw("hist same");
         h1_S2_maxch_vec_bkg[i+12]->SetFillColor(kRed);
         h1_S2_maxch_vec_bkg[i+12]->SetFillStyle(3002);
-        h1_S2_maxch_vec_kr[i+12]->GetYaxis()->SetRangeUser(y_range_min, y_range_max);
+        //h1_S2_maxch_vec_kr[i+12]->GetYaxis()->SetRangeUser(y_range_min, y_range_max);
 
         h1_S2_maxch_vec_kr_bkg[i+12]->Add(h1_S2_maxch_vec_bkg[i+12], -1);
         h1_S2_maxch_vec_kr_bkg[i+12]->Draw("hist same");
@@ -426,7 +426,8 @@ void article_uniformity()
 
     ostringstream h2_S2_total_rel_name;
     h2_S2_total_rel_name << "S2 relative charge. Kr run: " << run_number_kr << ". Bkg run: " << run_number_bkg;
-    h2_S2_total_rel->SetTitle(h2_S2_total_rel_name.str().c_str());
+    //h2_S2_total_rel->SetTitle(h2_S2_total_rel_name.str().c_str());
+    h2_S2_total_rel->SetTitle("");
     h2_S2_total_rel->GetXaxis()->SetTitle("x [cm]");
     h2_S2_total_rel->GetYaxis()->SetTitle("y [cm]");
     gStyle->SetPaintTextFormat("2.2f");
@@ -438,5 +439,9 @@ void article_uniformity()
 
     h2_S2_total_rel->GetZaxis()->SetRangeUser(min, max);
     h2_S2_total_rel->Draw("z same");
+
+    {
+       // TCanvas *c5 = new TCanvas("c5","c5");
+    }
 
 }
