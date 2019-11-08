@@ -38,11 +38,14 @@
 
 void sub_main2()
 {
-    int run_number = 1033;
+    int run_number = 1071;
 
     //main code
     ostringstream path_root_file;
-    path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
+    if(run_number >= 743 && run_number <= 1034)
+        path_root_file << "/media/vlad/Data/DS-data/reco/camp_VII/v3/" << "run_" << run_number << ".root";
+    else if(run_number >= 1040)
+        path_root_file << "/media/vlad/Data/DS-data/reco/camp_VIII/" << "run_" << run_number << ".root";
     TString filename = path_root_file.str().c_str();
 
     TFile *f = new TFile(filename, "read");
@@ -82,26 +85,29 @@ void sub_main2()
         if(nc == 1)
         {
             h1_S1_f90_1cl->Fill(clusters.at(0)->f90);
-            h1_S1_tot_1cl->Fill(clusters.at(0)->f90);
+            h1_S1_tot_1cl->Fill(clusters.at(0)->charge);
         }
 
         if(nc == 2 /*&& clusters.at(0)->f90 > 0.3*/ /*&& clusters.at(1)->f90 < 0.1*/ /* && clusters.at(0)->f90 > 0.3 && clusters.at(0)->f90 < 0.4*/)
         {
-            h1_S1_f90_2cl->Fill(clusters.at(0)->f90);
-            h1_S2_f90_2cl->Fill(clusters.at(1)->f90);
-            S1_f90_2cl_vec.push_back(clusters.at(0)->f90);
-            S2_f90_2cl_vec.push_back(clusters.at(1)->f90);
+            if(true && clusters.at(0)->f90 > 0.2 && clusters.at(1)->f90 < 0.2)
+            {
+                h1_S1_f90_2cl->Fill(clusters.at(0)->f90);
+                h1_S2_f90_2cl->Fill(clusters.at(1)->f90);
+                S1_f90_2cl_vec.push_back(clusters.at(0)->f90);
+                S2_f90_2cl_vec.push_back(clusters.at(1)->f90);
 
-            Tdrift = (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000;
-            Tdrift_vec.push_back(Tdrift);
-            S2_S1_vec.push_back(clusters.at(1)->charge/clusters.at(0)->charge);
-            h2_S2_S1_tdrift->Fill(Tdrift, clusters.at(1)->charge/clusters.at(0)->charge);
+                Tdrift = (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000;
+                Tdrift_vec.push_back(Tdrift);
+                S2_S1_vec.push_back(clusters.at(1)->charge/clusters.at(0)->charge);
+                h2_S2_S1_tdrift->Fill(Tdrift, clusters.at(1)->charge/clusters.at(0)->charge);
+            }
         }
 
     }
 
     TCanvas *c1 = new TCanvas("c1","Analysis");
-    c1->Divide(2,2,0.01,0.01);
+    c1->Divide(3,2,0.01,0.01);
     c1->cd(1);
     h1_S1_f90_1cl->Draw();
     h1_S1_f90_1cl->Scale(1/h1_S1_f90_1cl->Integral());
@@ -132,6 +138,12 @@ void sub_main2()
     gr_S2_S1_Tdrift->Draw("AP");
     gr_S2_S1_Tdrift->SetMarkerStyle(20);
     gr_S2_S1_Tdrift->GetXaxis()->SetTitle("TDrift [us]");
+
+    c1->cd(5);
+    h1_S1_tot_1cl->Draw();
+
+    c1->cd(6);
+    h2_S2_S1_tdrift->Draw();
 
 
 }

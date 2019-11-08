@@ -22,6 +22,7 @@
 #include "TF1.h"
 #include "TLegend.h"
 #include "TProfile.h"
+#include "TGaxis.h"
 
 
 //Red
@@ -36,7 +37,7 @@
 using namespace std;
 
 
-int run_number = 1042;
+int run_number = 1269;
 
 void s1_analysis()
 {
@@ -58,6 +59,11 @@ void s1_analysis()
         cout << "File has been opened correctly: " << filename << endl;
     }
 
+    double S1_max = 2000;
+
+    TH1F *h1_S1_total = new TH1F("h1_S1_total", "h1_S1_total", 400, 0, S1_max);
+    TH1F *h1_S1_f90 = new TH1F("h1_S1_f90", "h1_S1_f90", 400, -0.2, 1);
+
     TTree *data = (TTree*)f->Get("reco");
     EvRec0* evReco = new EvRec0();
     data->SetBranchAddress("recoevent",&evReco);
@@ -69,13 +75,24 @@ void s1_analysis()
 
         if(clusters.size() == 1)
         {
-            if()
+            if(clusters.at(0)->f90 > 0.2)
             {
-
+                h1_S1_total->Fill(clusters.at(0)->charge);
+                h1_S1_f90->Fill(clusters.at(0)->f90);
             }
         }
 
     }
+
+
+    h1_S1_total->Draw();
+    double low = 0;
+    double high = 100;
+    gPad->Update();
+    TGaxis *axis = new TGaxis(gPad->GetUxmin(),gPad->GetUymax(),gPad->GetUxmax(),gPad->GetUymax(),low,high,510,"-L");
+    //TGaxis *axis = new TGaxis(0,175,2000,175,low,high,510,"");
+    //TGaxis *axis = new TGaxis(h1_S1_total->GetXaxis()->GetXmin(),h1_S1_total->GetYaxis()->GetXmin(),h1_S1_total->GetXaxis()->GetXmax(),h1_S1_total->GetYaxis()->GetXmin(),low,high,510,"");
+    axis->Draw();
 
 
 }

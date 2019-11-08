@@ -51,9 +51,29 @@ void compare()
 {
     //vector<int> run_list{1051, 1057, 1059, 1066};
     //vector<int> run_list{1134, 1135, 1092, 1079, 1083, 1085, 1089};
+    //vector<int> run_list{1092, 1079, 1083, 1085, 1089};
 
-    vector<int> run_list{1093, 1097, 1098, 1099};
-    vector<int> lifetimes{770, 620, 700, 870};
+    //GP formation
+    //vector<int> run_list{1104, 1225, 1230, 1231, 1232, 1233, 1234};
+    //vector<int> run_list{1225, 1230, 1233, 1234, 1236, 1238};
+    //vector<int> run_list{1230, 1231, 1232, 1233, 1234, 1236};
+
+    //Bubbler voltage
+    //vector<int> run_list{1071 ,1073, 1074, 1075, 1077};
+    //vector<int> run_list{1079, 1083, 1085, 1089};
+
+    //Field leakage
+    //vector<int> run_list{1097, 1098, 1099};
+    //vector<int> run_list{1269, 1268, 1266, 1267};
+    vector<int> run_list{1268, 1266, 1267};
+
+    //Ring potential
+    //vector<int> run_list{1249, 1251, 1253, 1254, 1255};
+
+    //GP thickness
+    //vector<int> run_list{1093, 1097, 1098, 1099};    
+    //vector<int> lifetimes{770, 620, 700, 870};
+
     //vector<double> correstions{1.0, 1.0, 1.0, 1.0};
     //vector<double> corrections_S2{12150.0/12150.0, 12150.0/16500.0 * 1.01, 12150.0/21700.0 * 0.98, 12150.0/27300.0 * 0.97}; //S2 vs Tdrift
     //vector<double> corrections_S1{645.0/645.0, 645.0/654.0, 645.0/647.0, 645.0/642.0}; //S1 vs Tdrift
@@ -63,7 +83,7 @@ void compare()
 //    vector<int> run_list{1085, 1102, 1104};
 //    vector<int> lifetimes{1770, 334, 467};
 
-    //vector<int> lifetimes;
+    vector<int> lifetimes;
 
     //vector<int> run_list{1118,1110,1106,1107,1109};
 
@@ -74,15 +94,17 @@ void compare()
     //string plot_type = "S1";
     //string plot_type = "S2";
     //string plot_type = "S2_over_S1";
-    //string plot_type = "tdrift";
+    string plot_type = "tdrift";
     //string plot_type = "S2_total_tdrift";
     //string plot_type = "S1_total_tdrift";
-    string plot_type = "TBA";
+    //string plot_type = "TBA";
 
 
     double S1_max = 2000;
     double S2_max = /*25000*/ 45000 /*12000*/;
-    double S2_S1_max = 40;
+    double S2_S1_max = 80 /*40*/;
+    double S2_over_S1_bins = 200;
+    int tdrift_bins = 101 * 1.3 /*6 or 2*/;
 
     vector<TH1F*> h1_S1_vec(run_list.size());
     vector<TH1F*> h1_Tdrift_vec(run_list.size());
@@ -112,32 +134,52 @@ void compare()
         if(run_list[i] == 1066)
             h1_Tdrift_vec_name << "Am GP 1.4W 5211/156/-744";
 
+        if(run_list[i] == 1073)
+            h1_Tdrift_vec_name << "V_Bubbler = 0 V";
+
+        if(run_list[i] == 1074)
+            h1_Tdrift_vec_name << "V_Bubbler = 4 V";
+
+        if(run_list[i] == 1075)
+            h1_Tdrift_vec_name << "V_Bubbler = 8 V";
+
+        if(run_list[i] == 1077)
+            h1_Tdrift_vec_name << "V_Bubbler = 12 V";
+
         if(run_list[i] == 1079)
-            h1_Tdrift_vec_name << "Am GP 16V 5211/156/-744";
+            //h1_Tdrift_vec_name << "Am GP 16V 5211/156/-744";
+            h1_Tdrift_vec_name << "V_Bubbler = 16 V";
 
         if(run_list[i] == 1083)
-            h1_Tdrift_vec_name << "Am GP 18V 5211/156/-744";
+            //h1_Tdrift_vec_name << "Am GP 18V 5211/156/-744";
+            h1_Tdrift_vec_name << "V_Bubbler = 18 V";
 
         if(run_list[i] == 1085)
-            h1_Tdrift_vec_name << "Am GP 20V 5211/156/-744";
+            //h1_Tdrift_vec_name << "Am GP 20V 5211/156/-744";
+            h1_Tdrift_vec_name << "V_Bubbler = 20 V";
 
         if(run_list[i] == 1089)
-            h1_Tdrift_vec_name << "Am GP 24V 5211/156/-744";
+            //h1_Tdrift_vec_name << "Am GP 24V 5211/156/-744";
+            h1_Tdrift_vec_name << "V_Bubbler = 24 V";
 
         if(run_list[i] == 1092)
             h1_Tdrift_vec_name << "Am GP 15V 5211/156/-744";
 
         if(run_list[i] == 1093)
-            h1_Tdrift_vec_name << "Am GP 1.99W 5211/156/-744";
+            //h1_Tdrift_vec_name << "Am GP 1.99W 5211/156/-744";
+            h1_Tdrift_vec_name << " +5211/+156/-744";
 
         if(run_list[i] == 1097)
-            h1_Tdrift_vec_name << "Am GP 1.99W 5500/156/-744";
+            //h1_Tdrift_vec_name << "Am GP 1.99W 5500/156/-744";
+            h1_Tdrift_vec_name << " +5500/+156/-744";
 
         if(run_list[i] == 1098)
-            h1_Tdrift_vec_name << "Am GP 1.99W 6000/156/-744";
+            //h1_Tdrift_vec_name << "Am GP 1.99W 6000/156/-744";
+            h1_Tdrift_vec_name << " +6000/+156/-744";
 
         if(run_list[i] == 1099)
-            h1_Tdrift_vec_name << "Am GP 1.99W 6500/156/-744";
+            //h1_Tdrift_vec_name << "Am GP 1.99W 6500/156/-744";
+            h1_Tdrift_vec_name << " +6500/+156/-744";
 
         if(run_list[i] == 1102)
             h1_Tdrift_vec_name << "Am GP 20V 5211/16/-744";
@@ -168,10 +210,61 @@ void compare()
             h1_Tdrift_vec_name << "Am GP 14.5V 5211/+86/-744";
         //h1_Tdrift_vec_name << "Am GP 14.5V 5211/+86/-744 1078-1087mbar";
 
+        if(run_list[i] == 1225)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
 
-        h1_S2_over_S1_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S2_over_S1").c_str() , h1_Tdrift_vec_name.str().c_str(), 100, 0, 30);
-        h1_S1_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S1").c_str() , h1_Tdrift_vec_name.str().c_str(), 400, 0, 1000);
-        h1_Tdrift_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "Tdrift").c_str() , h1_Tdrift_vec_name.str().c_str(), 101*4, -1, 100);
+        if(run_list[i] == 1230)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1231)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1232)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1233)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1234)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1236)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1238)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1249)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1251)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/16/-744";
+
+        if(run_list[i] == 1253)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/16/-744";
+
+        if(run_list[i] == 1254)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/156/-744";
+
+        if(run_list[i] == 1255)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/226/-744";
+
+        if(run_list[i] == 1266)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1267)
+            h1_Tdrift_vec_name << "Am GP 20V 6500/86/-744";
+
+        if(run_list[i] == 1268)
+            h1_Tdrift_vec_name << "Am GP 20V 3780/86/-744";
+
+        if(run_list[i] == 1269)
+            h1_Tdrift_vec_name << "Am GP 20V 0/86/-744";
+
+
+        h1_S2_over_S1_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S2_over_S1").c_str() , h1_Tdrift_vec_name.str().c_str(), S2_over_S1_bins, 0, S2_S1_max);
+        h1_S1_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S1").c_str() , h1_Tdrift_vec_name.str().c_str(), 200, 0, 1000);
+        h1_Tdrift_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "Tdrift").c_str() , h1_Tdrift_vec_name.str().c_str(), tdrift_bins, -1, 100);
         h1_TBA_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "TBA").c_str() , h1_Tdrift_vec_name.str().c_str(), 100, -1, 1);
         h1_S2_total_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S2_total").c_str() , h1_Tdrift_vec_name.str().c_str(), /*400*/200, -100, S2_max);
         h2_S2_total_tdrift_vec[i] = new TH2F( (h1_Tdrift_vec_name.str() + "S2_total_tdrift").c_str(), h1_Tdrift_vec_name.str().c_str(), /*150*/50, 0, 100, 200, 0, S2_max );
@@ -205,13 +298,18 @@ void compare()
             data->GetEntry(ev);
             vector<RDCluster*> clusters = evReco->GetClusters();
 
-            if(clusters.size() == 1)
+            if(clusters.size() == 1 && run_list[i] == 1269)
             {
+                bool cut_f90 = clusters.at(0)->f90 > 0.2;
+                if(cut_f90)
+                {
+                    h1_S1_vec[i]->Fill(clusters.at(0)->charge);
+                }
 
             }
 
 
-            if(clusters.size() == 2)
+            if(clusters.size() == 2 && run_list[i] != 1269)
             {
                 bool cut_f90 = clusters.at(0)->f90 > 0.2 && clusters.at(1)->f90 < 0.2;
                 bool cut_S1_total = clusters.at(0)->charge > 400 && clusters.at(0)->charge < 800;
@@ -222,7 +320,12 @@ void compare()
                 double Tdrift = (clusters.at(1)->cdf_time - clusters.at(0)->cdf_time) * 2./1000;
                 bool Tdrift_30_50us = Tdrift > 30 && Tdrift < 50;
 
-                if (cut_f90 && clusters.at(0)->rep == 1 /*&& Tdrift_30_50us*/ && cut_S1_total /*&& cut_S2_total*/ /*&& !cental_8_sipms_x*/ )
+                bool ev_cut = true;
+                if( run_list[i] == 1079 && (ev < 20000) ) ev_cut = false;
+
+                if (cut_f90 && clusters.at(0)->rep == 1 /*&& Tdrift_30_50us*/
+                        /*&& cut_S1_total*/ /*&& cut_S2_total*/ && cental_8_sipms_x
+                        && ev_cut)
                 {
                     n_events_after_cuts++;
 
@@ -232,8 +335,8 @@ void compare()
                     h1_S2_over_S1_vec[i]->Fill(clusters.at(1)->charge/clusters.at(0)->charge);
 
 
-                    h2_S2_total_tdrift_vec[i]->Fill(Tdrift, clusters.at(1)->charge * corrections_S2[i]);
-                    h2_S1_total_tdrift_vec[i]->Fill(Tdrift, clusters.at(0)->charge * corrections_S1[i]);
+                    h2_S2_total_tdrift_vec[i]->Fill(Tdrift, clusters.at(1)->charge /* * corrections_S2[i]*/);
+                    h2_S1_total_tdrift_vec[i]->Fill(Tdrift, clusters.at(0)->charge /* * corrections_S1[i]*/);
 
                     if(lifetimes.size() == 0)
                         h1_S2_total_vec[i]->Fill(clusters.at(1)->charge);
@@ -311,6 +414,7 @@ void compare()
             if(plot_type == "S1_total_tdrift")
             {
                 profile_S1_total_tdrift_vec[i]->Draw("HIST pL");
+                //profile_S1_total_tdrift_vec[i]->Draw("pL");
             }
         }
         else
@@ -318,7 +422,10 @@ void compare()
            if (plot_type == "tdrift") h1_Tdrift_vec[i]->Draw("HIST SAME");
            if(plot_type == "S2") h1_S2_total_vec[i]->Draw("HIST SAME");
            if(plot_type == "S2_total_tdrift") profile_S2_total_tdrift_vec[i]->Draw("same HIST pL");
+
            if(plot_type == "S1_total_tdrift") profile_S1_total_tdrift_vec[i]->Draw("same HIST pL");
+           //if(plot_type == "S1_total_tdrift") profile_S1_total_tdrift_vec[i]->Draw("same pL");
+
            if(plot_type == "S1") h1_S1_vec[i]->Draw("HIST SAME");
            if(plot_type == "S2_over_S1") h1_S2_over_S1_vec[i]->Draw("HIST SAME");
         }
@@ -382,7 +489,7 @@ void compare()
     }
     if(plot_type == "S1")
     {
-        h1_S1_vec[0]->GetXaxis()->SetTitle("S1 [pe]");
+        h1_S1_vec[0]->GetXaxis()->SetTitle("S1 [PE]");
         h1_S1_vec[0]->SetTitle("");
     }
 
@@ -395,13 +502,13 @@ void compare()
     if(plot_type == "S2_total_tdrift")
     {
         profile_S2_total_tdrift_vec[0]->GetXaxis()->SetTitle("Tdrift [us]");
-        //profile_S2_total_tdrift_vec[0]->GetYaxis()->SetTitle("S2_total [PE]");
-        profile_S2_total_tdrift_vec[0]->GetYaxis()->SetTitle("S2_total [Arb. units]");
+        profile_S2_total_tdrift_vec[0]->GetYaxis()->SetTitle("S2_total [PE]");
+        //profile_S2_total_tdrift_vec[0]->GetYaxis()->SetTitle("S2_total [Arb. units]");
         profile_S2_total_tdrift_vec[0]->SetTitle("");
         gPad->Update();
         profile_S2_total_tdrift_vec[0]->SetStats(0);
         profile_S2_total_tdrift_vec[0]->GetXaxis()->SetRangeUser(15,60);
-        profile_S2_total_tdrift_vec[0]->GetYaxis()->SetRangeUser(10000,12000);
+        profile_S2_total_tdrift_vec[0]->GetYaxis()->SetRangeUser(9000,13000);
         gPad->Update(); gPad->Modified();
     }
     if(plot_type == "S1_total_tdrift")

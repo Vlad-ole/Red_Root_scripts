@@ -35,7 +35,7 @@
 
 using namespace std;
 
-int run_number_kr = 1106 /*966*/ /*1061*/;
+int run_number_kr = 1104 /*966*/ /*1061*/;
 int run_number_bkg = 1059 /*963*/ /*1059*/;
 
 void CheckFile(TString filename, TFile *f)

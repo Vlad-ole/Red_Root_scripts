@@ -46,7 +46,22 @@ SOURCES += \
     sub_main4.cpp \
     article_stability.cpp \
     s1_analysis.cpp \
-    article_uniformity.cpp
+    article_uniformity.cpp \
+    sub_main5.cpp \
+    article_s2_rel_charge_rms.cpp \
+    article_s2_vs_time.cpp \
+    saturation.cpp \
+    article_y_n.cpp \
+    article_gas_pocket_thickness.cpp \
+    article_s2_rms.cpp \
+    article_s2_yield.cpp \
+    test2.cpp \
+    test3.cpp \
+    article_drift.cpp \
+    larproperties.C \
+    ser.cpp \
+    dokebirks_new.C \
+    article_quenching.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 

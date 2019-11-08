@@ -48,15 +48,31 @@ bool cut_loop2_bool = false;
 using namespace std;
 
 
-int run_number = 1225;
+//int run_number = 1099;
+//double e_lifetime = 700;
+
+int run_number = 1261;
+double e_lifetime = 1E6;
 
 
 void s2_analysis()
 {
-    string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch S2_max_ch_h2 more_plots To_print lifetime";//all
-    //string draw_plots = "more_plots lifetime S2_p2";
+    //string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch S2_max_ch_h2 more_plots To_print lifetime S2_bottom_vec";//all
+    string draw_plots = "S1 S2_p1 S2_p2 S2_uniformity_gr S2_uniformity_h2 S2_uniformity_ch S2_max_ch_h2 more_plots lifetime S2_bottom_vec";//standart
+    //string draw_plots = "S1 S2_p1 S2_uniformity_ch";
+    //string draw_plots = "S1 S2_p1 S2_p2 more_plots S2_uniformity_ch lifetime";
     //string draw_plots = "S1 S2_p1 S2_p2 more_plots";
-    //string draw_plots = "S1 S2_p1 S2_p2 more_plots";
+
+    //string center_border = "all";
+    string center_border = "center";
+    //string center_border = "border";
+
+    string ev_part = "all";
+    //string ev_part = "p1";
+    //string ev_part = "p2";
+
+    COUT(center_border);
+    COUT(ev_part);
 
     ostringstream path_root_file;
     if(run_number >= 743 && run_number <= 1034)
@@ -96,8 +112,10 @@ void s2_analysis()
 
     //Kr83
 //    double S1_max = 800;
-//    double S2_max = 20000;
+//    double S2_max = 35000;
 //    double S2_S1_max = 40;
+//    double S1_low_cut = 380;
+//    double S1_high_cut = 500;
 
     //Am E_EL = 4.2kV
 //    double S1_max = 1000;
@@ -109,14 +127,33 @@ void s2_analysis()
 //    double S2_max = 20000;
 //    double S2_S1_max = 40;
 
-    //Am arb.
+    //Am arb. 5211, 86, -744
     double S1_max = 2000;
-    double S2_max = 30000 /*45000*/;
-    double S2_S1_max = /*40*/ 40;
-    double S1_low_cut = 400;
-    double S1_high_cut = 800;//Am
-    //double S1_high_cut = 530;//Kr
-    //double S1_TBA_mean = -0.1953;
+    double S2_max = 10000 /*50000*/;
+    double S2_S1_max = 80/*80*/;
+    double S1_low_cut = 400/*400*/;
+    double S1_high_cut = 800/*800*/;
+
+
+    //Bkg 5211, 86, -744
+//    double S1_max = 10000;
+//    double S2_max = 35000;
+//    double S2_S1_max = 80;
+//    double S1_low_cut = 100;
+//    double S1_high_cut = 30000;
+
+    double S2_sum_of_means = 0;
+    double S2_sum_of_means_center = 0;
+    double S2_sum_of_means_border = 0;
+
+    double S2_rel_charge_mean = 0;
+    double S2_rel_charge_sigma = 0;
+
+    double S2_rel_charge_center_mean = 0;
+    double S2_rel_charge_center_sigma = 0;
+
+    double S2_rel_charge_border_mean = 0;
+    double S2_rel_charge_border_sigma = 0;
 
     //double range_scale = 1;
     vector<double> x_centers = {0.625, 1.875, 3.125, 4.375};
@@ -174,7 +211,7 @@ void s2_analysis()
     S1_ch_avr_v.resize(24);
 
 
-    //S2 uniformity
+    //S2 uniformity top
     TH2F* h2_S2_total_rel = new TH2F("h2_S2_total_rel","h2_S2_total_rel",4,0,5,6,0,5);
     TH2F* h2_S2_max_ch = new TH2F("h2_S2_max_ch","h2_S2_max_ch",4,0,5,6,0,5);
     vector<TH1F*> h1_S2_maxch_vec;
@@ -189,16 +226,31 @@ void s2_analysis()
     vector<double> ch_number_v;
     S2_mean_v.resize(24);
     ch_number_v.resize(24);
+    vector<double> S2_mean_center_v(24);
+    vector<double> S2_mean_border_v(24);
+
+    //S2_bottom
+    vector<TH1F*> h1_S2_bottom_vec;
+    for(int i = 0; i < 4; i++)
+    {
+        ostringstream oss;
+        oss << "h1_S2_bottom_vec" << i;
+        h1_S2_bottom_vec.push_back( new TH1F(oss.str().c_str(), oss.str().c_str(), 400, -100, 5000) );
+    }
 
     //general
     TH1F *h1_Tdrift = new TH1F("h1 Tdrift", "h1 Tdrift", (Tdrift_max + 1.0), -1, Tdrift_max);
     TH1F *h1_nc = new TH1F("h1_nc", "h1_nc", 200, 0, 10);
 
+    //Saturation
+    //TH2F *h2_S2_amp_S2_charge = new TH2F("h2_S2_amp_S2_charge", "h2_S2_amp_S2_charge", 500, 0, S2_max*0.5, 500, 0, 50000);
+    TGraph *gr_S2_amp_S2_charge;
+    vector<double> S2_amp_v;
+    vector<double> S2_charge_v;
 
 
     double S2_ev_par0 = 911.403;
     double S2_ev_par1 = 0;
-
 
 
     //prepare values for TBA corrections
@@ -206,18 +258,41 @@ void s2_analysis()
     {
         data->GetEntry(ev);
         vector<RDCluster*> clusters = evReco->GetClusters();
+
+
         if(clusters.size() == 2)
         {
             double TBA_S1 = (clusters.at(0)->tot_charge_top - clusters.at(0)->tot_charge_bottom) / (clusters.at(0)->tot_charge_top + clusters.at(0)->tot_charge_bottom);
             bool cut_f90 = clusters.at(0)->f90 > 0.2 && clusters.at(1)->f90 < 0.2;
             bool cut_S1_total = clusters.at(0)->charge > S1_low_cut && clusters.at(0)->charge < S1_high_cut;
+            bool cental_8_sipms_x = clusters.at(1)->pos_x > 1.3 && clusters.at(1)->pos_x < 3.7 &&
+                    clusters.at(1)->pos_y > 0.9 && clusters.at(1)->pos_y < 4.2;
 
-            if(cut_f90 && cut_S1_total && clusters.at(0)->rep == 1)
+            bool is_center_border = false;
+            if(center_border == "all")
+                is_center_border = true;
+            else if(center_border == "center")
+                is_center_border = cental_8_sipms_x;
+            else if (center_border == "border")
+                is_center_border = !cental_8_sipms_x;
+
+            bool is_p1 = ev < (max_ev_number/2) ? true : false;
+            bool is_ev_part = false;
+            if(ev_part == "all")
+                is_ev_part = true;
+            else if(ev_part == "p1")
+                is_ev_part = is_p1;
+            else if (ev_part == "p2")
+                is_ev_part = !is_p1;
+
+            if(/*ev>2000 &&*/ cut_f90 && cut_S1_total && clusters.at(0)->rep == 1 && is_center_border && is_ev_part)
             {
+
                 h2_S1_TBA->Fill(TBA_S1, clusters.at(0)->charge);
                 h1_S1_TBA->Fill(TBA_S1);
             }
         }
+
     }
     h2_S1_TBA->GetYaxis()->SetRangeUser(S1_low_cut, S1_high_cut);
     TProfile *prof_h2_S1_TBA = h2_S1_TBA->ProfileX();
@@ -243,7 +318,7 @@ void s2_analysis()
     S1_TBA_inter.SetData(prof_h2_S1_TBA_bin_pos.size(), &prof_h2_S1_TBA_bin_pos[0], &prof_h2_S1_TBA_bin_content[0]);
 
     double S1_TBA_mean = h1_S1_TBA->GetMean();
-    COUT(S1_TBA_mean);
+    (S1_TBA_mean);
 
 
     for (int ev = 0; ev < data->GetEntries(); ev++)
@@ -262,15 +337,33 @@ void s2_analysis()
             bool cut_f90 = clusters.at(0)->f90 > 0.2 && clusters.at(1)->f90 < 0.2;
             bool cut_S1_total = clusters.at(0)->charge > S1_low_cut && clusters.at(0)->charge < S1_high_cut;
             bool cut_S2_total = clusters.at(1)->charge > 500 && clusters.at(1)->charge < 1500;
-//            bool cut_S1_total = true;
-//            bool cut_S2_total = true;
+            bool cental_8_sipms_x = clusters.at(1)->pos_x > 1.3 && clusters.at(1)->pos_x < 3.7 &&
+                    clusters.at(1)->pos_y > 0.9 && clusters.at(1)->pos_y < 4.2;
 
-            if(cut_f90 && cut_S1_total /*&& cut_S2_total*/ && clusters.at(0)->rep == 1 /*&&
-                    clusters.at(1)->charge/clusters.at(0)->charge > 5*/
-                    /*&& clusters.at(1)->f90 < 0.05 && clusters.at(1)->f90 > 0*/)
+            bool is_center_border = false;
+            if(center_border == "all")
+                is_center_border = true;
+            else if(center_border == "center")
+                is_center_border = cental_8_sipms_x;
+            else if (center_border == "border")
+                is_center_border = !cental_8_sipms_x;
+
+            bool is_p1 = ev < (max_ev_number/2) ? true : false;
+            bool is_ev_part = false;
+            if(ev_part == "all")
+                is_ev_part = true;
+            else if(ev_part == "p1")
+                is_ev_part = is_p1;
+            else if (ev_part == "p2")
+                is_ev_part = !is_p1;
+
+
+            if(/*ev>2000 &&*/ cut_f90 && cut_S1_total && clusters.at(0)->rep == 1 && is_center_border && is_ev_part)
             {
                 //general
                 h1_Tdrift->Fill(Tdrift);
+
+                //(ev);
 
 
                 double S1_corr = clusters.at(0)->charge * S1_TBA_inter.Eval(S1_TBA_mean)/S1_TBA_inter.Eval(TBA_S1);
@@ -290,7 +383,8 @@ void s2_analysis()
                 h2_S1_TBA_corr->Fill(TBA_S1, S1_corr);
 
                 //S2
-                h1_S2_S1_ratio->Fill(clusters.at(1)->charge/clusters.at(0)->charge);
+                h1_S2_S1_ratio->Fill(clusters.at(1)->charge/clusters.at(0)->charge * exp(Tdrift/e_lifetime) );
+                //h1_S2_S1_ratio->Fill(clusters.at(1)->charge/S1_corr * exp(Tdrift/e_lifetime) );
                 h1_S2_total->Fill(clusters.at(1)->charge);
                 h1_S2_f90->Fill(clusters.at(1)->f90);
                 h1_S2_top->Fill(clusters.at(1)->tot_charge_top);
@@ -304,6 +398,14 @@ void s2_analysis()
                 h2_S2_bot_S2_top->Fill(clusters.at(1)->tot_charge_top, clusters.at(1)->tot_charge_bottom);
                 h2_S2_S1_TBA_corr_ratio_tdrift->Fill(Tdrift, clusters.at(1)->charge / S1_corr);
 
+                for(int i=0; i < 4; i++)
+                {
+                    h1_S2_bottom_vec[i]->Fill( clusters.at(1)->charge_bottom[i] );
+                }
+
+                //saturation
+                S2_amp_v.push_back( evReco->GetBaseMean().at(10) - evReco->GetYmin().at(10) );
+                S2_charge_v.push_back( clusters.at(1)->charge );
 
                 //S2 uniformity
                 double epsilon = 0.01;
@@ -320,7 +422,7 @@ void s2_analysis()
                             n_events_test++;
 //                                if(ev == 5)
 //                                {
-//                                    cout << clusters.at(1)->pos_x << "\t" << clusters.at(1)->pos_y << "\t" << k << "\t" << j << "\t" << x_centers[k] << "\t" << y_centers[j] << endl;
+//                                     << clusters.at(1)->pos_x << "\t" << clusters.at(1)->pos_y << "\t" << k << "\t" << j << "\t" << x_centers[k] << "\t" << y_centers[j] << endl;
 //                                }
                         }
                     }
@@ -331,7 +433,7 @@ void s2_analysis()
                 double S2_ev_corr = clusters.at(1)->charge + S2_ev_par1*(max_ev_number/2.0 - ev);
                 h2_S2_total_evcorr_tdrift->Fill(Tdrift, S2_ev_corr);
                 //h2_S2_TBA->Fill(TBA_S1, clusters.at(1)->charge);
-                //cout << "S2 = " << clusters.at(1)->charge << "; S2_ev_corr = " << S2_ev_corr << endl;
+                // << "S2 = " << clusters.at(1)->charge << "; S2_ev_corr = " << S2_ev_corr << endl;
 
                 //h1_S3_total->Fill(clusters.at(2)->charge);
 
@@ -358,6 +460,8 @@ void s2_analysis()
         TCanvas *c1 = new TCanvas("S1_analysis","S1_analysis");
         c1->Divide(3,2,0.01,0.01);
         vector<TPaveStats*> st_h1_S1(6);
+
+        COUT(h1_S1_total->GetMean());
 
         cd_i = 0;
         c1->cd(cd_i + 1);
@@ -434,6 +538,8 @@ void s2_analysis()
         c2->cd(cd_i + 1);
         h1_S2_total->Draw();
         h1_S2_total->GetXaxis()->SetTitle("[PE]");
+        COUT(h1_S2_total->GetMean());
+        COUT(h1_S2_total->GetRMS());
         gPad->Update();
         st_h1_S2[cd_i] = (TPaveStats*)h1_S2_total->GetListOfFunctions()->FindObject("stats");
         st_h1_S2[cd_i]->SetX1NDC(X1NDC); st_h1_S2[cd_i]->SetX2NDC(X2NDC);
@@ -630,8 +736,6 @@ void s2_analysis()
         h2_S2_bot_S2_top->GetYaxis()->SetTitle("S2_bottom [pe]");
         gPad->Modified(); gPad->Update();
 
-
-
         c4->cd(4);
         h2_S1_TBA_tdrift->Draw("colz");
         h2_S1_TBA_tdrift->GetXaxis()->SetTitle("Drift time [us]");
@@ -644,7 +748,13 @@ void s2_analysis()
         h2_S2_TBA_tdrift->GetYaxis()->SetTitle("S2 TBA");
         gPad->Modified(); gPad->Update();
 
-
+        c4->cd(3);
+        gr_S2_amp_S2_charge = new TGraph(S2_amp_v.size(), &S2_charge_v[0], &S2_amp_v[0]);
+        gr_S2_amp_S2_charge->Draw("AP");
+        gr_S2_amp_S2_charge->GetXaxis()->SetRangeUser(0, 50000);
+        gr_S2_amp_S2_charge->GetXaxis()->SetTitle("clusters.at(1)->charge");
+        gr_S2_amp_S2_charge->GetYaxis()->SetTitle("evReco->GetBaseMean().at(10) - evReco->GetYmin().at(10)");
+        gr_S2_amp_S2_charge->SetMarkerSize(1.2);
 
     }
 
@@ -653,9 +763,9 @@ void s2_analysis()
         TCanvas *c5 = new TCanvas("S2_uniformity_ch","S2_uniformity_ch");
         c5->Divide(4,6,0.01,0.01);
         vector<TPaveStats*> st_general_analysis(6);
-        double S2_sum_of_means = 0;
-        for(int i = 0; i < 24; i++)
-            S2_sum_of_means += h1_S2_maxch_vec[i]->GetMean();
+        //double S2_sum_of_means = 0;
+//        for(int i = 0; i < 24; i++)
+//            S2_sum_of_means += h1_S2_maxch_vec[i]->GetMean();
 
         for(int j = 0; j < 6; j++)
         {
@@ -669,25 +779,112 @@ void s2_analysis()
     }
 
     {
-        double S2_sum_of_means = 0;
+
+        S2_sum_of_means = 0;
         int n_ch_not_null =0;
+        int n_ch_not_null_center = 0;
+        int n_ch_not_null_border = 0;
         for(int i = 0; i < 24; i++)
         {
             S2_sum_of_means += h1_S2_maxch_vec[i]->GetMean();
             if( h1_S2_maxch_vec[i]->GetMean() )
                 n_ch_not_null++;
+
+            bool cental_ch = i==5 || i==6 || i==9 || i==10 || i==13 || i==14 || i==17 || i==18;
+            if(cental_ch)
+            {
+                S2_sum_of_means_center += h1_S2_maxch_vec[i]->GetMean();
+                n_ch_not_null_center++;
+            }
+
+            if(!cental_ch)
+            {
+                S2_sum_of_means_border += h1_S2_maxch_vec[i]->GetMean();
+                n_ch_not_null_border++;
+            }
         }
-        COUT(n_ch_not_null);
+//        COUT(n_ch_not_null);
+//        COUT(n_ch_not_null_center);
+//        COUT(n_ch_not_null_border);
 
         S2_sum_of_means /= n_ch_not_null;
+        S2_sum_of_means_center /= n_ch_not_null_center;
+        S2_sum_of_means_border /= n_ch_not_null_border;
+
+//        COUT(S2_sum_of_means);
+//        COUT(S2_sum_of_means_center);
+//        COUT(S2_sum_of_means_border);
+
+
         for(int i = 0; i < 24; i++)
         {
-            COUT(h1_S2_maxch_vec[i]->GetEntries());
+            //COUT(h1_S2_maxch_vec[i]->GetEntries());
             S2_mean_v[i] = h1_S2_maxch_vec[i]->GetMean()/S2_sum_of_means;
             ch_number_v[i] = i+1;
-            file_out_s2_uniformity << S2_mean_v[i] << endl;
-            file_out_xy_distr << h1_S2_maxch_vec[i]->GetEntries() << endl;
+            //file_out_s2_uniformity << S2_mean_v[i] << endl;
+            //file_out_xy_distr << h1_S2_maxch_vec[i]->GetEntries() << endl;
+            S2_rel_charge_mean += S2_mean_v[i];
+
+            bool cental_ch = i==5 || i==6 || i==9 || i==10 || i==13 || i==14 || i==17 || i==18;
+            if(cental_ch)
+            {
+                S2_mean_center_v[i] = h1_S2_maxch_vec[i]->GetMean()/S2_sum_of_means_center;
+                S2_rel_charge_center_mean += S2_mean_center_v[i];
+            }
+
+            if(!cental_ch)
+            {
+                S2_mean_border_v[i] = h1_S2_maxch_vec[i]->GetMean()/S2_sum_of_means_border;
+                S2_rel_charge_border_mean += S2_mean_border_v[i];
+            }
+
         }
+        S2_rel_charge_mean /= n_ch_not_null;
+        S2_rel_charge_center_mean /= n_ch_not_null_center;
+        S2_rel_charge_border_mean /= n_ch_not_null_border;
+
+        for(int i = 0; i < 24; i++)
+        {
+
+            bool cental_ch = i==5 || i==6 || i==9 || i==10 || i==13 || i==14 || i==17 || i==18;
+
+            if(S2_mean_v[i] != 0)
+            {
+                S2_rel_charge_sigma += pow(S2_mean_v[i] - S2_rel_charge_mean, 2.0);
+//                cout << i << "\t" << S2_mean_v[i] << "\t" << S2_rel_charge_mean << "\t"
+//                     << (S2_mean_v[i] - S2_rel_charge_mean)
+//                     << "\t" << pow(S2_mean_v[i] - S2_rel_charge_mean, 2.0) << endl;
+
+//                cout << i << "\t" << h1_S2_maxch_vec[i]->GetMean() << "\t" <<
+//                        S2_mean_v[i] << "\t" << S2_rel_charge_center_mean << "\t"
+//                     << (S2_mean_v[i] - S2_rel_charge_center_mean)
+//                     << "\t" << pow(S2_mean_v[i] - S2_rel_charge_center_mean, 2.0) << endl;
+
+                if(cental_ch)
+                {
+                    //cout << endl;
+                    S2_rel_charge_center_sigma += pow(S2_mean_center_v[i] - S2_rel_charge_center_mean, 2.0);
+//                    cout << i << "\t" << h1_S2_maxch_vec[i]->GetMean() << "\t" <<
+//                            S2_mean_center_v[i] << "\t" << S2_rel_charge_center_mean << "\t"
+//                         << (S2_mean_center_v[i] - S2_rel_charge_center_mean)
+//                         << "\t" << pow(S2_mean_center_v[i] - S2_rel_charge_center_mean, 2.0) << endl;
+
+                }
+
+                if(!cental_ch)
+                    S2_rel_charge_border_sigma += pow(S2_mean_border_v[i] - S2_rel_charge_border_mean, 2.0);
+
+            }
+        }
+        S2_rel_charge_sigma = sqrt(S2_rel_charge_sigma/(n_ch_not_null - 1));
+        S2_rel_charge_center_sigma = sqrt(S2_rel_charge_center_sigma/(n_ch_not_null_center - 1));
+        S2_rel_charge_border_sigma = sqrt(S2_rel_charge_border_sigma/(n_ch_not_null_border - 1));
+
+        COUT(S2_rel_charge_sigma);
+//        COUT(S2_rel_charge_center_sigma);
+//        COUT(S2_rel_charge_border_sigma);
+
+
     }
 
     if(draw_plots.find("S2_uniformity_gr") != std::string::npos)
@@ -747,7 +944,7 @@ void s2_analysis()
             //int yi = i/4 + 1;
             int yi = 6 - i/4;
             h2_S2_total_rel->SetBinContent(xi,yi,S2_mean_v[i]);
-            cout << i << "\t" << xi << "\t" << yi << "\t" << h2_S2_total_rel->GetBinContent(xi,yi) <<  endl;
+            //cout << i << "\t" << xi << "\t" << yi << "\t" << h2_S2_total_rel->GetBinContent(xi,yi) <<  endl;
             n_events++;
         }
 
@@ -897,7 +1094,7 @@ void s2_analysis()
     if(draw_plots.find("lifetime") != std::string::npos)
     {
         TCanvas *c10 = new TCanvas("lifetime","lifetime");
-        c10->Divide(3,2,0.02,0.02);
+        c10->Divide(3,2,0.01,0.01);
         vector<TPaveStats*> st_h1_S2_c10(6);
 
 
@@ -1119,9 +1316,24 @@ void s2_analysis()
         prof_h2_S1_TBA_corr->SetMarkerStyle(20);
         prof_h2_S1_TBA_corr->SetMarkerColor(kBlack);
         gPad->Modified(); gPad->Update();
-
-
     }
 
+
+    if(draw_plots.find("S2_bottom_vec") != std::string::npos)
+    {
+        TCanvas *c11 = new TCanvas("S2_bottom_uniformity_ch","S2_bottom_uniformity_ch");
+        c11->Divide(2,2,0.01,0.01);
+        vector<TPaveStats*> st_general_analysis(6);
+        //double S2_sum_of_means = 0;
+//        for(int i = 0; i < 24; i++)
+//            S2_sum_of_means += h1_S2_maxch_vec[i]->GetMean();
+
+        for(int i = 0; i < 4; i++)
+        {
+            int abs_index = i;
+            c11->cd(abs_index+1);
+            h1_S2_bottom_vec[abs_index]->Draw();
+        }
+    }
 
 }
