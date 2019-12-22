@@ -80,11 +80,11 @@ void article_gas_pocket_thickness()
 //    double LGAr_for_normalisation = LGAr_v[1];//cm
 
     //v3
-    double anode_grid_distance = 1.0;//cm
+    double anode_grid_distance = 1.08;//cm
     vector<double> LGAr_v{anode_grid_distance, 0.6, 0.3};
     double LGAr_for_normalisation = LGAr_v[1];//cm
 
-    double p = 1030;
+    double p = 1030 /*1120*/ /*1030*/;
     COUT(p);
     double p_min = p - 10;
     double p_max = p + 10;
@@ -232,7 +232,7 @@ void article_gas_pocket_thickness()
 
     gPad->BuildLegend();
 
-    TCanvas *c2 = new TCanvas("c2", "c2");
+    //TCanvas *c2 = new TCanvas("c2", "c2");
     COUT(extraxtion_eff(0.8))
 }
 

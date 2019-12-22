@@ -63,8 +63,8 @@ void s2_analysis()
     //string draw_plots = "S1 S2_p1 S2_p2 more_plots S2_uniformity_ch lifetime";
     //string draw_plots = "S1 S2_p1 S2_p2 more_plots";
 
-    //string center_border = "all";
-    string center_border = "center";
+    string center_border = "all";
+    //string center_border = "center";
     //string center_border = "border";
 
     string ev_part = "all";
@@ -129,7 +129,7 @@ void s2_analysis()
 
     //Am arb. 5211, 86, -744
     double S1_max = 2000;
-    double S2_max = 10000 /*50000*/;
+    double S2_max = 50000 /*50000*/;
     double S2_S1_max = 80/*80*/;
     double S1_low_cut = 400/*400*/;
     double S1_high_cut = 800/*800*/;
@@ -462,6 +462,7 @@ void s2_analysis()
         vector<TPaveStats*> st_h1_S1(6);
 
         COUT(h1_S1_total->GetMean());
+        COUT(h1_S1_TBA->GetMean());
 
         cd_i = 0;
         c1->cd(cd_i + 1);
@@ -1333,6 +1334,7 @@ void s2_analysis()
             int abs_index = i;
             c11->cd(abs_index+1);
             h1_S2_bottom_vec[abs_index]->Draw();
+            h1_S2_bottom_vec[abs_index]->GetXaxis()->SetTitle("[PE]");
         }
     }
 

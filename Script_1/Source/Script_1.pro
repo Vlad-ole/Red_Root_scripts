@@ -61,7 +61,14 @@ SOURCES += \
     larproperties.C \
     ser.cpp \
     dokebirks_new.C \
-    article_quenching.cpp
+    article_quenching.cpp \
+    article_quenching2.cpp \
+    article_quenching3.cpp \
+    article_s2_vs_time2.cpp \
+    log_temperature.cpp \
+    article_quenching4.cpp \
+    fixedrc1.cpp \
+    laser1.cpp
 
 INCLUDEPATH = /home/vlad/Soft/root/builddir/include/
 

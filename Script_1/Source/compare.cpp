@@ -53,6 +53,15 @@ void compare()
     //vector<int> run_list{1134, 1135, 1092, 1079, 1083, 1085, 1089};
     //vector<int> run_list{1092, 1079, 1083, 1085, 1089};
 
+    //S1_top S1_bottom stranges
+    //5211/86/-744
+    //vector<int> run_list{1104, 1225, 1261, 1262, 1266, 1281, 1284, 1285, 1286, 1287};
+    //vector<int> run_list{1104, 1225, 1242, 1261, 1262, 1281, 1284, 1286};
+    //vector<int> run_list{1104, 1261, 1262, 1284, 1286, 1287};
+
+    //S1-S2 Doke
+    //vector<int> run_list{1164, 1135, 1165, 1160, 1161};
+
     //GP formation
     //vector<int> run_list{1104, 1225, 1230, 1231, 1232, 1233, 1234};
     //vector<int> run_list{1225, 1230, 1233, 1234, 1236, 1238};
@@ -63,16 +72,19 @@ void compare()
     //vector<int> run_list{1079, 1083, 1085, 1089};
 
     //Field leakage
-    //vector<int> run_list{1097, 1098, 1099};
+    vector<int> run_list{1093, 1097, 1098, 1099};
+    //vector<int> run_list{1097, 1099};
     //vector<int> run_list{1269, 1268, 1266, 1267};
-    vector<int> run_list{1268, 1266, 1267};
+    //vector<int> run_list{1268, 1266, 1267};
 
     //Ring potential
     //vector<int> run_list{1249, 1251, 1253, 1254, 1255};
 
     //GP thickness
-    //vector<int> run_list{1093, 1097, 1098, 1099};    
+    //vector<int> run_list{1093, 1097, 1098, 1099};
+    //vector<int> run_list{1097, 1098, 1099};
     //vector<int> lifetimes{770, 620, 700, 870};
+    //vector<int> run_list{1093, 1099};
 
     //vector<double> correstions{1.0, 1.0, 1.0, 1.0};
     //vector<double> corrections_S2{12150.0/12150.0, 12150.0/16500.0 * 1.01, 12150.0/21700.0 * 0.98, 12150.0/27300.0 * 0.97}; //S2 vs Tdrift
@@ -91,30 +103,52 @@ void compare()
     TTree *data = NULL;
     EvRec0* evReco = NULL;
 
+    //string plot_type = "S1_f90";
     //string plot_type = "S1";
+    string plot_type = "S1_bottom";
+    //string plot_type = "S1_top";
     //string plot_type = "S2";
+    //string plot_type = "S2_bottom";
+    //string plot_type = "S2_top";
     //string plot_type = "S2_over_S1";
-    string plot_type = "tdrift";
+    //string plot_type = "tdrift";
     //string plot_type = "S2_total_tdrift";
+    //string plot_type = "S2_bottom_tdrift";
+    //string plot_type = "S2_top_tdrift";
     //string plot_type = "S1_total_tdrift";
+    //string plot_type = "S1_bottom_tdrift";
+    //string plot_type = "S1_top_tdrift";
     //string plot_type = "TBA";
 
 
     double S1_max = 2000;
-    double S2_max = /*25000*/ 45000 /*12000*/;
+    double S2_max = 45000 /*45000*/ /*12000*/;
     double S2_S1_max = 80 /*40*/;
     double S2_over_S1_bins = 200;
-    int tdrift_bins = 101 * 1.3 /*6 or 2*/;
+    int tdrift_bins = 101 * 6 /*6 or 2*/;
 
+    vector<TH1F*> h1_S1_f90_vec(run_list.size());
     vector<TH1F*> h1_S1_vec(run_list.size());
+    vector<TH1F*> h1_S1_bottom_vec(run_list.size());
+    vector<TH1F*> h1_S1_top_vec(run_list.size());
     vector<TH1F*> h1_Tdrift_vec(run_list.size());
     vector<TH1F*> h1_TBA_vec(run_list.size());
     vector<TH1F*> h1_S2_total_vec(run_list.size());
+    vector<TH1F*> h1_S2_bottom_vec(run_list.size());
+    vector<TH1F*> h1_S2_top_vec(run_list.size());
     vector<TH1F*> h1_S2_over_S1_vec(run_list.size());
     vector<TH2F*> h2_S2_total_tdrift_vec(run_list.size());
+    vector<TH2F*> h2_S2_bottom_tdrift_vec(run_list.size());
+    vector<TH2F*> h2_S2_top_tdrift_vec(run_list.size());
     vector<TH2F*> h2_S1_total_tdrift_vec(run_list.size());
+    vector<TH2F*> h2_S1_bottom_tdrift_vec(run_list.size());
+    vector<TH2F*> h2_S1_top_tdrift_vec(run_list.size());
     vector<TProfile*> profile_S2_total_tdrift_vec(run_list.size());
+    vector<TProfile*> profile_S2_bottom_tdrift_vec(run_list.size());
+    vector<TProfile*> profile_S2_top_tdrift_vec(run_list.size());
     vector<TProfile*> profile_S1_total_tdrift_vec(run_list.size());
+    vector<TProfile*> profile_S1_bottom_tdrift_vec(run_list.size());
+    vector<TProfile*> profile_S1_top_tdrift_vec(run_list.size());
 
 
     for(int i = 0; i < run_list.size(); i++)
@@ -249,6 +283,18 @@ void compare()
         if(run_list[i] == 1255)
             h1_Tdrift_vec_name << "Am GP 20V 5211/226/-744";
 
+        if(run_list[i] == 1261)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1262)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1263)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1264)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
         if(run_list[i] == 1266)
             h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
 
@@ -261,14 +307,39 @@ void compare()
         if(run_list[i] == 1269)
             h1_Tdrift_vec_name << "Am GP 20V 0/86/-744";
 
+        if(run_list[i] == 1281)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
 
+        if(run_list[i] == 1284)
+            h1_Tdrift_vec_name << "Am GP 20V 5211/86/-744";
+
+        if(run_list[i] == 1285)
+            h1_Tdrift_vec_name << "Am GP 0V 5211/86/-744";
+
+        if(run_list[i] == 1286)
+            h1_Tdrift_vec_name << "Am GP 0V 5211/86/-744";
+
+        if(run_list[i] == 1287)
+            h1_Tdrift_vec_name << "Am GP 0V 5211/86/-744";
+
+
+        h1_S1_f90_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S1_f90").c_str() , h1_Tdrift_vec_name.str().c_str(), 200, -0.1, 1);
         h1_S2_over_S1_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S2_over_S1").c_str() , h1_Tdrift_vec_name.str().c_str(), S2_over_S1_bins, 0, S2_S1_max);
         h1_S1_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S1").c_str() , h1_Tdrift_vec_name.str().c_str(), 200, 0, 1000);
+        h1_S1_bottom_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S1_bottom").c_str() , h1_Tdrift_vec_name.str().c_str(), 200, 0, 1000);
+        h1_S1_top_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S1_top").c_str() , h1_Tdrift_vec_name.str().c_str(), 200, 0, 1000);
         h1_Tdrift_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "Tdrift").c_str() , h1_Tdrift_vec_name.str().c_str(), tdrift_bins, -1, 100);
         h1_TBA_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "TBA").c_str() , h1_Tdrift_vec_name.str().c_str(), 100, -1, 1);
         h1_S2_total_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S2_total").c_str() , h1_Tdrift_vec_name.str().c_str(), /*400*/200, -100, S2_max);
+        h1_S2_bottom_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S2_bottom").c_str() , h1_Tdrift_vec_name.str().c_str(), /*400*/200, -100, S2_max);
+        h1_S2_top_vec[i] = new TH1F( (h1_Tdrift_vec_name.str() + "S2_top").c_str() , h1_Tdrift_vec_name.str().c_str(), /*400*/200, -100, S2_max);
         h2_S2_total_tdrift_vec[i] = new TH2F( (h1_Tdrift_vec_name.str() + "S2_total_tdrift").c_str(), h1_Tdrift_vec_name.str().c_str(), /*150*/50, 0, 100, 200, 0, S2_max );
+        h2_S2_bottom_tdrift_vec[i] = new TH2F( (h1_Tdrift_vec_name.str() + "S2_bottom_tdrift").c_str(), h1_Tdrift_vec_name.str().c_str(), /*150*/50, 0, 100, 200, 0, S2_max/1.5 );
+        h2_S2_top_tdrift_vec[i] = new TH2F( (h1_Tdrift_vec_name.str() + "S2_top_tdrift").c_str(), h1_Tdrift_vec_name.str().c_str(), /*150*/50, 0, 100, 200, 0, S2_max/1.5 );
+
         h2_S1_total_tdrift_vec[i] = new TH2F( (h1_Tdrift_vec_name.str() + "S1_total_tdrift").c_str(), h1_Tdrift_vec_name.str().c_str(), /*150*/50, 0, 100, 200, 0, S1_max );
+        h2_S1_bottom_tdrift_vec[i] = new TH2F( (h1_Tdrift_vec_name.str() + "S1_bottom_tdrift").c_str(), h1_Tdrift_vec_name.str().c_str(), /*150*/50, 0, 100, 200, 0, S1_max/1.5 );
+        h2_S1_top_tdrift_vec[i] = new TH2F( (h1_Tdrift_vec_name.str() + "S1_top_tdrift").c_str(), h1_Tdrift_vec_name.str().c_str(), /*150*/50, 0, 100, 200, 0, S1_max/1.5 );
     }
 
 
@@ -305,7 +376,6 @@ void compare()
                 {
                     h1_S1_vec[i]->Fill(clusters.at(0)->charge);
                 }
-
             }
 
 
@@ -324,24 +394,39 @@ void compare()
                 if( run_list[i] == 1079 && (ev < 20000) ) ev_cut = false;
 
                 if (cut_f90 && clusters.at(0)->rep == 1 /*&& Tdrift_30_50us*/
-                        /*&& cut_S1_total*/ /*&& cut_S2_total*/ && cental_8_sipms_x
+                        && cut_S1_total /*&& cut_S2_total*/ && cental_8_sipms_x
                         && ev_cut)
                 {
                     n_events_after_cuts++;
 
                     h1_Tdrift_vec[i]->Fill(Tdrift);
 
+                    h1_S1_f90_vec[i]->Fill(clusters.at(0)->f90);
                     h1_S1_vec[i]->Fill(clusters.at(0)->charge);
+                    h1_S1_bottom_vec[i]->Fill(clusters.at(0)->tot_charge_bottom);
+                    h1_S1_top_vec[i]->Fill(clusters.at(0)->tot_charge_top);
                     h1_S2_over_S1_vec[i]->Fill(clusters.at(1)->charge/clusters.at(0)->charge);
 
 
                     h2_S2_total_tdrift_vec[i]->Fill(Tdrift, clusters.at(1)->charge /* * corrections_S2[i]*/);
+                    h2_S2_bottom_tdrift_vec[i]->Fill(Tdrift, clusters.at(1)->tot_charge_bottom /* * corrections_S2[i]*/);
+                    h2_S2_top_tdrift_vec[i]->Fill(Tdrift, clusters.at(1)->tot_charge_top /* * corrections_S2[i]*/);
+
+
                     h2_S1_total_tdrift_vec[i]->Fill(Tdrift, clusters.at(0)->charge /* * corrections_S1[i]*/);
+                    h2_S1_bottom_tdrift_vec[i]->Fill(Tdrift, clusters.at(0)->tot_charge_bottom /* * corrections_S1[i]*/);
+                    h2_S1_top_tdrift_vec[i]->Fill(Tdrift, clusters.at(0)->tot_charge_top /* * corrections_S1[i]*/);
 
                     if(lifetimes.size() == 0)
+                    {
                         h1_S2_total_vec[i]->Fill(clusters.at(1)->charge);
+                        h1_S2_bottom_vec[i]->Fill(clusters.at(1)->tot_charge_bottom);
+                        h1_S2_top_vec[i]->Fill(clusters.at(1)->tot_charge_top);
+                    }
                     else
+                    {
                        h1_S2_total_vec[i]->Fill( clusters.at(1)->charge * exp(Tdrift/lifetimes[i]) );
+                    }
                 }
 
             }
@@ -355,7 +440,7 @@ void compare()
     double Y1NDC = 0.7;
     double Y2NDC = 0.99;
     int cd_i = 0;
-    vector<int> hist_color = {kBlack, kRed, kBlue, kMagenta, kGreen, kYellow - 2, kAzure + 10};
+    vector<int> hist_color = {kBlack, kRed, kBlue, kMagenta, kGreen, kYellow - 2, kAzure + 10, kOrange + 3};
 
     TCanvas *c1 = new TCanvas("c1","c1");
     c1->Divide(1,1,0.01,0.01);
@@ -372,7 +457,34 @@ void compare()
         profile_S1_total_tdrift_vec[i]->SetLineColor(hist_color[i]);
         profile_S1_total_tdrift_vec[i]->SetLineWidth(3);
 
+        profile_S1_bottom_tdrift_vec[i] = h2_S1_bottom_tdrift_vec[i]->ProfileX();
+        profile_S1_bottom_tdrift_vec[i]->SetMarkerStyle(20);
+        profile_S1_bottom_tdrift_vec[i]->SetMarkerColor(hist_color[i]);
+        profile_S1_bottom_tdrift_vec[i]->SetLineColor(hist_color[i]);
+        profile_S1_bottom_tdrift_vec[i]->SetLineWidth(3);
+
+        profile_S1_top_tdrift_vec[i] = h2_S1_top_tdrift_vec[i]->ProfileX();
+        profile_S1_top_tdrift_vec[i]->SetMarkerStyle(20);
+        profile_S1_top_tdrift_vec[i]->SetMarkerColor(hist_color[i]);
+        profile_S1_top_tdrift_vec[i]->SetLineColor(hist_color[i]);
+        profile_S1_top_tdrift_vec[i]->SetLineWidth(3);
+
         profile_S2_total_tdrift_vec[i] = h2_S2_total_tdrift_vec[i]->ProfileX();
+        profile_S2_bottom_tdrift_vec[i] = h2_S2_bottom_tdrift_vec[i]->ProfileX();
+        profile_S2_top_tdrift_vec[i] = h2_S2_top_tdrift_vec[i]->ProfileX();
+
+
+        profile_S2_bottom_tdrift_vec[i]->SetMarkerStyle(20);
+        profile_S2_bottom_tdrift_vec[i]->SetMarkerColor(hist_color[i]);
+        profile_S2_bottom_tdrift_vec[i]->SetLineColor(hist_color[i]);
+        profile_S2_bottom_tdrift_vec[i]->SetLineWidth(3);
+
+        profile_S2_top_tdrift_vec[i]->SetMarkerStyle(20);
+        profile_S2_top_tdrift_vec[i]->SetMarkerColor(hist_color[i]);
+        profile_S2_top_tdrift_vec[i]->SetLineColor(hist_color[i]);
+        profile_S2_top_tdrift_vec[i]->SetLineWidth(3);
+
+
         profile_S2_total_tdrift_vec[i]->SetMarkerStyle(20);
         profile_S2_total_tdrift_vec[i]->SetMarkerColor(hist_color[i]);
         profile_S2_total_tdrift_vec[i]->SetLineColor(hist_color[i]);
@@ -387,10 +499,28 @@ void compare()
                 h1_Tdrift_vec[i]->SetStats(0);
             }
 
+            if (plot_type == "S1_f90")
+            {
+                h1_S1_f90_vec[i]->Draw("HIST");
+                h1_S1_f90_vec[i]->SetStats(0);
+            }
+
             if (plot_type == "S1")
             {
                 h1_S1_vec[i]->Draw("HIST");
                 h1_S1_vec[i]->SetStats(0);
+            }
+
+            if (plot_type == "S1_bottom")
+            {
+                h1_S1_bottom_vec[i]->Draw("HIST");
+                h1_S1_bottom_vec[i]->SetStats(0);
+            }
+
+            if (plot_type == "S1_top")
+            {
+                h1_S1_top_vec[i]->Draw("HIST");
+                h1_S1_top_vec[i]->SetStats(0);
             }
 
 
@@ -398,6 +528,18 @@ void compare()
             {
                 h1_S2_total_vec[i]->Draw("HIST");
                 h1_S2_total_vec[i]->SetStats(0);
+            }
+
+            if(plot_type == "S2_bottom")
+            {
+                h1_S2_bottom_vec[i]->Draw("HIST");
+                h1_S2_bottom_vec[i]->SetStats(0);
+            }
+
+            if(plot_type == "S2_top")
+            {
+                h1_S2_top_vec[i]->Draw("HIST");
+                h1_S2_top_vec[i]->SetStats(0);
             }
 
             if(plot_type == "S2_over_S1")
@@ -411,25 +553,53 @@ void compare()
             {
                 profile_S2_total_tdrift_vec[i]->Draw("HIST pL");
             }
+            if(plot_type == "S2_bottom_tdrift")
+            {
+                profile_S2_bottom_tdrift_vec[i]->Draw("HIST pL");
+            }
+            if(plot_type == "S2_top_tdrift")
+            {
+                profile_S2_top_tdrift_vec[i]->Draw("HIST pL");
+            }
             if(plot_type == "S1_total_tdrift")
             {
                 profile_S1_total_tdrift_vec[i]->Draw("HIST pL");
                 //profile_S1_total_tdrift_vec[i]->Draw("pL");
+            }
+            if(plot_type == "S1_bottom_tdrift")
+            {
+                profile_S1_bottom_tdrift_vec[i]->Draw("HIST pL");
+            }
+            if(plot_type == "S1_top_tdrift")
+            {
+                profile_S1_top_tdrift_vec[i]->Draw("HIST pL");
+                //profile_S1_top_tdrift_vec[i]->Draw("pL");
             }
         }
         else
         {
            if (plot_type == "tdrift") h1_Tdrift_vec[i]->Draw("HIST SAME");
            if(plot_type == "S2") h1_S2_total_vec[i]->Draw("HIST SAME");
+           if(plot_type == "S2_bottom") h1_S2_bottom_vec[i]->Draw("HIST SAME");
+           if(plot_type == "S2_top") h1_S2_top_vec[i]->Draw("HIST SAME");
            if(plot_type == "S2_total_tdrift") profile_S2_total_tdrift_vec[i]->Draw("same HIST pL");
+           if(plot_type == "S2_bottom_tdrift") profile_S2_bottom_tdrift_vec[i]->Draw("same HIST pL");
+           if(plot_type == "S2_top_tdrift") profile_S2_top_tdrift_vec[i]->Draw("same HIST pL");
 
            if(plot_type == "S1_total_tdrift") profile_S1_total_tdrift_vec[i]->Draw("same HIST pL");
+           if(plot_type == "S1_bottom_tdrift") profile_S1_bottom_tdrift_vec[i]->Draw("same HIST pL");
+
            //if(plot_type == "S1_total_tdrift") profile_S1_total_tdrift_vec[i]->Draw("same pL");
 
+           if(plot_type == "S1_top_tdrift") profile_S1_top_tdrift_vec[i]->Draw("same HIST pL");
+           //if(plot_type == "S1_top_tdrift") profile_S1_top_tdrift_vec[i]->Draw("same pL");
+
+           if(plot_type == "S1_f90") h1_S1_f90_vec[i]->Draw("HIST SAME");
            if(plot_type == "S1") h1_S1_vec[i]->Draw("HIST SAME");
+           if(plot_type == "S1_bottom") h1_S1_bottom_vec[i]->Draw("HIST SAME");
+           if(plot_type == "S1_top") h1_S1_top_vec[i]->Draw("HIST SAME");
            if(plot_type == "S2_over_S1") h1_S2_over_S1_vec[i]->Draw("HIST SAME");
         }
-
 
 
         if (plot_type == "tdrift")
@@ -439,6 +609,13 @@ void compare()
             legend->AddEntry(h1_Tdrift_vec[i],h1_Tdrift_vec[i]->GetTitle(),"lp");
         }
 
+        if(plot_type == "S1_f90")
+        {
+            h1_S1_f90_vec[i]->SetLineColor(hist_color[i]);
+            h1_S1_f90_vec[i]->Scale(1/h1_S1_f90_vec[i]->Integral());
+            legend->AddEntry(h1_S1_f90_vec[i],h1_S1_f90_vec[i]->GetTitle(),"lp");
+        }
+
         if(plot_type == "S1")
         {
             h1_S1_vec[i]->SetLineColor(hist_color[i]);
@@ -446,11 +623,39 @@ void compare()
             legend->AddEntry(h1_S1_vec[i],h1_S1_vec[i]->GetTitle(),"lp");
         }
 
+        if(plot_type == "S1_bottom")
+        {
+            h1_S1_bottom_vec[i]->SetLineColor(hist_color[i]);
+            h1_S1_bottom_vec[i]->Scale(1/h1_S1_bottom_vec[i]->Integral());
+            legend->AddEntry(h1_S1_bottom_vec[i],h1_S1_bottom_vec[i]->GetTitle(),"lp");
+        }
+
+        if(plot_type == "S1_top")
+        {
+            h1_S1_top_vec[i]->SetLineColor(hist_color[i]);
+            h1_S1_top_vec[i]->Scale(1/h1_S1_top_vec[i]->Integral());
+            legend->AddEntry(h1_S1_top_vec[i],h1_S1_top_vec[i]->GetTitle(),"lp");
+        }
+
         if(plot_type == "S2")
         {
             h1_S2_total_vec[i]->SetLineColor(hist_color[i]);
             h1_S2_total_vec[i]->Scale(1/h1_S2_total_vec[i]->Integral());
             legend->AddEntry(h1_S2_total_vec[i],h1_S2_total_vec[i]->GetTitle(),"lp");
+        }
+
+        if(plot_type == "S2_bottom")
+        {
+            h1_S2_bottom_vec[i]->SetLineColor(hist_color[i]);
+            h1_S2_bottom_vec[i]->Scale(1/h1_S2_bottom_vec[i]->Integral());
+            legend->AddEntry(h1_S2_bottom_vec[i],h1_S2_bottom_vec[i]->GetTitle(),"lp");
+        }
+
+        if(plot_type == "S2_top")
+        {
+            h1_S2_top_vec[i]->SetLineColor(hist_color[i]);
+            h1_S2_top_vec[i]->Scale(1/h1_S2_top_vec[i]->Integral());
+            legend->AddEntry(h1_S2_top_vec[i],h1_S2_top_vec[i]->GetTitle(),"lp");
         }
 
         if(plot_type == "S2_over_S1")
@@ -464,9 +669,25 @@ void compare()
         {
             legend->AddEntry(profile_S2_total_tdrift_vec[i],profile_S2_total_tdrift_vec[i]->GetTitle(),"lp");
         }
+        if(plot_type == "S2_bottom_tdrift")
+        {
+            legend->AddEntry(profile_S2_bottom_tdrift_vec[i],profile_S2_bottom_tdrift_vec[i]->GetTitle(),"lp");
+        }
+        if(plot_type == "S2_top_tdrift")
+        {
+            legend->AddEntry(profile_S2_top_tdrift_vec[i],profile_S2_top_tdrift_vec[i]->GetTitle(),"lp");
+        }
         if(plot_type == "S1_total_tdrift")
         {
             legend->AddEntry(profile_S1_total_tdrift_vec[i],profile_S1_total_tdrift_vec[i]->GetTitle(),"lp");
+        }
+        if(plot_type == "S1_bottom_tdrift")
+        {
+            legend->AddEntry(profile_S1_bottom_tdrift_vec[i],profile_S1_bottom_tdrift_vec[i]->GetTitle(),"lp");
+        }
+        if(plot_type == "S1_top_tdrift")
+        {
+            legend->AddEntry(profile_S1_top_tdrift_vec[i],profile_S1_top_tdrift_vec[i]->GetTitle(),"lp");
         }
 
     }
@@ -487,10 +708,35 @@ void compare()
         h1_S2_total_vec[0]->GetXaxis()->SetTitle("S2 [pe]");
         h1_S2_total_vec[0]->SetTitle("");
     }
+    if(plot_type == "S2_bottom")
+    {
+        h1_S2_bottom_vec[0]->GetXaxis()->SetTitle("S2_bottom [pe]");
+        h1_S2_bottom_vec[0]->SetTitle("");
+    }
+    if(plot_type == "S2_top")
+    {
+        h1_S2_top_vec[0]->GetXaxis()->SetTitle("S2_top [pe]");
+        h1_S2_top_vec[0]->SetTitle("");
+    }
+    if(plot_type == "S1_f90")
+    {
+        h1_S1_f90_vec[0]->GetXaxis()->SetTitle("f90 for S1");
+        h1_S1_f90_vec[0]->SetTitle("");
+    }
     if(plot_type == "S1")
     {
         h1_S1_vec[0]->GetXaxis()->SetTitle("S1 [PE]");
         h1_S1_vec[0]->SetTitle("");
+    }
+    if(plot_type == "S1_bottom")
+    {
+        h1_S1_bottom_vec[0]->GetXaxis()->SetTitle("S1_bottom [PE]");
+        h1_S1_bottom_vec[0]->SetTitle("");
+    }
+    if(plot_type == "S1_top")
+    {
+        h1_S1_top_vec[0]->GetXaxis()->SetTitle("S1_top [PE]");
+        h1_S1_top_vec[0]->SetTitle("");
     }
 
     if(plot_type == "S2_over_S1")
@@ -508,7 +754,29 @@ void compare()
         gPad->Update();
         profile_S2_total_tdrift_vec[0]->SetStats(0);
         profile_S2_total_tdrift_vec[0]->GetXaxis()->SetRangeUser(15,60);
-        profile_S2_total_tdrift_vec[0]->GetYaxis()->SetRangeUser(9000,13000);
+        profile_S2_total_tdrift_vec[0]->GetYaxis()->SetRangeUser(0,45000);
+        gPad->Update(); gPad->Modified();
+    }
+    if(plot_type == "S2_bottom_tdrift")
+    {
+        profile_S2_bottom_tdrift_vec[0]->GetXaxis()->SetTitle("Tdrift [us]");
+        profile_S2_bottom_tdrift_vec[0]->GetYaxis()->SetTitle("S2_bottom [PE]");
+        profile_S2_bottom_tdrift_vec[0]->SetTitle("");
+        gPad->Update();
+        profile_S2_bottom_tdrift_vec[0]->SetStats(0);
+        profile_S2_bottom_tdrift_vec[0]->GetXaxis()->SetRangeUser(15,60);
+        profile_S2_bottom_tdrift_vec[0]->GetYaxis()->SetRangeUser(0,30000);
+        gPad->Update(); gPad->Modified();
+    }
+    if(plot_type == "S2_top_tdrift")
+    {
+        profile_S2_top_tdrift_vec[0]->GetXaxis()->SetTitle("Tdrift [us]");
+        profile_S2_top_tdrift_vec[0]->GetYaxis()->SetTitle("S2_top [PE]");
+        profile_S2_top_tdrift_vec[0]->SetTitle("");
+        gPad->Update();
+        profile_S2_top_tdrift_vec[0]->SetStats(0);
+        profile_S2_top_tdrift_vec[0]->GetXaxis()->SetRangeUser(15,60);
+        profile_S2_top_tdrift_vec[0]->GetYaxis()->SetRangeUser(0,30000);
         gPad->Update(); gPad->Modified();
     }
     if(plot_type == "S1_total_tdrift")
@@ -518,6 +786,24 @@ void compare()
         profile_S1_total_tdrift_vec[0]->SetTitle("");
         gPad->Update();
         profile_S1_total_tdrift_vec[0]->SetStats(0);
+        gPad->Update(); gPad->Modified();
+    }
+    if(plot_type == "S1_bottom_tdrift")
+    {
+        profile_S1_bottom_tdrift_vec[0]->GetXaxis()->SetTitle("Tdrift [us]");
+        profile_S1_bottom_tdrift_vec[0]->GetYaxis()->SetTitle("S1_bottom [PE]");
+        profile_S1_bottom_tdrift_vec[0]->SetTitle("");
+        gPad->Update();
+        profile_S1_bottom_tdrift_vec[0]->SetStats(0);
+        gPad->Update(); gPad->Modified();
+    }
+    if(plot_type == "S1_top_tdrift")
+    {
+        profile_S1_top_tdrift_vec[0]->GetXaxis()->SetTitle("Tdrift [us]");
+        profile_S1_top_tdrift_vec[0]->GetYaxis()->SetTitle("S1_top [PE]");
+        profile_S1_top_tdrift_vec[0]->SetTitle("");
+        gPad->Update();
+        profile_S1_top_tdrift_vec[0]->SetStats(0);
         gPad->Update(); gPad->Modified();
     }
 
